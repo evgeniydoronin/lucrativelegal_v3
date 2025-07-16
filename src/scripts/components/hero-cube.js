@@ -282,18 +282,18 @@ class HeroCube {
             // ✅ НОВОЕ: Проверка позиции секции (нижняя граница секции >= нижней границы браузера)
             const isSectionVisible = heroRect.bottom >= window.innerHeight;
             
-            // 📈 ПОКАЗ КНОПКИ: прямоугольник заполнен И секция видна
-            if (isFullyFilled && isSectionVisible && !this.playButtonActivated) {
-                this.showPlayButton();
-                console.log(`🎬 Кнопка показана: прямоугольник заполнен (${realWidth}x${realHeight}) И секция видна (bottom: ${heroRect.bottom})`);
-            }
-            
-            // 📉 СКРЫТИЕ КНОПКИ: прямоугольник не заполнен ИЛИ секция ушла вверх
-            if ((!isFullyFilled || !isSectionVisible) && this.playButtonActivated) {
-                this.hidePlayButton();
-                const reason = !isFullyFilled ? 'прямоугольник не заполнен' : 'секция ушла вверх';
-                console.log(`🔄 Кнопка скрыта: ${reason} (размер: ${realWidth}x${realHeight}, bottom: ${heroRect.bottom})`);
-            }
+        // 📈 ПОКАЗ КНОПКИ: прямоугольник заполнен И секция видна
+        if (isFullyFilled && isSectionVisible && !this.playButtonActivated) {
+            this.showPlayButton();
+            // console.log(`🎬 Кнопка показана: прямоугольник заполнен (${realWidth}x${realHeight}) И секция видна (bottom: ${heroRect.bottom})`);
+        }
+        
+        // 📉 СКРЫТИЕ КНОПКИ: прямоугольник не заполнен ИЛИ секция ушла вверх
+        if ((!isFullyFilled || !isSectionVisible) && this.playButtonActivated) {
+            this.hidePlayButton();
+            const reason = !isFullyFilled ? 'прямоугольник не заполнен' : 'секция ушла вверх';
+            // console.log(`🔄 Кнопка скрыта: ${reason} (размер: ${realWidth}x${realHeight}, bottom: ${heroRect.bottom})`);
+        }
         }
         
         // 🔄 ОБРАТНАЯ АНИМАЦИЯ: Проверка направления скролла для других элементов
@@ -435,9 +435,9 @@ class HeroCube {
         const zIndex = 20 + Math.floor(progress * 9); // От 20 до 29 (видео остается на 30)
         
         // 📊 ДЕТАЛЬНОЕ ЛОГИРОВАНИЕ РЕСАЙЗА КАРТИНКИ
-        console.log(`🎨 === РЕСАЙЗ КАРТИНКИ (progress: ${(progress * 100).toFixed(1)}%) ===`);
-        console.log(`📐 Viewport: ${window.innerWidth}×${window.innerHeight}px`);
-        console.log(`🔢 Calculated scaleX: ${scaleX.toFixed(3)}, scaleY: ${scaleY.toFixed(3)}`);
+        // console.log(`🎨 === РЕСАЙЗ КАРТИНКИ (progress: ${(progress * 100).toFixed(1)}%) ===`);
+        // console.log(`📐 Viewport: ${window.innerWidth}×${window.innerHeight}px`);
+        // console.log(`🔢 Calculated scaleX: ${scaleX.toFixed(3)}, scaleY: ${scaleY.toFixed(3)}`);
         
         // Рассчитываем обратные значения масштаба для компенсации в CSS
         const inverseScaleX = 1 / scaleX;
@@ -456,7 +456,7 @@ class HeroCube {
             overwrite: true
         });
         
-        console.log(`🔧 Компенсация масштаба фона: inverseX=${inverseScaleX.toFixed(3)}, inverseY=${inverseScaleY.toFixed(3)}`);
+        // console.log(`🔧 Компенсация масштаба фона: inverseX=${inverseScaleX.toFixed(3)}, inverseY=${inverseScaleY.toFixed(3)}`);
         
         // Получаем реальные размеры квадрата ПОСЛЕ применения масштаба
         const realRect = this.square.getBoundingClientRect();
@@ -464,17 +464,17 @@ class HeroCube {
         const realHeight = realRect.height;
         
         // 🖼️ ЛОГИРОВАНИЕ РАЗМЕРОВ КАРТИНКИ
-        console.log(`📏 Квадрат после масштаба: ${realWidth.toFixed(1)}×${realHeight.toFixed(1)}px`);
+        // console.log(`📏 Квадрат после масштаба: ${realWidth.toFixed(1)}×${realHeight.toFixed(1)}px`);
         
         // Проверяем состояние реального элемента фона
         if (this.squareBg) {
             const realBgSize = this.squareBg.style.backgroundSize;
             const realBgWidth = this.squareBg.style.width;
             const realBgHeight = this.squareBg.style.height;
-            console.log(`🖼️ Реальный background-size элемента: ${realBgSize}`);
-            console.log(`📦 Реальные размеры элемента фона: ${realBgWidth} × ${realBgHeight}`);
+            // console.log(`🖼️ Реальный background-size элемента: ${realBgSize}`);
+            // console.log(`📦 Реальные размеры элемента фона: ${realBgWidth} × ${realBgHeight}`);
         } else {
-            console.log(`⚠️ this.squareBg не найден! Элемент фона не инициализирован.`);
+            // console.log(`⚠️ this.squareBg не найден! Элемент фона не инициализирован.`);
         }
         
         // Проверка заполнения viewport
@@ -482,7 +482,7 @@ class HeroCube {
         const isHeightCovered = realHeight >= window.innerHeight;
         const isFullyFilled = isWidthCovered && isHeightCovered;
         
-        console.log(`✅ Заполнение viewport: ширина ${isWidthCovered ? '✅' : '❌'}, высота ${isHeightCovered ? '✅' : '❌'}, полное ${isFullyFilled ? '✅' : '❌'}`);
+        // console.log(`✅ Заполнение viewport: ширина ${isWidthCovered ? '✅' : '❌'}, высота ${isHeightCovered ? '✅' : '❌'}, полное ${isFullyFilled ? '✅' : '❌'}`);
         
         // 🖼️ ДИНАМИЧЕСКОЕ JAVASCRIPT УПРАВЛЕНИЕ РАЗМЕРОМ КАРТИНКИ
         if (this.squareBg) {
@@ -519,13 +519,13 @@ class HeroCube {
             this.squareBg.style.height = `${containerHeight}px`;
             this.squareBg.style.backgroundSize = `${bgWidth}px ${bgHeight}px`;
             
-            console.log(`🖼️ ДИНАМИЧЕСКИЙ background-size: ${bgWidth.toFixed(1)}×${bgHeight.toFixed(1)}px`);
-            console.log(`📦 ДИНАМИЧЕСКИЙ размер контейнера фона: ${containerWidth.toFixed(1)}×${containerHeight.toFixed(1)}px`);
-            console.log(`🎯 Режим: ${isFullyFilled ? 'VIEWPORT' : 'ПРЯМОУГОЛЬНИК'}`);
+            // console.log(`🖼️ ДИНАМИЧЕСКИЙ background-size: ${bgWidth.toFixed(1)}×${bgHeight.toFixed(1)}px`);
+            // console.log(`📦 ДИНАМИЧЕСКИЙ размер контейнера фона: ${containerWidth.toFixed(1)}×${containerHeight.toFixed(1)}px`);
+            // console.log(`🎯 Режим: ${isFullyFilled ? 'VIEWPORT' : 'ПРЯМОУГОЛЬНИК'}`);
         } else {
-            console.warn('⚠️ Элемент фона не инициализирован!');
+            // console.warn('⚠️ Элемент фона не инициализирован!');
         }
-        console.log(`🎨 === КОНЕЦ РЕСАЙЗА ===\n`);
+        // console.log(`🎨 === КОНЕЦ РЕСАЙЗА ===\n`);
         
         // Останавливаем масштабирование когда viewport полностью заполнен
         if (isFullyFilled && !this.scaleCompleted) {
