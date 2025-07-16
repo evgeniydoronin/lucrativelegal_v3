@@ -213,25 +213,154 @@ npm run dev:sass
 - Статический вывод без runtime зависимостей
 - SEO-friendly результат
 
-## 🔮 Дальнейшее развитие
+## 📜 JavaScript архитектура (АКТУАЛЬНАЯ)
 
-### Возможные улучшения:
+### Принципы (обновлено на основе реального кода):
 
-1. **Sass компоненты:** Добавить `.scss` файлы для каждого компонента
-2. **JavaScript модули:** Добавить `.js` файлы для интерактивности
-3. **Конфигурационные файлы:** JSON файлы с данными для компонентов
-4. **WordPress интеграция:** PHP версии компонентов для CMS
+1. **ES6 классы БЕЗ модульной системы**: Классы используются, но без import/export
+2. **Глобальные функции инициализации**: `window.initComponentName = function()`
+3. **Глобальная доступность классов**: `window.ClassName = ClassName`
+4. **Централизованная инициализация**: Все компоненты запускаются из main.js
+5. **GSAP + ScrollTrigger**: Основа для анимаций и скролл-эффектов
 
-### Пример расширенной структуры:
+### Актуальная структура компонента:
 
 ```
 src/components/hero/
-├── hero.html          # HTML разметка
-├── hero.scss          # Стили компонента
-├── hero.js            # JavaScript логика
-├── hero.config.json   # Конфигурация
-└── README.md          # Документация
+├── hero.html          # HTML разметка с @@include переменными
+├── hero.scss          # Стили компонента (импортируется в main.scss)
+└── hero.js            # JavaScript класс + глобальная функция
 ```
+
+### Пример JavaScript компонента (на основе hero-cube.js):
+
+```javascript
+// =============================================================================
+// Component Name - LLG v3
+// =============================================================================
+
+// Глобальная функция инициализации (обязательно!)
+window.initComponentName = function() {
+    'use strict';
+    
+    console.log('🔧 DEBUG: initComponentName() called');
+
+    // Проверка зависимостей
+    function checkDependencies() {
+        if (typeof gsap === 'undefined') {
+            console.error('❌ Component: GSAP is not loaded.');
+            return false;
+        }
+        
+        if (typeof ScrollTrigger === 'undefined') {
+            console.error('❌ Component: ScrollTrigger is not loaded.');
+            return false;
+        }
+        
+        return true;
+    }
+
+    // Основной класс компонента
+    class ComponentNameClass {
+        constructor(element) {
+            this.element = element;
+            this.init();
+        }
+        
+        init() {
+            this.setupScrollTrigger();
+            console.log('✅ Component initialized');
+        }
+        
+        setupScrollTrigger() {
+            // GSAP ScrollTrigger логика
+        }
+        
+        destroy() {
+            // Cleanup
+        }
+    }
+
+    // Инициализация
+    if (!checkDependencies()) return;
+    
+    gsap.registerPlugin(ScrollTrigger);
+    
+    const element = document.querySelector('#component-selector');
+    if (element) {
+        new ComponentNameClass(element);
+    }
+}
+
+// Глобальная доступность (опционально для классов)
+if (typeof window !== 'undefined') {
+    window.ComponentNameClass = ComponentNameClass;
+}
+```
+
+### Интеграция в main.js:
+
+```javascript
+// В методе start() класса LLGApp
+initComponentName() {
+    if (typeof window.initComponentName === 'undefined') {
+        console.warn('⚠️ Component Name not found');
+        return;
+    }
+    
+    window.initComponentName();
+    console.log('✅ Component Name initialized');
+}
+```
+
+## 🎨 SCSS архитектура (АКТУАЛЬНАЯ)
+
+### Структура стилей:
+
+```scss
+// =============================================================================
+// Component Name - LLG v3
+// =============================================================================
+
+@use '../variables' as *;
+
+.llg-component-section {
+    position: relative;
+    overflow: hidden;
+    
+    // Основные стили компонента
+    .component-element {
+        // Стили элементов
+    }
+    
+    // Responsive
+    @media (max-width: $mobile) {
+        // Мобильные стили
+    }
+}
+```
+
+### Импорт в main.scss:
+
+```scss
+@use 'components/component-name';
+```
+
+## 🔮 Дальнейшее развитие
+
+### Реализованные улучшения:
+
+1. ✅ **Sass компоненты:** Каждый компонент имеет свой `.scss` файл
+2. ✅ **JavaScript компоненты:** Классы с глобальными функциями инициализации
+3. ✅ **GSAP интеграция:** ScrollTrigger для сложных анимаций
+4. ✅ **Централизованная инициализация:** Все компоненты запускаются из main.js
+
+### Планируемые улучшения:
+
+1. **Конфигурационные файлы:** JSON файлы с данными для компонентов
+2. **WordPress интеграция:** PHP версии компонентов для CMS
+3. **Storybook:** Каталог компонентов для документации
+4. **Unit тесты:** Тестирование JavaScript компонентов
 
 ## 📊 Результат
 

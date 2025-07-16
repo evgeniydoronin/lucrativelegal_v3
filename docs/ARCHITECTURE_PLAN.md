@@ -168,50 +168,158 @@ components/hero/
 }
 ```
 
-## 📜 JavaScript архитектура
+## 📜 JavaScript архитектура (АКТУАЛЬНАЯ)
 
-### Принципы:
+### Принципы (обновлено на основе реального кода):
 
-1. **ES6 Modules**: Модульная система
-2. **Component Classes**: Каждый компонент - класс
-3. **Event-driven**: Взаимодействие через события
-4. **Lazy Loading**: Загрузка по требованию
-5. **Performance First**: Оптимизация производительности
+1. **ES6 классы БЕЗ модульной системы**: Классы используются, но без import/export
+2. **Глобальные функции инициализации**: `window.initComponentName = function()`
+3. **Глобальная доступность классов**: `window.ClassName = ClassName`
+4. **Централизованная инициализация**: Все компоненты запускаются из main.js
+5. **GSAP + ScrollTrigger**: Основа для анимаций и скролл-эффектов
+6. **Performance First**: Оптимизация производительности с GSAP
 
-### Пример компонента:
+### Актуальный пример компонента (на основе services.js и hero-cube.js):
 
 ```javascript
-// components/hero/hero.js
-export class HeroComponent {
-  constructor(element, options = {}) {
-    this.element = element;
-    this.options = { ...this.defaults, ...options };
-    this.init();
-  }
-  
-  get defaults() {
-    return {
-      animationDuration: 1000,
-      autoplay: true
-    };
-  }
-  
-  init() {
-    this.setupEventListeners();
-    this.startAnimation();
-  }
-  
-  setupEventListeners() {
-    // Event listeners
-  }
-  
-  startAnimation() {
-    // Animation logic
-  }
-  
-  destroy() {
-    // Cleanup
-  }
+// =============================================================================
+// Component Name - LLG v3
+// =============================================================================
+
+// Глобальная функция инициализации (ОБЯЗАТЕЛЬНО!)
+window.initComponentName = function() {
+    'use strict';
+    
+    console.log('🔧 DEBUG: initComponentName() called');
+
+    // Проверка зависимостей (стандартная для всех компонентов)
+    function checkDependencies() {
+        if (typeof gsap === 'undefined') {
+            console.error('❌ Component: GSAP is not loaded.');
+            return false;
+        }
+        
+        if (typeof ScrollTrigger === 'undefined') {
+            console.error('❌ Component: ScrollTrigger is not loaded.');
+            return false;
+        }
+        
+        if (typeof Lenis === 'undefined') {
+            console.warn('⚠️ Component: Lenis is not loaded. Smooth scroll will be disabled.');
+        }
+        
+        return true;
+    }
+
+    // Основной класс компонента
+    class ComponentNameClass {
+        constructor(element) {
+            this.element = element;
+            this.setupElements();
+            this.init();
+        }
+        
+        setupElements() {
+            // Поиск DOM элементов
+            this.container = this.element.querySelector('.js-container');
+            this.items = this.element.querySelectorAll('.js-item');
+            
+            if (!this.container || this.items.length === 0) {
+                console.error('❌ Component: Required elements not found');
+                return;
+            }
+        }
+        
+        init() {
+            this.setupScrollTrigger();
+            this.setupEventListeners();
+            console.log('✅ Component initialized');
+        }
+        
+        setupScrollTrigger() {
+            // GSAP ScrollTrigger логика
+            ScrollTrigger.create({
+                trigger: this.element,
+                start: 'top bottom',
+                end: 'bottom top',
+                onUpdate: (self) => {
+                    this.updateAnimation(self.progress);
+                }
+            });
+        }
+        
+        setupEventListeners() {
+            // Resize handler с debounce
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    ScrollTrigger.refresh();
+                }, 250);
+            });
+        }
+        
+        updateAnimation(progress) {
+            // Анимация на основе прогресса скролла
+            gsap.set(this.container, {
+                x: progress * 100,
+                overwrite: true
+            });
+        }
+        
+        destroy() {
+            // Cleanup ScrollTrigger
+            ScrollTrigger.getAll().forEach(trigger => {
+                if (trigger.trigger === this.element) {
+                    trigger.kill();
+                }
+            });
+        }
+    }
+
+    // Инициализация с проверками
+    if (!checkDependencies()) return;
+    
+    gsap.registerPlugin(ScrollTrigger);
+    
+    const element = document.querySelector('#component-selector');
+    if (element) {
+        new ComponentNameClass(element);
+    } else {
+        console.warn('⚠️ Component element not found');
+    }
+    
+    // Refresh после загрузки всех ресурсов
+    window.addEventListener('load', () => {
+        ScrollTrigger.refresh();
+    });
+}
+
+// Глобальная доступность класса (опционально)
+if (typeof window !== 'undefined') {
+    window.ComponentNameClass = ComponentNameClass;
+}
+```
+
+### Интеграция в main.js (АКТУАЛЬНАЯ):
+
+```javascript
+// В классе LLGApp, метод start()
+start() {
+    // ... другие инициализации
+    
+    // Initialize Component Name
+    this.initComponentName();
+}
+
+initComponentName() {
+    if (typeof window.initComponentName === 'undefined') {
+        console.warn('⚠️ Component Name not found');
+        return;
+    }
+    
+    window.initComponentName();
+    console.log('✅ Component Name initialized');
 }
 ```
 
