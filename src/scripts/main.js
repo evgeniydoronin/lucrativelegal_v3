@@ -340,6 +340,9 @@ class LLGApp {
     start() {
         console.log('🚀 LLG Design System initialized');
         
+        // Initialize preloader FIRST
+        this.initPreloader();
+        
         // Initialize Lenis FIRST (before ScrollTrigger components)
         this.initLenis();
         
@@ -452,6 +455,29 @@ class LLGApp {
     window.cursorPlayButton = this.cursorPlayButton;
     
     console.log('✅ CursorPlayButton initialized');
+  }
+  
+  initPreloader() {
+    // Check if Preloader is available
+    if (typeof Preloader === 'undefined') {
+      console.warn('⚠️ Preloader not found');
+      return;
+    }
+    
+    this.preloader = new Preloader();
+    
+    // Add fallback timer for safety
+    window.fallbackTimer = setTimeout(() => {
+      if (this.preloader && document.getElementById('preloader')) {
+        console.log('⏰ Fallback: force hiding preloader after 5 seconds');
+        this.preloader.forceHide();
+      }
+    }, 5000);
+    
+    // Make globally available
+    window.preloader = this.preloader;
+    
+    console.log('✅ Preloader initialized');
   }
   
   initHeroCube() {

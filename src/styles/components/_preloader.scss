@@ -1,0 +1,183 @@
+// =============================================================================
+// Preloader Component Styles
+// =============================================================================
+
+@use '../variables' as *;
+
+.preloader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: transparent;
+    color: $white;
+    transition: opacity 0.8s ease-out, visibility 0.8s ease-out;
+
+    &.hidden {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+    }
+}
+
+.preloader__content {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.preloader__percentage {
+    font-size: clamp(4rem, 10vw, 12rem);
+    font-weight: 300;
+    line-height: 0.8;
+    letter-spacing: -0.03em;
+    margin-bottom: $space-8;
+    opacity: 0.6;
+    transition: opacity $transition-normal;
+    font-family: $font-display;
+}
+
+.preloader__text {
+    position: relative;
+    margin-bottom: $space-8;
+}
+
+.preloader__command {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-weight: 300;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    text-align: center;
+    white-space: nowrap;
+    font-family: $font-display;
+
+    &.visible {
+        opacity: 1;
+    }
+}
+
+.preloader__slices {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    z-index: 2;
+    opacity: 1;
+}
+
+.preloader__slice {
+    background-color: $primary-color;
+    width: 50%;
+    height: 100%;
+    transform: scaleX(1);
+    opacity: 1;
+    transition: transform 0.8s ease-out, opacity 0.8s ease-out;
+
+    &--left {
+        transform-origin: left;
+    }
+
+    &--right {
+        transform-origin: right;
+    }
+}
+
+.preloader__slices.animate {
+    .preloader__slice--left {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+
+    .preloader__slice--right {
+        transform: scaleX(0);
+        opacity: 0;
+    }
+}
+
+// Rocket Styles
+.preloader__rocket {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 234px;
+    height: auto;
+    z-index: 4;
+    opacity: 1;
+    transition: opacity $transition-normal;
+
+    &.takeoff {
+        animation: rocketTakeoff 2s ease-in-out forwards;
+    }
+}
+
+@keyframes rocketTakeoff {
+    0% {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-50%) translateY(-120vh);
+        opacity: 0;
+    }
+}
+
+// Mobile optimizations
+@media (max-width: $mobile) {
+    .preloader__percentage {
+        font-size: clamp(3rem, 7.5vw, 6rem);
+        margin-bottom: $space-6;
+    }
+    
+    .preloader__command {
+        font-size: clamp(1.5rem, 4vw, 2rem);
+    }
+
+    .preloader__rocket {
+        width: 175px;
+        bottom: 30px;
+    }
+}
+
+// High contrast mode support
+@media (prefers-contrast: high) {
+    .preloader {
+        background-color: $black;
+        color: $white;
+    }
+}
+
+// Reduced motion support
+@media (prefers-reduced-motion: reduce) {
+    .preloader,
+    .preloader__percentage,
+    .preloader__command,
+    .preloader__slices,
+    .preloader__slice,
+    .preloader__rocket {
+        transition: none;
+        animation: none;
+    }
+    
+    .preloader__rocket.takeoff {
+        animation: none;
+        opacity: 0;
+    }
+}

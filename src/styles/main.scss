@@ -20,6 +20,7 @@
 // =============================================================================
 // 4. Components - Simple components (no complex mixins)
 // =============================================================================
+@use 'components/preloader';
 @use 'components/hero-cube';
 @use 'components/cursor-play-button';
 // @use 'components/buttons';
