@@ -360,6 +360,9 @@ class LLGApp {
         // Initialize Services Slider (after Lenis and GSAP)
         this.initServicesSlider();
         
+        // Initialize Case Studies Horizontal Scroll (after Lenis and GSAP)
+        this.initCaseStudiesHorizontalScroll();
+        
         // Initialize performance monitoring
         this.performanceMonitor = new PerformanceMonitor();
         
@@ -501,6 +504,32 @@ class LLGApp {
     window.initServicesSlider();
     
     console.log('✅ Services Slider initialized');
+  }
+  
+  initCaseStudiesHorizontalScroll() {
+    // Check if initCaseStudiesHorizontalScroll function is available
+    if (typeof window.initCaseStudiesHorizontalScroll === 'undefined') {
+      console.warn('⚠️ Case Studies Horizontal Scroll not found');
+      return;
+    }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.caseStudiesScroll) {
+      console.warn('⚠️ Case Studies Horizontal Scroll already initialized');
+      return;
+    }
+    
+    // Check if container exists
+    const container = document.querySelector('.horizontal-scroll-container');
+    if (!container) {
+      console.warn('⚠️ Case Studies container not found');
+      return;
+    }
+    
+    // Initialize case studies horizontal scroll
+    this.caseStudiesScroll = window.initCaseStudiesHorizontalScroll();
+    
+    console.log('✅ Case Studies Horizontal Scroll initialized');
   }
   
   setupGlobalEvents() {
