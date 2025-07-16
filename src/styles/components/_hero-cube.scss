@@ -89,55 +89,21 @@
     }
 }
 
-// Фиксированная play кнопка поверх всего
-.hero-play-button {
-    position: fixed; // Не зависит от масштабирования!
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 4rem;
-    color: white;
-    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-    z-index: 40; // Выше всего (видео z-index: 30)
-    opacity: 0; // Скрыта по умолчанию
-    visibility: hidden; // Полностью скрыта до нужного момента
-    cursor: pointer;
-    pointer-events: none; // Отключены до показа
-    animation: pulse 2s infinite;
-    transition: opacity 0.5s ease, font-size 0.2s ease, visibility 0s linear 0.5s;
-    user-select: none; // Нельзя выделить
-    
-    &.active {
-        visibility: visible;
-        pointer-events: auto;
-        transition: opacity 0.5s ease, font-size 0.2s ease;
-    }
-    
-    &:hover {
-        font-size: 4.5rem;
-    }
-}
-
-// Анимация пульсации для play кнопки
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-        transform: translate(-50%, -50%) scale(1);
-    }
-    50% {
-        opacity: 0.7;
-        transform: translate(-50%, -50%) scale(1.1);
-    }
-}
 
 .hero-video {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 100vw; // По ширине viewport
-    height: auto; // Автоматическая высота для сохранения пропорций
+    
+    // ✅ ИСПРАВЛЕНИЕ: Минимальные размеры по умолчанию - не блокируем интерфейс
+    width: 0; // Начинаем с нулевого размера
+    height: 0; // Начинаем с нулевого размера
+    
     opacity: 0; // Скрыто по умолчанию
+    visibility: hidden; // Дополнительное скрытие
+    pointer-events: none; // ✅ КЛЮЧЕВОЕ: Не блокируем интерфейс!
+    
     z-index: 30; // Выше квадрата (z-index: 20)
     object-fit: cover; // Заполнение без искажений
     will-change: opacity;

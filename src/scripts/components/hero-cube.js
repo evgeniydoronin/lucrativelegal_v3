@@ -9,9 +9,8 @@ class HeroCube {
         this.cubeContainer = element.querySelector('.hero-cube-container');
         this.square = element.querySelector('.hero-square');
         this.video = element.querySelector('.hero-video');
-        this.playButton = element.querySelector('.hero-play-button');
         
-        if (!this.cube || !this.cubeContainer || !this.square || !this.video || !this.playButton) {
+        if (!this.cube || !this.cubeContainer || !this.square || !this.video) {
             console.warn('Hero cube elements not found');
             return;
         }
@@ -77,6 +76,10 @@ class HeroCube {
         
         // Флаг для управления магнитной плашкой
         this.playButtonActivated = false; // Отслеживание активации плашки
+        
+        // ✅ НОВОЕ: Флаг навигационного сброса для предотвращения автопоказа кнопки
+        this.navigationReset = false; // Флаг сброса через навигацию
+        this.navigationResetTime = 0; // Время установки navigationReset
         
         // Throttling для защиты от слишком частых обновлений
         this.lastUpdate = 0;
@@ -261,10 +264,23 @@ class HeroCube {
         // Рассчитываем прогресс скролла через hero секцию
         const scrollProgress = this.calculateScrollProgress();
         
+        // ✅ ИСПРАВЛЕНО: Комбинированная логика сброса navigationReset
+        const isScrollingDown = scrollProgress > this.lastScrollProgress;
+        if (isScrollingDown && this.navigationReset && scrollProgress > 0.2) {
+            // Дополнительная проверка - прошло ли достаточно времени с момента навигации
+            const timeSinceNavigation = Date.now() - this.navigationResetTime;
+            if (timeSinceNavigation > 1000) { // 1 секунда
+                this.navigationReset = false;
+                console.log('🔄 DEBUG: navigationReset сброшен после задержки и значительного скролла (20%+, 1сек+)');
+            } else {
+                console.log(`🕐 DEBUG: navigationReset НЕ сброшен - недостаточно времени (${timeSinceNavigation}ms < 1000ms)`);
+            }
+        }
+        
         // ✅ Используем настройки из единого места
         const { rotationEnd, scaleStart, backgroundStart } = this.animationPhases;
         
-        // 🎯 ЛОГИКА УПРАВЛЕНИЯ ПЛАШКОЙ С УЧЕТОМ РАЗМЕРА ПРЯМОУГОЛЬНИКА И ПОЗИЦИИ СЕКЦИИ
+        // 🎯 ЛОГИКА УПРАВЛЕНИЯ ПЛАШКОЙ С УЧЕТОМ РАЗМЕРА ПРЯМОУГОЛЬНИКА, ПОЗИЦИИ СЕКЦИИ И ПРОГРЕССА СКРОЛЛА
         if (this.scaleCompleted && this.cubeToSquareSwapped) {
             // Получаем позицию hero секции
             const heroRect = this.element.getBoundingClientRect();
@@ -279,21 +295,37 @@ class HeroCube {
             const isHeightFullyFilled = realHeight >= window.innerHeight;
             const isFullyFilled = isWidthFullyFilled && isHeightFullyFilled;
             
-            // ✅ НОВОЕ: Проверка позиции секции (нижняя граница секции >= нижней границы браузера)
+            // ✅ Проверка позиции секции (нижняя граница секции >= нижней границы браузера)
             const isSectionVisible = heroRect.bottom >= window.innerHeight;
             
-        // 📈 ПОКАЗ КНОПКИ: прямоугольник заполнен И секция видна
-        if (isFullyFilled && isSectionVisible && !this.playButtonActivated) {
+            // ✅ НОВОЕ: Проверка прогресса скролла - кнопка должна появляться только при достижении backgroundStart
+            const isProgressReached = scrollProgress >= backgroundStart;
+            
+        // 📈 ПОКАЗ КНОПКИ: прямоугольник заполнен И секция видна И достигнут нужный прогресс И НЕ навигационный сброс
+        if (isFullyFilled && isSectionVisible && isProgressReached && !this.playButtonActivated && !this.navigationReset) {
             this.showPlayButton();
-            // console.log(`🎬 Кнопка показана: прямоугольник заполнен (${realWidth}x${realHeight}) И секция видна (bottom: ${heroRect.bottom})`);
+            console.log(`🎬 DEBUG: Кнопка показана - все условия выполнены (navigationReset: ${this.navigationReset})`);
+        } else if (isFullyFilled && isSectionVisible && isProgressReached && !this.playButtonActivated && this.navigationReset) {
+            console.log(`🧭 DEBUG: Кнопка НЕ показана из-за navigationReset = true (размер: ${realWidth}x${realHeight}, прогресс: ${(scrollProgress * 100).toFixed(1)}%)`);
         }
         
-        // 📉 СКРЫТИЕ КНОПКИ: прямоугольник не заполнен ИЛИ секция ушла вверх
-        if ((!isFullyFilled || !isSectionVisible) && this.playButtonActivated) {
+        // 📉 СКРЫТИЕ КНОПКИ: прямоугольник не заполнен ИЛИ секция ушла вверх ИЛИ прогресс недостаточен
+        if ((!isFullyFilled || !isSectionVisible || !isProgressReached) && this.playButtonActivated) {
             this.hidePlayButton();
-            const reason = !isFullyFilled ? 'прямоугольник не заполнен' : 'секция ушла вверх';
-            // console.log(`🔄 Кнопка скрыта: ${reason} (размер: ${realWidth}x${realHeight}, bottom: ${heroRect.bottom})`);
+            const reason = !isFullyFilled ? 'прямоугольник не заполнен' : 
+                          !isSectionVisible ? 'секция ушла вверх' : 'прогресс недостаточен';
+            // console.log(`🔄 Кнопка скрыта: ${reason} (размер: ${realWidth}x${realHeight}, bottom: ${heroRect.bottom}, прогресс: ${(scrollProgress * 100).toFixed(1)}%)`);
         }
+        }
+        
+        // ✅ НОВОЕ: Отслеживание выхода из hero-секции для полного сброса видео
+        const heroRect = this.element.getBoundingClientRect();
+        const isHeroVisible = heroRect.bottom > 0 && heroRect.top < window.innerHeight;
+        
+        // Если секция полностью вышла из viewport И видео активно
+        if (!isHeroVisible && this.videoShown) {
+            console.log('🎬 Hero секция вышла из viewport - полный сброс видео');
+            this.resetVideoCompletely();
         }
         
         // 🔄 ОБРАТНАЯ АНИМАЦИЯ: Проверка направления скролла для других элементов
@@ -304,9 +336,6 @@ class HeroCube {
             // Скрываем видео если скроллим выше точки показа
             if (scrollProgress < backgroundStart && this.videoShown) {
                 this.hideVideo();
-                // Деактивируем и скрываем play кнопку
-                this.playButton.classList.remove('active');
-                gsap.to(this.playButton, { opacity: 0, duration: 0.3 });
             }
             
             // Возвращаем квадрат в куб если скроллим выше точки масштабирования
@@ -316,9 +345,6 @@ class HeroCube {
                 this.scaleCompleted = false;
                 this.playButtonActivated = false; // Сбрасываем флаг активации плашки
                 this.cubeContainer.classList.remove('scaling-mode');
-                // Деактивируем и скрываем play кнопку при возврате к кубу
-                this.playButton.classList.remove('active');
-                gsap.to(this.playButton, { opacity: 0, duration: 0.3 });
                 console.log('🔄 Режим масштабирования отключен при обратном скролле');
             }
         }
@@ -619,28 +645,9 @@ class HeroCube {
             
             console.log('✅ Магнитная play кнопка активна! Следует за курсором.');
         } else {
-            // Fallback к фиксированной кнопке (для мобильных или если CursorPlayButton недоступен)
-            console.log('📱 Fallback: показываем фиксированную play кнопку');
-            
-            // Активируем фиксированную кнопку
-            this.playButton.classList.add('active');
-            
-            // Плавно показываем кнопку
-            gsap.to(this.playButton, {
-                opacity: 1,
-                duration: 0.5,
-                ease: "power2.out"
-            });
-            
-            // Добавляем обработчик клика
-            const clickHandler = () => {
-                this.startVideo();
-                this.playButton.removeEventListener('click', clickHandler);
-            };
-            
-            this.playButton.addEventListener('click', clickHandler);
-            
-            console.log('✅ Фиксированная play кнопка активна (fallback)!');
+            // Fallback: на мобильных или если CursorPlayButton недоступен - сразу запускаем видео
+            console.log('📱 Fallback: CursorPlayButton недоступен, активируем видео напрямую');
+            this.startVideo();
         }
     }
     
@@ -655,19 +662,23 @@ class HeroCube {
             // Деактивируем магнитную кнопку
             window.cursorPlayButton.deactivate();
             console.log('✅ Магнитная play кнопка деактивирована.');
-        } else {
-            // Fallback: скрываем фиксированную кнопку
-            this.playButton.classList.remove('active');
-            gsap.to(this.playButton, {
-                opacity: 0,
-                duration: 0.3,
-                ease: "power2.out"
-            });
-            console.log('✅ Фиксированная play кнопка скрыта (fallback).');
         }
         
-        // Сбрасываем только флаг активации кнопки
+        // Сбрасываем флаг активации кнопки
         this.playButtonActivated = false;
+        
+        // ✅ НОВОЕ: Дополнительная защита - временно сбрасываем scaleCompleted
+        const originalScaleCompleted = this.scaleCompleted;
+        this.scaleCompleted = false;
+        
+        // Восстанавливаем через задержку для предотвращения мгновенной реактивации
+        setTimeout(() => {
+            // Проверяем, что состояние все еще актуально
+            if (!this.playButtonActivated && originalScaleCompleted) {
+                this.scaleCompleted = originalScaleCompleted;
+                console.log('🔄 scaleCompleted восстановлен после защитной задержки');
+            }
+        }, 500);
         
         // НЕ сбрасываем videoShown - это позволяет кнопке появиться снова
         // videoShown сбрасывается только при полном сбросе (возврат к кубу)
@@ -679,12 +690,20 @@ class HeroCube {
     startVideo() {
         console.log('🎬 Запускаем видео по клику пользователя');
         
-        // Скрываем play кнопку
-        gsap.to(this.playButton, {
-            opacity: 0,
-            duration: 0.3,
-            ease: "power2.out"
-        });
+        // Деактивируем магнитную кнопку
+        if (window.cursorPlayButton && window.cursorPlayButton.isActivated()) {
+            window.cursorPlayButton.deactivate();
+        }
+        
+        // ✅ НОВОЕ: Устанавливаем полноэкранные размеры через JavaScript
+        if (this.video) {
+            this.video.style.width = '100vw';
+            this.video.style.height = 'auto';
+            this.video.style.visibility = 'visible';
+            this.video.style.pointerEvents = 'auto';
+            
+            console.log('🎬 Видео подготовлено: размеры установлены (100vw x auto), интерактивность включена');
+        }
         
         // Плавно показываем видео
         gsap.to(this.video, {
@@ -878,19 +897,25 @@ class HeroCube {
         });
     }
     
-    // Сброс состояния видео при мгновенном скролле (для scroll-to-top кнопки)
-    resetVideoState() {
-        console.log('🔄 Сброс состояния видео при мгновенном скролле');
+    // ✅ НОВЫЙ МЕТОД: Полный сброс видео к исходному состоянию
+    resetVideoCompletely() {
+        if (!this.videoShown) return; // Уже сброшено
         
-        // Сбрасываем флаги состояния
-        this.videoShown = false;
-        this.playButtonActivated = false;
-        this.scaleCompleted = false; // Временно сбрасываем для предотвращения автопоказа
+        console.log('🎬 Полный сброс видео к исходному состоянию');
         
-        // Скрываем видео если оно показано
+        // Останавливаем воспроизведение и сбрасываем к началу
         if (this.video) {
             this.video.pause();
-            gsap.set(this.video, { opacity: 0 });
+            this.video.currentTime = 0; // Сброс к началу видео
+            
+            // ✅ НОВОЕ: Сбрасываем к минимальным размерам (не блокируем интерфейс)
+            this.video.style.width = '0';
+            this.video.style.height = '0';
+            this.video.style.visibility = 'hidden';
+            this.video.style.pointerEvents = 'none';
+            this.video.style.opacity = '0';
+            
+            console.log('🎬 Видео сброшено к начальному состоянию (0x0px, скрыто, неинтерактивно)');
         }
         
         // Деактивируем магнитную кнопку
@@ -898,27 +923,59 @@ class HeroCube {
             window.cursorPlayButton.deactivate();
         }
         
-        // Скрываем фиксированную play кнопку
-        if (this.playButton) {
-            this.playButton.classList.remove('active');
-            gsap.set(this.playButton, { opacity: 0 });
+        // Полный сброс всех флагов
+        this.videoShown = false;
+        this.playButtonActivated = false;
+        this.scaleCompleted = false;
+        
+        console.log('✅ Видео полностью сброшено к исходному состоянию');
+    }
+    
+    // Сброс состояния видео при мгновенном скролле (для scroll-to-top кнопки)
+    resetVideoState(fromNavigation = false) {
+        console.log(`🔄 Сброс состояния видео ${fromNavigation ? 'через НАВИГАЦИЮ' : 'при мгновенном скролле'}`);
+        
+        // ✅ НОВОЕ: Запоминаем, что сброс произошел через навигацию
+        if (fromNavigation) {
+            this.navigationReset = true;
+            this.navigationResetTime = Date.now(); // ✅ Запоминаем время установки флага
+            console.log('🧭 DEBUG: Установлен флаг navigationReset = true - кнопка НЕ должна восстанавливаться автоматически');
+            
+            // ✅ ДОПОЛНИТЕЛЬНАЯ ЗАЩИТА: Таймер сброса на случай если пользователь не скроллит
+            setTimeout(() => {
+                if (this.navigationReset) {
+                    this.navigationReset = false;
+                    console.log('🕐 DEBUG: navigationReset сброшен по таймеру (2 сек) - защита от зависания');
+                }
+            }, 2000);
         }
         
-        // Устанавливаем задержку для восстановления scaleCompleted
-        // Это предотвращает мгновенный показ видео после скролла
-        setTimeout(() => {
-            // Проверяем текущий прогресс скролла
-            const scrollProgress = this.calculateScrollProgress();
-            const { backgroundStart } = this.animationPhases;
-            
-            // Восстанавливаем scaleCompleted только если мы все еще в зоне масштабирования
-            if (scrollProgress >= backgroundStart && this.cubeToSquareSwapped) {
-                this.scaleCompleted = true;
-                console.log('✅ scaleCompleted восстановлен после задержки');
-            }
-        }, 300); // 300ms задержка
+        // Используем новый метод полного сброса
+        this.resetVideoCompletely();
         
-        console.log('✅ Состояние видео сброшено');
+        // ✅ НОВОЕ: Не восстанавливаем scaleCompleted при навигационном сбросе
+        if (!fromNavigation) {
+            console.log('📈 DEBUG: Обычный сброс - планируем восстановление scaleCompleted через 800ms');
+            setTimeout(() => {
+                // Проверяем текущий прогресс скролла
+                const scrollProgress = this.calculateScrollProgress();
+                const { backgroundStart } = this.animationPhases;
+                
+                console.log(`📊 DEBUG: Проверка восстановления scaleCompleted: scrollProgress=${(scrollProgress * 100).toFixed(1)}%, backgroundStart=${(backgroundStart * 100).toFixed(1)}%, cubeToSquareSwapped=${this.cubeToSquareSwapped}`);
+                
+                // Восстанавливаем scaleCompleted только если мы все еще в зоне масштабирования
+                if (scrollProgress >= backgroundStart && this.cubeToSquareSwapped) {
+                    this.scaleCompleted = true;
+                    console.log('✅ scaleCompleted восстановлен после увеличенной задержки');
+                } else {
+                    console.log('❌ scaleCompleted НЕ восстановлен - условия не выполнены');
+                }
+            }, 800);
+        } else {
+            console.log('🧭 DEBUG: Навигационный сброс - scaleCompleted НЕ будет восстанавливаться автоматически');
+        }
+        
+        console.log(`✅ Состояние видео сброшено (navigationReset: ${this.navigationReset})`);
     }
     
     // Уничтожение экземпляра

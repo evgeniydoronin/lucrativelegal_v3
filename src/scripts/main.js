@@ -366,6 +366,9 @@ class LLGApp {
         // Initialize Scroll to Top Button (after Lenis)
         this.initScrollToTop();
         
+        // Initialize Section Navigation (after Lenis)
+        this.initSectionNavigation();
+        
         // Initialize performance monitoring
         this.performanceMonitor = new PerformanceMonitor();
         
@@ -494,9 +497,15 @@ class LLGApp {
     if (heroElement) {
       this.heroCube = new HeroCube(heroElement);
       
-      // Делаем экземпляр доступным для scroll-to-top кнопки
+      // ✅ УЛУЧШЕННОЕ: Делаем экземпляр доступным глобально для всех компонентов
       if (this.heroCube) {
-        console.log('✅ Hero cube экземпляр сохранен в window.app.heroCube');
+        // Сохраняем в window.app для доступа из других компонентов
+        window.app.heroCube = this.heroCube;
+        
+        // Дополнительно сохраняем прямо в window для упрощения доступа
+        window.heroCube = this.heroCube;
+        
+        console.log('✅ Hero cube экземпляр сохранен в window.app.heroCube и window.heroCube');
       }
     }
   }
@@ -564,6 +573,32 @@ class LLGApp {
     this.scrollToTop = window.initScrollToTop();
     
     console.log('✅ Scroll to Top button initialized');
+  }
+  
+  initSectionNavigation() {
+    // Check if initSectionNavigation function is available
+    if (typeof window.initSectionNavigation === 'undefined') {
+      console.warn('⚠️ Section Navigation component not found');
+      return;
+    }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.sectionNavigation) {
+      console.warn('⚠️ Section Navigation already initialized');
+      return;
+    }
+    
+    // Check if navigation exists
+    const navigation = document.getElementById('section-navigation');
+    if (!navigation) {
+      console.warn('⚠️ Section Navigation element not found');
+      return;
+    }
+    
+    // Initialize section navigation
+    this.sectionNavigation = window.initSectionNavigation();
+    
+    console.log('✅ Section Navigation initialized');
   }
   
   setupGlobalEvents() {
