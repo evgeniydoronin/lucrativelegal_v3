@@ -494,12 +494,12 @@ class HeroCube {
                 // Фаза 2: прямоугольник заполнил viewport → используем размер viewport
                 containerWidth = window.innerWidth;
                 containerHeight = window.innerHeight;
-                console.log(`🔄 РЕЖИМ VIEWPORT: прямоугольник заполнил экран`);
+                // console.log(`🔄 РЕЖИМ VIEWPORT: прямоугольник заполнил экран`);
             } else {
                 // Фаза 1: прямоугольник растет → используем размер прямоугольника
                 containerWidth = realWidth;
                 containerHeight = realHeight;
-                console.log(`🔄 РЕЖИМ ПРЯМОУГОЛЬНИКА: картинка растет вместе с прямоугольником`);
+                // console.log(`🔄 РЕЖИМ ПРЯМОУГОЛЬНИКА: картинка растет вместе с прямоугольником`);
             }
             
             // Логика cover для выбранного контейнера

@@ -29,10 +29,10 @@ class Preloader {
     }
     
     init() {
-        console.log('🔄 Initializing preloader...');
+        // console.log('🔄 Initializing preloader...');
         
         if (!this.preloader) {
-            console.warn('⚠️ Preloader element not found');
+            // console.warn('⚠️ Preloader element not found');
             return;
         }
         
@@ -52,7 +52,7 @@ class Preloader {
             window.addEventListener('load', () => this.onPageLoad());
         }
         
-        console.log('✅ Preloader initialized');
+        // console.log('✅ Preloader initialized');
     }
     
     show() {
@@ -81,12 +81,12 @@ class Preloader {
     
     startLoading() {
         if (this.isLoading) {
-            console.log('⚠️ Animation already running, skipping');
+            // console.log('⚠️ Animation already running, skipping');
             return;
         }
         
         this.isLoading = true;
-        console.log('🎬 Starting countdown from 10 to 1');
+        // console.log('🎬 Starting countdown from 10 to 1');
         
         // Smooth animation from 10 to 1 over 2 seconds
         this.animateToPercentage(1, 2000);
@@ -101,7 +101,7 @@ class Preloader {
     }
     
     onPageLoad() {
-        console.log('📄 Page fully loaded');
+        // console.log('📄 Page fully loaded');
         this.pageLoaded = true;
         
         // If loading animation is still running, wait for it to complete
@@ -111,7 +111,7 @@ class Preloader {
     }
     
     completeLoading() {
-        console.log('🎯 Completing countdown to 0');
+        // console.log('🎯 Completing countdown to 0');
         
         // Complete countdown to 0
         this.animateToPercentage(0, 500);
@@ -183,13 +183,13 @@ class Preloader {
     }
     
     startExitAnimation() {
-        console.log('🎬 Starting preloader exit animation');
+        // console.log('🎬 Starting preloader exit animation');
         
         // Cancel fallback timer immediately when normal completion starts
         if (window.fallbackTimer) {
             clearTimeout(window.fallbackTimer);
             window.fallbackTimer = null;
-            console.log('✅ Fallback timer cancelled on exit animation start');
+            // console.log('✅ Fallback timer cancelled on exit animation start');
         }
         
         // Hide main content
@@ -205,7 +205,7 @@ class Preloader {
     }
     
     startRocketTakeoff() {
-        console.log('🚀 Starting rocket takeoff animation');
+        // console.log('🚀 Starting rocket takeoff animation');
         
         if (this.rocket) {
             // Add takeoff animation class
@@ -213,7 +213,7 @@ class Preloader {
             
             // Listen for animation end
             const handleAnimationEnd = () => {
-                console.log('🚀 Rocket has taken off, starting slices animation');
+                // console.log('🚀 Rocket has taken off, starting slices animation');
                 this.rocket.removeEventListener('animationend', handleAnimationEnd);
                 this.startSlicesAnimation();
             };
@@ -223,20 +223,20 @@ class Preloader {
             // Fallback in case animationend event doesn't fire
             setTimeout(() => {
                 if (this.rocket && this.rocket.classList.contains('takeoff')) {
-                    console.log('🚀 Fallback: starting slices animation after rocket takeoff');
+                    // console.log('🚀 Fallback: starting slices animation after rocket takeoff');
                     this.rocket.removeEventListener('animationend', handleAnimationEnd);
                     this.startSlicesAnimation();
                 }
             }, 2500); // 2s animation + 500ms buffer
         } else {
             // If rocket not found, hide preloader normally
-            console.warn('⚠️ Rocket element not found, hiding preloader');
+            // console.warn('⚠️ Rocket element not found, hiding preloader');
             this.hide();
         }
     }
     
     startSlicesAnimation() {
-        console.log('🎬 Starting curtain separation animation');
+        // console.log('🎬 Starting curtain separation animation');
         
         // Start curtain separation animation (they are already visible)
         if (this.slices) {
@@ -259,7 +259,7 @@ class Preloader {
     
     // Method for force hiding (in case of errors)
     forceHide() {
-        console.log('🚫 Force hiding preloader');
+        // console.log('🚫 Force hiding preloader');
         this.hide();
     }
     
@@ -273,7 +273,7 @@ class Preloader {
         if (window.fallbackTimer) {
             clearTimeout(window.fallbackTimer);
             window.fallbackTimer = null;
-            console.log('✅ Fallback timer cancelled');
+            // console.log('✅ Fallback timer cancelled');
         }
         
         window.removeEventListener('load', this.onPageLoad);

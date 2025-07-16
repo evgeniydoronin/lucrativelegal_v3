@@ -357,6 +357,9 @@ class LLGApp {
         // Initialize Hero 3D Cube (after Lenis and CursorPlayButton)
         this.initHeroCube();
         
+        // Initialize Services Slider (after Lenis and GSAP)
+        this.initServicesSlider();
+        
         // Initialize performance monitoring
         this.performanceMonitor = new PerformanceMonitor();
         
@@ -485,6 +488,19 @@ class LLGApp {
     if (heroElement) {
       this.heroCube = new HeroCube(heroElement);
     }
+  }
+  
+  initServicesSlider() {
+    // Check if initServicesSlider function is available
+    if (typeof window.initServicesSlider === 'undefined') {
+      console.warn('⚠️ Services Slider not found');
+      return;
+    }
+    
+    // Initialize services slider
+    window.initServicesSlider();
+    
+    console.log('✅ Services Slider initialized');
   }
   
   setupGlobalEvents() {
