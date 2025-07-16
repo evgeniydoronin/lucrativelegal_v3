@@ -1,0 +1,51 @@
+@layer components {
+  .link {
+    @apply after:cta__animation-after hover:after:cta__animation-hover-after relative after:-bottom-0;
+  }
+
+  .text-grid__text-card .hoverLink a {
+    @apply link-black pb-[1px];
+  }
+
+  .link-black {
+    @apply link after:bg-huge-black;
+  }
+
+  .link-white {
+    @apply link after:bg-huge-white;
+  }
+
+  /*
+   * Hugeinc 2.0 Links
+   * TODO: Move to another file under the new landing scope?
+  */
+
+  .v2__link {
+    @apply relative;
+  }
+
+  .v2__link::after {
+    background: currentColor;
+    bottom: 0.2em;
+    content: '';
+    height: 1px;
+    left: 0;
+    position: absolute;
+    transform: scaleX(1);
+    transform-origin: bottom left;
+    transition: transform 0.25s ease-out;
+    width: 100%;
+  }
+
+  .v2__link:hover::after {
+    transform: scaleX(0);
+  }
+
+  .v2__link--reveal::after {
+    transform: scaleX(0);
+  }
+
+  .v2__link--reveal:hover::after {
+    transform: scaleX(1);
+  }
+}

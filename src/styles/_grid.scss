@@ -1,0 +1,383 @@
+// =============================================================================
+// LLG Design System Grid (Simplified - No Mixins)
+// =============================================================================
+
+@use "variables" as *;
+
+// =============================================================================
+// Container
+// =============================================================================
+
+.llg-container {
+  max-width: 2400px;
+  margin: 0 auto;
+  padding: 0 16px;
+  
+  @media (min-width: $mobile) {
+    padding: 0 18px;
+  }
+  
+  @media (min-width: $tablet) {
+    padding: 0 28px;
+  }
+  
+  @media (min-width: $desktop) {
+    padding: 0 30px;
+  }
+  
+  // Edge case - center content on very large screens
+  @media (min-width: 2400px) {
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
+// =============================================================================
+// Grid System
+// =============================================================================
+
+.llg-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 13px 0;
+  padding: 0 16px;
+  
+  @media (min-width: $mobile) {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 20px 0;
+    padding: 0 18px;
+  }
+  
+  @media (min-width: $desktop) {
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px 0;
+    padding: 0 30px;
+  }
+  
+  @media (min-width: 1920px) {
+    grid-template-columns: repeat(20, 1fr);
+  }
+}
+
+.llg-subgrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 13px 0;
+  
+  @media (min-width: $mobile) {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 20px 0;
+  }
+  
+  @media (min-width: $desktop) {
+    grid-template-columns: repeat(10, 1fr);
+    gap: 24px 0;
+  }
+}
+
+// =============================================================================
+// Grid Gaps
+// =============================================================================
+
+.llg-gap {
+  gap: 13px;
+  
+  @media (min-width: $mobile) {
+    gap: 20px;
+  }
+  
+  @media (min-width: $desktop) {
+    gap: 24px;
+  }
+}
+
+.llg-gap-column {
+  column-gap: 13px;
+  row-gap: 0;
+  
+  @media (min-width: $mobile) {
+    column-gap: 20px;
+  }
+  
+  @media (min-width: $desktop) {
+    column-gap: 24px;
+  }
+}
+
+.llg-gap-row {
+  row-gap: 13px;
+  column-gap: 0;
+  
+  @media (min-width: $mobile) {
+    row-gap: 20px;
+  }
+  
+  @media (min-width: $desktop) {
+    row-gap: 24px;
+  }
+}
+
+// =============================================================================
+// Spacing (Container Padding)
+// =============================================================================
+
+.llg-spacing {
+  padding: 0 16px;
+  
+  @media (min-width: $mobile) {
+    padding: 0 18px;
+  }
+  
+  @media (min-width: $tablet) {
+    padding: 0 28px;
+  }
+  
+  @media (min-width: $desktop) {
+    padding: 0 30px;
+  }
+}
+
+// =============================================================================
+// Grid Container Combinations
+// =============================================================================
+
+.llg-grid-container {
+  max-width: 2400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 13px 0;
+  padding: 0 16px;
+  
+  @media (min-width: $mobile) {
+    grid-template-columns: repeat(8, 1fr);
+    gap: 20px 0;
+    padding: 0 18px;
+  }
+  
+  @media (min-width: $desktop) {
+    grid-template-columns: repeat(12, 1fr);
+    gap: 24px 0;
+    padding: 0 30px;
+  }
+}
+
+.llg-subgrid-container {
+  max-width: 2400px;
+  margin: 0 auto;
+  padding: 0 16px;
+  
+  @media (min-width: $mobile) {
+    padding: 0 18px;
+  }
+  
+  @media (min-width: $tablet) {
+    padding: 0 28px;
+  }
+  
+  @media (min-width: $desktop) {
+    padding: 0 30px;
+  }
+  
+  .llg-subgrid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 13px 0;
+    
+    @media (min-width: $mobile) {
+      grid-template-columns: repeat(8, 1fr);
+      gap: 20px 0;
+    }
+    
+    @media (min-width: $desktop) {
+      grid-template-columns: repeat(10, 1fr);
+      gap: 24px 0;
+    }
+  }
+}
+
+// =============================================================================
+// Column Spans (Tailwind-style)
+// =============================================================================
+
+// Mobile (4 columns)
+.col-span-1 { grid-column: span 1 / span 1; }
+.col-span-2 { grid-column: span 2 / span 2; }
+.col-span-3 { grid-column: span 3 / span 3; }
+.col-span-4 { grid-column: span 4 / span 4; }
+.col-span-full { grid-column: 1 / -1; }
+
+// Tablet (8 columns)
+@media (min-width: $mobile) {
+  .md\:col-span-1 { grid-column: span 1 / span 1; }
+  .md\:col-span-2 { grid-column: span 2 / span 2; }
+  .md\:col-span-3 { grid-column: span 3 / span 3; }
+  .md\:col-span-4 { grid-column: span 4 / span 4; }
+  .md\:col-span-5 { grid-column: span 5 / span 5; }
+  .md\:col-span-6 { grid-column: span 6 / span 6; }
+  .md\:col-span-7 { grid-column: span 7 / span 7; }
+  .md\:col-span-8 { grid-column: span 8 / span 8; }
+  .md\:col-span-full { grid-column: 1 / -1; }
+}
+
+// Desktop (12 columns)
+@media (min-width: $desktop) {
+  .xl\:col-span-1 { grid-column: span 1 / span 1; }
+  .xl\:col-span-2 { grid-column: span 2 / span 2; }
+  .xl\:col-span-3 { grid-column: span 3 / span 3; }
+  .xl\:col-span-4 { grid-column: span 4 / span 4; }
+  .xl\:col-span-5 { grid-column: span 5 / span 5; }
+  .xl\:col-span-6 { grid-column: span 6 / span 6; }
+  .xl\:col-span-7 { grid-column: span 7 / span 7; }
+  .xl\:col-span-8 { grid-column: span 8 / span 8; }
+  .xl\:col-span-9 { grid-column: span 9 / span 9; }
+  .xl\:col-span-10 { grid-column: span 10 / span 10; }
+  .xl\:col-span-11 { grid-column: span 11 / span 11; }
+  .xl\:col-span-12 { grid-column: span 12 / span 12; }
+  .xl\:col-span-full { grid-column: 1 / -1; }
+}
+
+// =============================================================================
+// Column Start Positions
+// =============================================================================
+
+// Mobile
+.col-start-1 { grid-column-start: 1; }
+.col-start-2 { grid-column-start: 2; }
+.col-start-3 { grid-column-start: 3; }
+.col-start-4 { grid-column-start: 4; }
+
+// Tablet
+@media (min-width: $mobile) {
+  .md\:col-start-1 { grid-column-start: 1; }
+  .md\:col-start-2 { grid-column-start: 2; }
+  .md\:col-start-3 { grid-column-start: 3; }
+  .md\:col-start-4 { grid-column-start: 4; }
+  .md\:col-start-5 { grid-column-start: 5; }
+  .md\:col-start-6 { grid-column-start: 6; }
+  .md\:col-start-7 { grid-column-start: 7; }
+  .md\:col-start-8 { grid-column-start: 8; }
+}
+
+// Desktop
+@media (min-width: $desktop) {
+  .xl\:col-start-1 { grid-column-start: 1; }
+  .xl\:col-start-2 { grid-column-start: 2; }
+  .xl\:col-start-3 { grid-column-start: 3; }
+  .xl\:col-start-4 { grid-column-start: 4; }
+  .xl\:col-start-5 { grid-column-start: 5; }
+  .xl\:col-start-6 { grid-column-start: 6; }
+  .xl\:col-start-7 { grid-column-start: 7; }
+  .xl\:col-start-8 { grid-column-start: 8; }
+  .xl\:col-start-9 { grid-column-start: 9; }
+  .xl\:col-start-10 { grid-column-start: 10; }
+  .xl\:col-start-11 { grid-column-start: 11; }
+  .xl\:col-start-12 { grid-column-start: 12; }
+}
+
+// =============================================================================
+// Row Spans
+// =============================================================================
+
+.row-span-1 { grid-row: span 1 / span 1; }
+.row-span-2 { grid-row: span 2 / span 2; }
+.row-span-3 { grid-row: span 3 / span 3; }
+.row-span-4 { grid-row: span 4 / span 4; }
+.row-span-5 { grid-row: span 5 / span 5; }
+.row-span-6 { grid-row: span 6 / span 6; }
+.row-span-full { grid-row: 1 / -1; }
+
+// =============================================================================
+// Grid Auto Flow
+// =============================================================================
+
+.grid-flow-row { grid-auto-flow: row; }
+.grid-flow-col { grid-auto-flow: column; }
+.grid-flow-dense { grid-auto-flow: dense; }
+.grid-flow-row-dense { grid-auto-flow: row dense; }
+.grid-flow-col-dense { grid-auto-flow: column dense; }
+
+// =============================================================================
+// Grid Auto Columns
+// =============================================================================
+
+.auto-cols-auto { grid-auto-columns: auto; }
+.auto-cols-min { grid-auto-columns: min-content; }
+.auto-cols-max { grid-auto-columns: max-content; }
+.auto-cols-fr { grid-auto-columns: minmax(0, 1fr); }
+
+// =============================================================================
+// Grid Auto Rows
+// =============================================================================
+
+.auto-rows-auto { grid-auto-rows: auto; }
+.auto-rows-min { grid-auto-rows: min-content; }
+.auto-rows-max { grid-auto-rows: max-content; }
+.auto-rows-fr { grid-auto-rows: minmax(0, 1fr); }
+
+// =============================================================================
+// Justify and Align
+// =============================================================================
+
+// Justify Items
+.justify-items-start { justify-items: start; }
+.justify-items-end { justify-items: end; }
+.justify-items-center { justify-items: center; }
+.justify-items-stretch { justify-items: stretch; }
+
+// Align Items
+.items-start { align-items: start; }
+.items-end { align-items: end; }
+.items-center { align-items: center; }
+.items-stretch { align-items: stretch; }
+
+// Justify Self
+.justify-self-auto { justify-self: auto; }
+.justify-self-start { justify-self: start; }
+.justify-self-end { justify-self: end; }
+.justify-self-center { justify-self: center; }
+.justify-self-stretch { justify-self: stretch; }
+
+// Align Self
+.self-auto { align-self: auto; }
+.self-start { align-self: start; }
+.self-end { align-self: end; }
+.self-center { align-self: center; }
+.self-stretch { align-self: stretch; }
+
+// =============================================================================
+// Responsive Grid Utilities
+// =============================================================================
+
+// Hide/show on different screens
+.llg-hidden-mobile {
+  display: block;
+  
+  @media (min-width: $mobile) {
+    display: none;
+  }
+}
+
+.llg-hidden-desktop {
+  display: none;
+  
+  @media (min-width: $mobile) {
+    display: block;
+  }
+}
+
+.llg-mobile-only {
+  display: block;
+  
+  @media (min-width: $mobile) {
+    display: none;
+  }
+}
+
+.llg-desktop-only {
+  display: none;
+  
+  @media (min-width: $mobile) {
+    display: block;
+  }
+}

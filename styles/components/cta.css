@@ -1,0 +1,187 @@
+@layer components {
+  .cta_btn {
+    @apply box-border inline-flex w-[inherit] items-center justify-center border-[1px] border-solid;
+  }
+
+  .cta_btn--small {
+    @apply px-[12px] py-[12px];
+  }
+
+  .cta_btn--medium {
+    @apply px-[16px] py-[14px];
+  }
+
+  .cta_btn--large {
+    @apply px-[16px] py-[22px];
+  }
+
+  .cta_btn__text {
+    @apply -mb-[1px] block h-fit -tracking-[0.4px];
+  }
+
+  .cta_btn__text--small {
+    @apply text-[16px] leading-[18px];
+  }
+
+  .cta_btn__text--medium {
+    @apply text-[17px] leading-[19px];
+  }
+
+  .cta_btn__text--large {
+    @apply text-[19px] leading-[21px];
+  }
+
+  /*Disabled button styles*/
+  .cta_btn--disabled,
+  .cta_btn--light_theme--disabled,
+  .cta_btn--dark_theme--disabled {
+    @apply border-huge-darkGray4 text-huge-graySeven;
+  }
+
+  .cta_btn--disabled,
+  .cta_btn--light_theme--disabled,
+  .cta_btn--dark_theme--disabled,
+  .cta_btn__icon--disabled path {
+    @apply stroke-huge-graySeven;
+  }
+
+  /*Dark theme*/
+  .cta_btn--dark_theme {
+    @apply border-huge-white text-huge-white transition duration-500 ease-in-out;
+  }
+
+  .cta_btn--dark_theme:hover {
+    @apply bg-huge-white text-huge-black transition duration-500 ease-in-out;
+  }
+
+  /*Dark theme filled*/
+  .cta_btn--dark_theme--filled {
+    @apply border-huge-white bg-huge-white text-huge-black transition duration-500 ease-in-out;
+  }
+
+  .cta_btn--dark_theme--filled:hover {
+    @apply border-huge-lightGray4 bg-huge-lightGray4 transition duration-500 ease-in-out;
+  }
+
+  .cta_btn--dark_theme--filled--disabled {
+    @apply border-none bg-huge-darkGray4 text-huge-graySeven;
+  }
+
+  /*Dark theme icon*/
+  .cta_btn--dark_theme .cta_btn__icon path {
+    @apply stroke-huge-white transition duration-500 ease-in-out;
+  }
+
+  .cta_btn--dark_theme:hover .cta_btn__icon path {
+    @apply stroke-huge-black transition duration-500 ease-in-out;
+  }
+
+  /*Dark theme icon filled*/
+  .cta_btn--dark_theme--filled .cta_btn__icon path {
+    @apply stroke-huge-black;
+  }
+
+  .cta_btn--dark_theme--filled--disabled .cta_btn__icon--disabled path {
+    @apply stroke-huge-graySeven;
+  }
+
+  /*Light theme*/
+  .cta_btn--light_theme {
+    @apply border-huge-black duration-500 ease-in-out;
+  }
+
+  .cta_btn--light_theme:hover {
+    @apply bg-huge-black text-huge-white duration-500 ease-in-out;
+
+    .cta_btn__icon path {
+      @apply stroke-huge-white;
+    }
+  }
+
+  .cta_btn--light_theme--filled--disabled {
+    @apply border-none bg-huge-darkGray text-huge-white;
+  }
+
+  /*Light theme filled*/
+  .cta_btn--light_theme--filled {
+    @apply border-huge-black bg-huge-black text-huge-white transition duration-500 ease-in-out;
+  }
+
+  .cta_btn--light_theme--filled:hover {
+    @apply border-huge-darkGray bg-huge-darkGray transition duration-500 ease-in-out;
+  }
+
+  /*Light theme icon*/
+  .cta_btn--light_theme .cta_btn__icon path {
+    @apply stroke-huge-black transition duration-500 ease-in-out;
+  }
+
+  /*Light theme icon filled*/
+  .cta_btn--light_theme--filled .cta_btn__icon path {
+    @apply stroke-huge-white;
+  }
+
+  .cta_btn--light_theme--filled--disabled .cta_btn__icon--disabled path {
+    @apply stroke-huge-white;
+  }
+
+  .cta {
+    @apply after:cta__animation-after hover:after:cta__animation-hover-after relative flex
+      max-w-fit items-center;
+  }
+
+  .cta-black {
+    @apply cta after:bg-huge-black;
+  }
+
+  .cta-white {
+    @apply cta after:bg-huge-white;
+  }
+
+  .cta-vertical-icon {
+    transition: transform 0.25s ease-out;
+  }
+
+  .cta-vertical:hover > a > .cta-vertical-icon {
+    transform: translateX(10px);
+  }
+
+  .cta__animation-after {
+    bottom: -8px;
+    content: '';
+    height: 2px;
+    left: 0;
+    position: absolute;
+    transform: scaleX(0);
+    transform-origin: bottom right;
+    transition: transform 0.25s ease-out;
+    width: 100%;
+  }
+
+  .cta__animation-hover-after {
+    transform: scaleX(1);
+    transform-origin: bottom left;
+  }
+
+  .cta__icon {
+    transform: rotateY(0);
+    transition: transform 0.25s;
+    @apply mr-[13px] inline-block align-top 3xl:mr-[15px];
+  }
+
+  .cta:hover > span > .cta__icon {
+    @apply cta__icon-magenta -rotate-45;
+  }
+
+  .cta__icon-white path {
+    @apply stroke-huge-white;
+  }
+
+  .cta__icon-black path {
+    @apply stroke-huge-black;
+  }
+
+  .cta__icon-magenta path {
+    @apply stroke-huge-magenta;
+  }
+}

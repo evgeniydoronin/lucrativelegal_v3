@@ -1,0 +1,110 @@
+// =============================================================================
+// Base Styles
+// =============================================================================
+
+@use "sass:color";
+@use "variables" as *;
+
+// CSS Reset
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+body {
+  font-family: $font-primary;
+  font-size: $font-size-base;
+  font-weight: $font-weight-normal;
+  color: $black;
+  background-color: $white;
+  line-height: 1.6;
+}
+
+// Typography
+h1, h2, h3, h4, h5, h6 {
+  font-family: $font-display;
+  font-weight: $font-weight-bold;
+  line-height: 1.2;
+  margin-bottom: $space-4;
+}
+
+h1 {
+  font-size: $font-size-4xl;
+  
+  @media (min-width: $mobile) {
+    font-size: 3rem;
+  }
+}
+
+h2 {
+  font-size: $font-size-3xl;
+  
+  @media (min-width: $mobile) {
+    font-size: $font-size-4xl;
+  }
+}
+
+h3 {
+  font-size: $font-size-2xl;
+}
+
+h4 {
+  font-size: $font-size-xl;
+}
+
+h5 {
+  font-size: $font-size-large;
+}
+
+h6 {
+  font-size: $font-size-base;
+}
+
+p {
+  margin-bottom: $space-4;
+}
+
+a {
+  color: $primary-color;
+  text-decoration: none;
+  transition: color $transition-fast;
+  
+  &:hover {
+    color: color.adjust($primary-color, $lightness: -10%);
+  }
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+// Container
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 $space-4;
+  
+  @media (min-width: $mobile) {
+    padding: 0 $space-6;
+  }
+  
+  @media (min-width: $desktop) {
+    padding: 0 $space-8;
+  }
+}
+
+// Section spacing
+.section {
+  padding: $space-16 0;
+  
+  @media (min-width: $mobile) {
+    padding: $space-20 0;
+  }
+}

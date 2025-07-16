@@ -1,0 +1,62 @@
+@layer components {
+  .section {
+    @apply section__spacing;
+  }
+
+  .section-min-h {
+    @apply min-h-[375px] text-inherit md:min-h-[318px] xl:min-h-[636px] 3xl:min-h-[819px];
+  }
+
+  .section__spacing {
+    @apply rebrand-grid__spacing mx-[4px] sm:mx-[10px];
+  }
+
+  section > video {
+    height: 100%;
+    left: 0;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    width: 100%;
+  }
+
+  .title {
+    @apply mt-[64px] sm:mt-[80px] 3xl:mt-[120px];
+  }
+
+  /*
+   ANIMATIONS
+   First Section line drawing
+   */
+
+  .reveal-animation-outer--before
+    .section--first
+    *[class*='typography']:not('.noAnimate') {
+    opacity: 0;
+  }
+
+  .section__borders {
+    @apply pointer-events-none absolute inset-0 border-x border-solid;
+  }
+
+  .section__borders--spacing-top {
+    @apply mt-[var(--navigation-mobile-top-distance)] xl:mt-[var(--navigation-desktop-top-distance)];
+  }
+
+  .section--first .section__borders {
+    @apply scale-y-0 transition-transform delay-500 duration-1000 ease-out;
+  }
+
+  .reveal-animation-outer .section--first .section__borders {
+    @apply scale-y-100;
+  }
+
+  .section__divider {
+    @apply -mx-[17px] scale-x-0 border-b md:-mx-[18px] lg:-mx-[29px] xl:-mx-[30px];
+    transition: transform 0.5s ease-in;
+  }
+
+  .reveal-animation-outer .section__divider {
+    @apply scale-x-100;
+  }
+}

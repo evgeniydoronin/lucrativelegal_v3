@@ -1,0 +1,199 @@
+// =============================================================================
+// Cursor Play Button - Стили для магнитной кнопки play
+// =============================================================================
+
+.cursor-play-button {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none !important; // Всегда неинтерактивная
+    z-index: 50; // Выше всех элементов
+    opacity: 0;
+    transform: none; // Убираем центрирование - позиционируем от левого верхнего угла
+    transition: opacity 0.3s ease;
+    user-select: none;
+}
+
+.cursor-play-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    // Основной стиль как на картинке
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    
+    border-radius: 8px; // Прямоугольная форма с закругленными углами
+    padding: 8px 12px 8px 16px;
+    
+    // Тень для глубины
+    box-shadow: 
+        0 4px 20px rgba(0, 0, 0, 0.1),
+        0 1px 3px rgba(0, 0, 0, 0.05);
+    
+    // Граница для четкости
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    
+    // Убираем интерактивность
+    cursor: default;
+    pointer-events: none;
+    
+    // Убираем все hover и active эффекты
+    // Кнопка теперь только индикатор
+}
+
+.cursor-play-text {
+    color: #000;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    
+    // Предотвращаем выделение текста
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+
+.cursor-play-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    width: 24px;
+    height: 24px;
+    
+    background: #000;
+    color: #fff;
+    
+    border-radius: 50%;
+    
+    svg {
+        width: 12px;
+        height: 12px;
+        margin-left: 1px; // Центрирование треугольника
+        
+        path {
+            fill: currentColor;
+        }
+    }
+    
+    // Убираем все hover и active эффекты
+    // Иконка теперь статичная
+}
+
+// =============================================================================
+// Адаптивность
+// =============================================================================
+
+// Скрываем на мобильных устройствах
+@media (max-width: 768px) {
+    .cursor-play-button {
+        display: none !important;
+    }
+}
+
+// Скрываем при reduced motion
+@media (prefers-reduced-motion: reduce) {
+    .cursor-play-button {
+        display: none !important;
+    }
+}
+
+// Скрываем на touch устройствах
+@media (hover: none) and (pointer: coarse) {
+    .cursor-play-button {
+        display: none !important;
+    }
+}
+
+// =============================================================================
+// Альтернативные стили (если нужны варианты)
+// =============================================================================
+
+// Темная тема (если понадобится)
+.cursor-play-button.dark-theme {
+    .cursor-play-content {
+        background: rgba(0, 0, 0, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        
+        &:hover {
+            background: rgba(0, 0, 0, 0.95);
+        }
+    }
+    
+    .cursor-play-text {
+        color: #fff;
+    }
+    
+    .cursor-play-icon {
+        background: #fff;
+        color: #000;
+        
+        .cursor-play-content:hover & {
+            background: #f0f0f0;
+        }
+    }
+}
+
+// Компактная версия (если нужна)
+.cursor-play-button.compact {
+    .cursor-play-content {
+        padding: 6px 10px 6px 12px;
+        border-radius: 20px;
+    }
+    
+    .cursor-play-text {
+        font-size: 13px;
+    }
+    
+    .cursor-play-icon {
+        width: 20px;
+        height: 20px;
+        
+        svg {
+            width: 10px;
+            height: 10px;
+        }
+    }
+}
+
+// =============================================================================
+// Анимации появления/исчезновения
+// =============================================================================
+
+// Анимация появления
+@keyframes cursorPlayFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+// Анимация исчезновения
+@keyframes cursorPlayFadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+}
+
+// Применение анимаций через классы (если нужно)
+.cursor-play-button.animate-in {
+    animation: cursorPlayFadeIn 0.3s ease-out forwards;
+}
+
+.cursor-play-button.animate-out {
+    animation: cursorPlayFadeOut 0.2s ease-in forwards;
+}

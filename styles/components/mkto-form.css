@@ -1,0 +1,912 @@
+/* stylelint-disable order/properties-alphabetical-order */
+/* stylelint-disable indentation */
+
+.mktoForm .mktoFieldWrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.mktoForm .mktoFieldDescriptor.mktoFormCol {
+  outline: none !important;
+}
+
+.mktoForm .mktoFieldWrap:has(.mktoErrorMsg) .mktoField.mktoInvalid {
+  outline-width: 2px;
+  outline-color: #ff0090;
+  background: rgba(255, 0, 144, 0.05) !important;
+}
+
+.mktoForm .mktoFieldWrap:has(.mktoErrorMsg) .mktoField.mktoInvalid:focus {
+  background: transparent !important;
+}
+
+.mktoForm
+  .mktoFieldWrap:has(.mktoErrorMsg):has(.mktoField.mktoInvalid:focus)
+  .mktoLabel {
+  color: #ff0090 !important;
+}
+
+.mktoForm .mktoField {
+  width: 100% !important;
+  height: 64px !important;
+  position: relative !important;
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
+  padding-left: 16px !important;
+  padding-right: 16px !important;
+  border: none !important;
+  background-color: transparent !important;
+  font-size: 18px !important;
+  line-height: 24px !important;
+  letter-spacing: -0.03em;
+  transition-property: margin;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
+  outline: 2px solid transparent;
+  outline-width: 1px;
+  outline-offset: -1px;
+  outline-color: #fff;
+  margin-top: 0 !important;
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity)) !important;
+}
+
+/* White theme */
+.bg-huge-white .mktoForm .mktoField,
+.bg-huge-white .mktoForm .mktoLabel {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity)) !important;
+}
+.bg-huge-white .mktoForm .mktoField {
+  outline-color: #87868a;
+}
+
+.mktoForm textarea.mktoField {
+  min-height: 96px !important;
+}
+
+.mktoForm .mktoFormRow:has(textarea),
+.mktoForm .mktoFormRow:has(#policy) {
+  height: auto !important;
+}
+
+.mktoForm .mktoField::placeholder {
+  color: transparent;
+  display: none;
+}
+
+.mktoForm .mktoField:not(:placeholder-shown) {
+  margin-top: 24px !important;
+  outline-width: 2px !important;
+}
+
+.mktoForm .mktoField:placeholder-shown {
+  outline-color: #afb8c1;
+  outline-width: 1px;
+  margin-top: 0;
+}
+
+.mktoForm .mktoField:not(:placeholder-shown):focus,
+.mktoForm .mktoField:placeholder-shown:focus,
+.mktoForm .mktoField:focus {
+  outline-color: #00ff75 !important;
+  outline-width: 2px !important;
+  margin-top: 24px !important;
+}
+
+.mktoForm input:-webkit-autofill,
+.mktoForm input:-internal-autofill-selected,
+.mktoForm input:-webkit-autofill:focus,
+.mktoForm input:-webkit-autofill:active,
+.mktoForm input:-webkit-autofill:focus-visible {
+  -webkit-box-shadow: 0 0 0px 1000px black inset;
+  -webkit-text-fill-color: #ffffff;
+  color: #ffffff;
+  color-scheme: dark;
+}
+
+.bg-huge-white .mktoForm input:-webkit-autofill,
+.bg-huge-white .mktoForm input:-internal-autofill-selected,
+.bg-huge-white .mktoForm input:-webkit-autofill:focus,
+.bg-huge-white .mktoForm input:-webkit-autofill:active,
+.bg-huge-white .mktoForm input:-webkit-autofill:focus-visible {
+  -webkit-box-shadow: 0 0 0px 1000px black inset;
+  -webkit-text-fill-color: #000000;
+  color: #000000;
+  color-scheme: light;
+}
+
+.mktoForm select.mktoField {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.mktoForm select.mktoField option {
+  padding: 10px;
+  background-color: #ffffff !important;
+  color: #343a40;
+}
+
+.mktoForm select.mktoField option:hover {
+  background-color: #007bff;
+  color: #ffffff;
+}
+
+.mktoForm .mktoError {
+  position: relative;
+  right: unset !important;
+  bottom: unset !important;
+}
+
+.mktoForm .mktoError .mktoErrorArrowWrap {
+  display: none;
+}
+
+.mktoForm .mktoRequiredField label.mktoLabel {
+  font-weight: 400 !important;
+}
+
+.mktoForm .mktoAsterix {
+  --tw-text-opacity: 1;
+  color: rgb(255 0 144 / var(--tw-text-opacity)) !important;
+}
+
+.mktoForm .mktoFormCol {
+  margin-bottom: 0 !important;
+}
+
+.mktoForm .mktoLabel:has(~ input:placeholder-shown),
+.mktoForm .mktoLabel:has(~ textarea:placeholder-shown) {
+  top: 20px;
+  left: 16px;
+  font-size: 18px !important;
+  line-height: 24px !important;
+  letter-spacing: -0.03em !important;
+}
+
+.mktoForm .mktoLabel:has(~ input:not(:placeholder-shown):focus),
+.mktoForm .mktoLabel:has(~ input:placeholder-shown:focus),
+.mktoLabel:has(~ input:focus),
+.mktoForm .mktoLabel:has(~ textarea:not(:placeholder-shown):focus),
+.mktoForm .mktoLabel:has(~ textarea:placeholder-shown:focus),
+.mktoLabel:has(~ textarea:focus) {
+  top: 0;
+  left: 0;
+  font-size: 14px !important;
+  line-height: 16px !important;
+  letter-spacing: -0.03em !important;
+}
+
+.mktoForm .mktoLabel:has(~ input:not(:placeholder-shown)),
+.mktoForm .mktoLabel:has(~ textarea:not(:placeholder-shown)),
+.mktoForm .mktoLabel:has(~ select option:checked) {
+  top: 0;
+  left: 0;
+  font-size: 12px !important;
+  line-height: 14px !important;
+  letter-spacing: -0.03em !important;
+}
+
+.mktoForm .mktoGutter {
+  position: absolute;
+}
+
+.mktoForm .mktoCaptchaDisclaimer {
+  margin-bottom: 16px !important;
+  padding-top: 0 !important;
+  font-size: 18px;
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+  line-height: 24px;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.bg-huge-white .mktoForm .mktoCaptchaDisclaimer,
+.bg-huge-white .mktoForm .mktoHtmlText.mktoHasWidth span,
+.bg-huge-white .mktoForm a {
+  color: #000 !important;
+}
+
+.bg-huge-white .mktoForm a::after {
+  background: #000;
+}
+
+.mktoForm .mktoButtonRow {
+  width: 100%;
+  margin-top: 40px;
+}
+
+.mktoForm .mktoButtonWrap.mktoSimple {
+  margin-left: unset !important;
+}
+
+.mktoForm {
+  position: relative;
+  width: 100% !important;
+  margin-bottom: 145px !important;
+  background: transparent !important;
+  z-index: 1;
+}
+
+.mktoForm *,
+.mktoForm span {
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.mktoForm .mktoFieldWrap .mktoHtmlText {
+  width: 100% !important;
+  margin-bottom: 0;
+}
+
+.mktoForm .mktoHtmlText.mktoHasWidth span {
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 18px !important;
+  width: 100% !important;
+  line-height: 24px;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.mktoForm .mktoCaptchaDisclaimer a,
+.mktoForm .mktoHtmlText.mktoHasWidth span a {
+  font-weight: normal;
+}
+
+.mktoForm .mktoFormRow {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 24px !important;
+}
+
+.mktoForm .mktoFormRow .mktoFormCol {
+  margin-bottom: 0 !important;
+  padding: 0 !important;
+  height: auto !important;
+}
+
+.mktoForm .mktoFormRow .mktoOffset,
+.mktoForm .mktoFormRow .mktoGutter {
+  display: none;
+}
+
+.mktoForm #form-title {
+  font-size: 32px !important;
+  line-height: 32px;
+  letter-spacing: -0.03em;
+  float: left;
+  margin-bottom: 16px !important;
+  color: #ffffff;
+  width: 100%;
+}
+
+.mktoForm .mktoError {
+  position: relative !important;
+  right: unset !important;
+  bottom: unset !important;
+}
+
+.mktoForm .mktoError .mktoErrorArrow {
+  display: none !important;
+}
+
+.mktoForm .mktoError .mktoErrorMsg {
+  max-width: 100% !important;
+  background-color: transparent !important;
+  background-image: unset !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  margin-top: 8px !important;
+  padding: 0 !important;
+  display: flex !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
+  letter-spacing: -0.03em !important;
+  --tw-text-opacity: 1;
+  color: rgb(255 0 144 / var(--tw-text-opacity)) !important;
+}
+
+.mktoForm .mktoError .mktoErrorMsg .mktoErrorDetail {
+  padding-left: 1ch;
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.mktoForm a {
+  position: relative;
+  padding: 0 !important;
+  color: #ffffff;
+}
+
+.mktoForm a:after {
+  background: #ffffff;
+  bottom: 0.2em;
+  content: '';
+  height: 1px;
+  left: 0;
+  position: absolute;
+  transform: scaleX(1);
+  transform-origin: bottom left;
+  transition: transform 0.25s ease-out;
+  width: 100%;
+}
+
+.mktoForm a:hover:after,
+.mktoForm:has(a.privacy-policy-link:hover) a.privacy-policy-link:after {
+  transform: scaleX(0);
+}
+
+.mktoForm .mktoFieldWrap:has(select.mktoField):after {
+  display: none;
+}
+
+.mktoForm .mktoButtonRow:has(.mktoButtonWrap) {
+  width: 100%;
+  margin-top: 40px;
+}
+
+.mktoForm .mktoButtonWrap.mktoSimple {
+  margin-left: 0 !important;
+}
+
+.mktoForm .mktoButtonWrap.mktoSimple .mktoButton {
+  width: 100%;
+  min-width: 279px !important;
+  height: 64px !important;
+  -tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity)) !important;
+  --tw-bg-opacity: 1;
+  background-color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
+  background-image: none !important;
+  border: none !important;
+  padding: 12px !important;
+  font-size: 19px !important;
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+  text-transform: none !important;
+  font-weight: normal !important;
+  line-height: 24px !important;
+  letter-spacing: -0.03em !important;
+  overflow: hidden;
+}
+
+.bg-huge-black .mktoForm .mktoButtonWrap.mktoSimple .mktoButton:before {
+  background: #ffffff !important;
+}
+
+.bg-huge-white .mktoForm .mktoButtonWrap.mktoSimple .mktoButton {
+  -tw-text-opacity: 1;
+  background-color: rgb(0 0 0 / var(--tw-text-opacity)) !important;
+  --tw-bg-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-bg-opacity)) !important;
+}
+
+.mktoForm .mktoButtonWrap.mktoSimple .mktoButton:focus-visible {
+  outline: 1px auto blue !important;
+  outline: 1px auto -webkit-focus-ring-color !important;
+  outline-offset: 1px;
+}
+
+.bg-huge-black .mktoForm .mktoButtonWrap.mktoSimple .mktoButton:hover {
+  --tw-border-opacity: 1;
+  --tw-bg-opacity: 1;
+  border: none !important;
+  background-color: rgb(214 214 214 / var(--tw-bg-opacity)) !important;
+  outline: none !important;
+}
+
+.bg-huge-black .mktoForm .mktoButtonWrap.mktoSimple .mktoButton::after {
+  background-image: url('data:image/svg+xml;utf8,<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.2247 0.295561H11.8159V10.8867L10.3797 10.893L10.3797 2.74405L1.85739 11.2663L0.845092 10.254L9.36736 1.73176L1.21838 1.73176L1.2247 0.295561Z" fill="white"></path></svg>') !important;
+}
+.bg-huge-black .mktoForm .mktoButtonWrap.mktoSimple .mktoButton:hover::after {
+  background-image: url('data:image/svg+xml;utf8,<svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1.2247 0.295561H11.8159V10.8867L10.3797 10.893L10.3797 2.74405L1.85739 11.2663L0.845092 10.254L9.36736 1.73176L1.21838 1.73176L1.2247 0.295561Z" fill="black"></path></svg>') !important;
+}
+
+.mktoForm .mktoField {
+  border-radius: 0 !important;
+}
+
+.mktoForm .mktoField:placeholder-shown {
+  outline-color: #afb8c1;
+  outline-width: 1px;
+  margin-top: 0;
+}
+
+.mktoForm .mktoLabel {
+  --tw-text-opacity: 1;
+  color: rgb(175 184 193 / var(--tw-text-opacity));
+  width: max-content !important;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  position: absolute;
+  top: 20px;
+  left: 16px;
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 18px;
+  font-weight: 400 !important;
+  line-height: 24px;
+  letter-spacing: -0.03em !important;
+  transition-duration: 0.2s;
+  text-transform: none !important;
+  pointer-events: none;
+  padding-top: 0 !important;
+  margin-bottom: 0 !important;
+  z-index: 2;
+}
+
+.mktoForm .mktoAsterix {
+  --tw-text-opacity: 1;
+  color: rgb(255 0 144 / var(--tw-text-opacity)) !important;
+  float: right !important;
+}
+
+.mktoFieldWrap:has(.custom-select-wrapper) .mktoLabel {
+  top: 0px;
+  left: 0px;
+  font-size: 12px !important;
+  line-height: 14px !important;
+}
+
+.mktoFieldWrap:has(.custom-select-wrapper.opened) .mktoLabel {
+  font-size: 14px !important;
+  line-height: 16px !important;
+}
+
+.mktoFieldWrap:has(.custom-select-wrapper.visisted.invalid) .mktoLabel,
+.mktoForm
+  .mktoFieldWrap:has(.mktoErrorMsg):has(.mktoField.mktoInvalid):has(
+    .custom-select-wrapper:not(.opened)
+  )
+  .mktoLabel {
+  --tw-text-opacity: 1;
+  color: rgb(255 0 144 / var(--tw-text-opacity)) !important;
+}
+
+/** Custom Select **/
+.custom-select-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
+}
+
+.mktoForm .custom-select-wrapper span {
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.custom-select-wrapper select {
+  display: none;
+  appearance: none;
+}
+
+.custom-select-wrapper .mktoError {
+  display: none !important;
+}
+
+.mktoForm .custom-select.mktoField {
+  position: relative;
+  display: flex;
+  padding: 0 !important;
+  margin-top: 24px !important;
+  outline: none;
+}
+
+.custom-select-trigger {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  line-height: 24px;
+  font-size: 18px;
+  color: #ffffff;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 16px 20px !important;
+  box-sizing: border-box;
+  outline: 2px solid transparent;
+  outline-width: 1px;
+  outline-color: #afb8c1;
+  outline-offset: -1px;
+  z-index: 2;
+  transition: all;
+  transition-duration: 0.15s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-select-trigger:after {
+  position: absolute;
+  top: 50%;
+  right: 20px;
+  display: block;
+  content: '';
+  width: 24px;
+  height: 24px;
+  transform: rotate(0deg) translateY(-50%);
+  transform-origin: 50% 0;
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1619 19.2324L11.1619 6.92666L4.77148 13.317L3.85225 12.3978L11.8119 4.43818L19.7715 12.3978L18.8522 13.317L12.4619 6.92666L12.4619 19.2324L11.1619 19.2324Z" fill="white"/></svg>');
+  background-position: center;
+  background-origin: border-box;
+  transition: all;
+  transition-duration: 0.25s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.custom-select-wrapper.visisted.invalid
+  .custom-select:not(.opened)
+  .custom-select-trigger:focus,
+.custom-select-wrapper.selected .custom-select-trigger:focus,
+.custom-select-wrapper .custom-select-trigger:focus {
+  outline-width: 2px;
+  outline-color: #00ff75;
+}
+
+.custom-select-wrapper.selected .custom-select-trigger,
+.custom-select.opened .custom-select-trigger,
+.custom-select.opened .custom-select-trigger.focused {
+  outline-width: 2px;
+  outline-color: #ffffff;
+}
+
+.custom-select-wrapper.visisted.invalid
+  .custom-select:not(.opened)
+  .custom-select-trigger,
+.custom-select-wrapper:has(.mktoErrorMsg):has(.mktoField.mktoInvalid)
+  .custom-select:not(.opened)
+  .custom-select-trigger {
+  outline-color: #ff0090;
+  outline-width: 2px;
+  background: rgba(255, 0, 144, 0.05);
+}
+
+.custom-select-wrapper.visisted.invalid
+  .custom-select:not(.opened)
+  .custom-select-trigger:after,
+.custom-select-wrapper:has(.mktoErrorMsg):has(.mktoField.mktoInvalid)
+  .custom-select:not(.opened)
+  .custom-select-trigger:after {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.9996 5.1501C8.21646 5.1501 5.14961 8.21695 5.14961 12.0001C5.14961 15.7832 8.21646 18.8501 11.9996 18.8501C15.7828 18.8501 18.8496 15.7832 18.8496 12.0001C18.8496 8.21695 15.7828 5.1501 11.9996 5.1501ZM3.84961 12.0001C3.84961 7.49898 7.49849 3.8501 11.9996 3.8501C16.5007 3.8501 20.1496 7.49898 20.1496 12.0001C20.1496 16.5012 16.5007 20.1501 11.9996 20.1501C7.49849 20.1501 3.84961 16.5012 3.84961 12.0001ZM11.3496 14.3438V7.3126H12.6496V14.3438H11.3496ZM11.3496 16.7164V15.2164H12.6496V16.7164H11.3496Z" fill="%23FF0090"/></svg>');
+}
+
+.custom-select.opened .custom-select-trigger:after {
+  transform: rotate(-180deg) translateY(-50%);
+}
+
+.custom-select-wrapper.visisted.invalid
+  .custom-select:not(.opened)
+  .custom-select-trigger:after,
+.custom-select-wrapper:has(.mktoErrorMsg):has(.mktoField.mktoInvalid)
+  .custom-select:not(.opened)
+  .custom-select-trigger:after {
+  transform: rotate(0deg) translateY(-50%);
+}
+
+.bg-huge-white .custom-select-trigger {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity)) !important;
+}
+
+.bg-huge-white .custom-select-wrapper.selected .custom-select-trigger,
+.bg-huge-white .custom-select.opened .custom-select-trigger,
+.bg-huge-white .custom-select.opened .custom-select-trigger.focused {
+  outline-width: 2px;
+  outline-color: #87868a;
+}
+
+.bg-huge-white .custom-select-trigger:after {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path fill-rule="evenodd" clip-rule="evenodd" d="M11.1619 19.2324L11.1619 6.92666L4.77148 13.317L3.85225 12.3978L11.8119 4.43818L19.7715 12.3978L18.8522 13.317L12.4619 6.92666L12.4619 19.2324L11.1619 19.2324Z" fill="black"/></svg>');
+}
+
+.custom-options {
+  position: absolute;
+  display: block;
+  top: 100%;
+  left: 0;
+  right: 0;
+  min-width: 100%;
+  max-height: 250px;
+  margin-top: 12px !important;
+  padding: 10px 0 !important;
+  outline: 2px solid #00ff75;
+  background: #1b1e23;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateY(-15px);
+  transition: all;
+  transition-duration: 0.15s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 99;
+  overflow: auto;
+}
+
+.custom-select.opened .custom-options {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: all;
+  transform: translateY(0);
+}
+
+.option-hover:before {
+  background: #f9f9f9;
+}
+
+.custom-option {
+  position: relative;
+  display: block;
+  padding: 10px 16px !important;
+  font-size: 20px;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  letter-spacing: -0.6px;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all;
+  transition-duration: 0.4s;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.bg-huge-black .custom-option:hover,
+.bg-huge-black .custom-option.selection:hover {
+  background: rgb(255, 255, 255, 0.2);
+  mix-blend-mode: screen;
+}
+
+.bg-huge-white .custom-options {
+  background: #ffffff;
+}
+
+.bg-huge-white .custom-option {
+  --tw-text-opacity: 1;
+  color: rgb(0 0 0 / var(--tw-text-opacity));
+}
+
+.bg-huge-white .custom-option:hover,
+.bg-huge-white .custom-option.selection:hover {
+  background: rgb(110, 119, 129, 0.2);
+}
+
+.custom-option.selection {
+  color: #6e7781 !important;
+}
+
+.mktoForm .error-message {
+  display: none;
+  margin-top: 8px !important;
+  font-size: 14px !important;
+  line-height: 16px !important;
+  letter-spacing: -0.03em !important;
+  --tw-text-opacity: 1;
+  color: rgb(255 0 144 / var(--tw-text-opacity)) !important;
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+  z-index: 2;
+}
+
+.custom-select-wrapper:has(.mktoErrorMsg):has(.mktoField.mktoInvalid)
+  .error-message,
+.custom-select-wrapper.visisted.invalid .error-message {
+  display: flex;
+}
+
+/* Input Field */
+
+.mktoForm .mktoField:not(:placeholder-shown):focus,
+.mktoForm .mktoField:placeholder-shown:focus,
+.mktoForm .mktoField:focus {
+  outline-color: #00ff75 !important;
+  outline-width: 2px;
+  margin-top: 24px !important;
+}
+
+/* Checkbox */
+.mktoCheckboxList {
+  color: #ffffff;
+  display: flex;
+  align-items: flex-start;
+  width: 100% !important;
+  padding: 0 !important;
+}
+
+.mktoForm .mktoFieldWrap:has(.mktoCheckboxList) .mktoLabel {
+  position: relative;
+  top: unset;
+  left: unset;
+  font-size: 12px !important;
+  line-height: 14px !important;
+  margin-bottom: 10px !important;
+}
+
+.mktoForm .mktoFieldWrap:has(.mktoCheckboxList.mktoInvalid) .mktoLabel {
+  --tw-text-opacity: 1;
+  color: rgb(255 0 144 / var(--tw-text-opacity)) !important;
+}
+
+.mktoForm .mktoCheckboxList input[type='checkbox'].mktoField {
+  margin-top: 0.2em !important;
+  width: 20px !important;
+  height: 20px !important;
+  border: none !important;
+  outline: 2px solid #afb8c1 !important;
+  outline-offset: -1px;
+  outline-width: 1px !important;
+  border-radius: 2px !important;
+  background: none;
+  cursor: pointer;
+  margin: 0 0.6em 0 0;
+  padding: 0 !important;
+  vertical-align: text-top;
+  -webkit-appearance: none;
+  transition: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 0.15s;
+}
+
+.mktoForm .mktoCheckboxList input[type='checkbox']:checked:not(:focus) {
+  outline-width: 2px !important;
+  outline-color: #ffffff;
+}
+
+.mktoForm .mktoCheckboxList input[type='checkbox']:checked:focus,
+.mktoForm .mktoCheckboxList input[type='checkbox']:focus,
+.mktoForm .mktoCheckboxList input[type='checkbox']:hover {
+  outline-width: 2px !important;
+  outline-color: #00ff75 !important;
+  margin-top: 0.2em !important;
+}
+
+.mktoForm .mktoCheckboxList input[type='checkbox']:before {
+  content: '';
+  position: absolute;
+  right: 50%;
+  top: 50%;
+  width: 4px;
+  height: 10px;
+  border: solid transparent;
+  border-width: 0 2px 2px 0;
+  margin: -1px -1px 0 -1px;
+  transform: rotate(45deg) translate(-50%, -50%);
+  z-index: 2;
+}
+
+.mktoForm .mktoCheckboxList input[type='checkbox']:checked:before {
+  border-color: #ffffff;
+}
+
+.bg-huge-white
+  .mktoForm
+  .mktoCheckboxList
+  input[type='checkbox']:checked:before {
+  border-color: #000;
+}
+
+.mktoForm .mktoCheckboxList label {
+  color: #ffffff;
+  font-size: 18px !important;
+  line-height: 24px !important;
+  letter-spacing: -0.03em;
+  margin-left: 0 !important;
+  margin-top: 0.2em !important;
+  width: 100% !important;
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+}
+
+.bg-huge-white .mktoForm .mktoCheckboxList label {
+  color: #000;
+}
+.mktoForm .mktoCheckboxList input[type='checkbox'] + label:before {
+  width: 20px !important;
+  height: 20px !important;
+  border: none !important;
+  outline: 2px solid #afb8c1 !important;
+  outline-offset: -1px;
+  outline-width: 1px !important;
+  border-radius: 2px !important;
+  margin-left: 2px;
+  cursor: pointer;
+  padding-left: 1px;
+  padding-top: 1px;
+}
+
+.bg-huge-black
+  .mktoForm
+  .mktoCheckboxList
+  input[type='checkbox']:checked
+  + label::before {
+  outline-width: 2px !important;
+  outline-color: #fff !important;
+}
+
+.bg-huge-white
+  .mktoForm
+  .mktoCheckboxList
+  input[type='checkbox']:checked
+  + label::before {
+  outline-width: 2px !important;
+  outline-color: #87868a !important;
+}
+
+.bg-huge-white
+  .mktoForm
+  .mktoCheckboxList
+  input[type='checkbox']:checked
+  + label::before {
+  background-color: transparent !important;
+  color: #000000 !important;
+}
+
+.mktoForm .mktoCheckboxList input[type='checkbox'] + label:hover:before {
+  outline-width: 2px !important;
+  outline-color: #00ff75 !important;
+}
+
+.form-submission-status div:has(> button) {
+  width: max-content !important;
+}
+
+.mktoForm .mktoTemplateBox,
+.mktoForm .mktoTemplateBox > div,
+.mktoForm .mktoTemplateBox a.mktoNotYou {
+  margin-bottom: 16px !important;
+  padding-top: 0 !important;
+  font-size: 18px;
+  font-family: var(--font-monumentGrotesk), ui-sans-serif, system-ui, sans-serif !important;
+  line-height: 24px;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+  text-decoration: none !important;
+}
+
+.bg-huge-white .mktoForm .mktoTemplateBox,
+.bg-huge-white .mktoForm .mktoTemplateBox > div,
+.bg-huge-white .mktoForm .mktoTemplateBox a.mktoNotYou {
+  color: #000;
+}
+
+@media screen and (min-width: 768px) {
+  .w-full .mktoForm {
+    width: 768px !important;
+    max-width: 100% !important;
+  }
+
+  .w-full .mktoForm .mktoFormRow {
+    width: 100% !important;
+  }
+
+  .mktoForm #form-title {
+    font-size: 36px !important;
+    line-height: 40px;
+    margin-bottom: 32px !important;
+  }
+
+  .mktoForm .mktoButtonWrap.mktoSimple .mktoButton {
+    width: auto !important;
+  }
+}
+
+@media screen and (max-width: 1024px) {
+  .w-full .mktoForm {
+    padding: 0 !important;
+  }
+}
+
+@media (min-width: 1280px) {
+  .w-full .mktoForm {
+    padding: 0 !important;
+  }
+
+  .mktoForm #form-title {
+    font-size: 52px !important;
+    line-height: 48px !important;
+    max-width: 437px;
+  }
+
+  .mktoForm .mktoCaptchaDisclaimer,
+  .mktoForm .mktoHtmlText.mktoHasWidth span {
+    font-size: 20px !important;
+  }
+
+  .mktoForm .mktoButtonWrap.mktoSimple .mktoButton {
+    font-size: 20px !important;
+  }
+}

@@ -1,0 +1,94 @@
+@layer components {
+  /* Apply rebrand__grid grid properties to Rich Text within a full width section */
+  .rich-text__sub__grid {
+    @apply rebrand__grid;
+  }
+
+  /* Apply rebrand__sub__grid grid properties to Rich Text within a non full width section */
+  .xl\:col-start-3 .rich-text__sub__grid {
+    @apply rebrand__sub__grid;
+  }
+
+  .article-rich-text__quote  p.typography__paragraph {
+    @apply typography__h1;
+  }
+
+  .rich-text .typography__paragraph,
+  .rich-text .typography__h1,
+  .rich-text .typography__h2,
+  .rich-text .typography__h3,
+  .rich-text .typography__h4,
+  .rich-text .rich-text__ol,
+  .rich-text .rich-text__ul {
+    @apply pb-[15px] lg:pb-[20px] font-monument;
+  }
+
+  .rich-text--type_article .typography__h2 {
+    @apply text-[30px] leading-[30px] -tracking-[0.02em]
+      md:text-[33px] md:leading-[33px]
+      lg:text-[36px] lg:leading-[36px]
+      3xl:text-[39px] 3xl:leading-[39px]
+  }
+
+  .rich-text--type_article .typography__paragraph {
+    @apply text-[26px] leading-[34px] -tracking-[0.025em]
+      md:text-[27px] md:leading-[35px]
+      lg:text-[30px] lg:leading-[38px]
+      3xl:text-[33px] 3xl:leading-[41px]
+      font-monument;
+  }
+
+  .rich-text__link {
+    @apply transition-all
+      bg-gradient-to-r from-huge-magenta to-huge-magenta
+      bg-[0_95%]
+      bg-rich-text-link-normal
+      hover:bg-rich-text-link-active
+      bg-no-repeat
+      text-huge-magenta;
+    transition-property: background-size;
+  }
+
+  .rich-text__ol li {
+    @apply list-decimal;
+  }
+
+  .rich-text__ul li {
+    @apply list-[initial] text-inherit;
+  }
+
+  .rich-text__ol .typography__paragraph,
+  .rich-text__ul .typography__paragraph {
+    @apply pb-[4px] font-monument;
+  }
+
+  .rich-text__quote {
+    @apply m-[30px_40px_24px]
+      lg:mt-[calc(30/var(--lg-screen)*100vw)]
+      lg:mx-[calc(40/var(--lg-screen)*100vw)]
+      lg:mb-[calc(24/var(--lg-screen)*100vw)]
+      2xl:mt-[calc(30/var(--xxl-screen)*100vw)]
+      2xl:mx-[calc(40/var(--xxl-screen)*100vw)]
+      2xl:mb-[calc(24/var(--xxl-screen)*100vw)]
+      text-inherit;
+  }
+
+  .rich-text__gray-text {
+    @apply text-huge-graySeven;
+  }
+
+  /*
+    The :has selector will correctly target Moves articles but is not supported by Firefox,
+    hence the first selector
+  */
+  .rich-text--type_article .rich-text__gray-text,
+  main:has(.rich-text--type_article) .rich-text__gray-text {
+    @apply text-huge-graySix;
+  }
+
+  /* The specificity overload is needed to override the previous :has selector high specificity */
+  body.bg-huge-black .rich-text__gray-text,
+  section.bg-huge-black .rich-text__gray-text {
+    @apply text-huge-grayAgainstBlackContrast;
+  }
+}

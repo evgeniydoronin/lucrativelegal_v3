@@ -1,0 +1,236 @@
+// =============================================================================
+// Hero 3D Cube Component
+// =============================================================================
+
+// Hero section positioning context
+#hero {
+    position: relative; // Контекст для absolute позиционирования куба
+    height: 350vh; // Увеличена высота для полной заливки фона (было 300vh)
+}
+
+.hero-cube-container {
+    position: fixed; // По умолчанию зафиксирован по центру экрана
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    perspective: 1000px; // Возвращено к исходному значению
+    z-index: 10;
+    overflow: visible; // Позволяем кубу выходить за границы при масштабировании
+    
+    // Режим когда куб движется вместе с секцией
+    &.absolute-mode {
+        position: absolute;
+    }
+    
+    // Режим масштабирования для полноэкранного эффекта
+    &.scaling-mode {
+        overflow: visible;
+        
+        .cube-face--front {
+            // Убираем границы и тени при масштабировании для плавного перехода
+            box-shadow: none;
+            border: none;
+            border-radius: 0; // Убираем скругления если есть
+        }
+    }
+}
+
+.hero-cube {
+    width: 180px;  // Уменьшено с учетом перспективы (180 × 1.111 = 200px видимый)
+    height: 180px; // Уменьшено с учетом перспективы (180 × 1.111 = 200px видимый)
+    position: relative;
+    transform-style: preserve-3d;
+    will-change: transform;
+    // Управление поворотами только через JavaScript
+}
+
+.hero-square {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 200px; // Квадрат остается 200px (без перспективы)
+    height: 200px; // Квадрат остается 200px (без перспективы)
+    background: #000; // Черный fallback цвет
+    transform: translate(-50%, -50%);
+    opacity: 0; // Скрыт по умолчанию
+    z-index: 20; // Выше куба
+    will-change: transform;
+    overflow: hidden; // Обрезаем выходящие части фонового элемента
+    // Переход для плавной подмены
+    transition: opacity 0.3s ease;
+    
+    // Реальный элемент для картинки (управляется JavaScript)
+    .hero-square-bg {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 100vw;  // Начальный размер viewport
+        height: 100vh; // Начальный размер viewport
+        
+        // КОМПЕНСАЦИЯ масштабирования родителя + центрирование
+        transform: translate(-50%, -50%) scale(var(--inverse-scale-x, 1), var(--inverse-scale-y, 1));
+        
+        background: url('../assets/images/liquid-pattern-17.jpg') center no-repeat;
+        background-size: cover; // Начальное значение, будет управляться JavaScript
+        
+        z-index: -1; // Под содержимым квадрата
+        
+        // Улучшение качества изображения при масштабировании
+        image-rendering: high-quality;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: smooth;
+        
+        // Оптимизация производительности и качества
+        will-change: transform;
+        backface-visibility: hidden;
+        
+        // Плавные переходы
+        transition: opacity 0.3s ease;
+    }
+}
+
+// Фиксированная play кнопка поверх всего
+.hero-play-button {
+    position: fixed; // Не зависит от масштабирования!
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 4rem;
+    color: white;
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+    z-index: 40; // Выше всего (видео z-index: 30)
+    opacity: 0; // Скрыта по умолчанию
+    visibility: hidden; // Полностью скрыта до нужного момента
+    cursor: pointer;
+    pointer-events: none; // Отключены до показа
+    animation: pulse 2s infinite;
+    transition: opacity 0.5s ease, font-size 0.2s ease, visibility 0s linear 0.5s;
+    user-select: none; // Нельзя выделить
+    
+    &.active {
+        visibility: visible;
+        pointer-events: auto;
+        transition: opacity 0.5s ease, font-size 0.2s ease;
+    }
+    
+    &:hover {
+        font-size: 4.5rem;
+    }
+}
+
+// Анимация пульсации для play кнопки
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+        opacity: 0.7;
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+}
+
+.hero-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100vw; // По ширине viewport
+    height: auto; // Автоматическая высота для сохранения пропорций
+    opacity: 0; // Скрыто по умолчанию
+    z-index: 30; // Выше квадрата (z-index: 20)
+    object-fit: cover; // Заполнение без искажений
+    will-change: opacity;
+    
+    // Стили для контролов
+    &::-webkit-media-controls-panel {
+        background-color: rgba(0, 0, 0, 0.8);
+    }
+    
+    // Плавное появление
+    transition: opacity 0.5s ease;
+}
+
+.cube-face {
+    position: absolute;
+    width: 180px;  // Уменьшено с учетом перспективы
+    height: 180px; // Уменьшено с учетом перспективы
+    opacity: 0.9;
+    
+    // Цветные грани куба
+    &--front {
+        background: #ff6b6b;
+        transform: rotateY(0deg) translateZ(90px); // Половина от 180px
+    }
+    
+    &--back {
+        background: #4ecdc4;
+        transform: rotateY(180deg) translateZ(90px); // Половина от 180px
+    }
+    
+    &--right {
+        background: #45b7d1;
+        transform: rotateY(90deg) translateZ(90px); // Половина от 180px
+    }
+    
+    &--left {
+        background: #f9ca24;
+        transform: rotateY(-90deg) translateZ(90px); // Половина от 180px
+    }
+    
+    &--top {
+        background: #6c5ce7;
+        transform: rotateX(90deg) translateZ(90px); // Половина от 180px
+    }
+    
+    &--bottom {
+        background: #a29bfe;
+        transform: rotateX(-90deg) translateZ(90px); // Половина от 180px
+    }
+}
+
+// Адаптивность для мобильных устройств
+@media (max-width: 768px) {
+    .hero-cube {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .cube-face {
+        width: 150px;
+        height: 150px;
+        
+        &--front,
+        &--back {
+            transform: rotateY(0deg) translateZ(75px);
+        }
+        
+        &--back {
+            transform: rotateY(180deg) translateZ(75px);
+        }
+        
+        &--right {
+            transform: rotateY(90deg) translateZ(75px);
+        }
+        
+        &--left {
+            transform: rotateY(-90deg) translateZ(75px);
+        }
+        
+        &--top {
+            transform: rotateX(90deg) translateZ(75px);
+        }
+        
+        &--bottom {
+            transform: rotateX(-90deg) translateZ(75px);
+        }
+    }
+}
+
+// Поддержка reduced motion
+@media (prefers-reduced-motion: reduce) {
+    .hero-cube {
+        animation: none;
+        transform: none !important;
+    }
+}

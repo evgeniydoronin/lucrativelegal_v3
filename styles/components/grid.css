@@ -1,0 +1,53 @@
+@layer components {
+  .rebrand__grid {
+    @apply rebrand__gap grid grid-cols-8;
+  }
+
+  .rebrand__sub__grid {
+    @apply rebrand__gap-column grid grid-cols-8 xl:grid-cols-6;
+  }
+
+  .rebrand__grid-results {
+    @apply rebrand__gap grid grid-cols-8 lg:grid-cols-6;
+  }
+
+  .rebrand__gap {
+    @apply gap-[13px] text-inherit md:gap-[20px] xl:gap-[24px];
+  }
+
+  .rebrand-grid__spacing {
+    @apply px-[16px] text-inherit md:px-[18px] lg:px-[28px] xl:px-[30px];
+  }
+
+  .rebrand__gap-column {
+    @apply gap-x-[13px] gap-y-0 text-inherit md:gap-x-[20px] xl:gap-x-[24px];
+  }
+
+  .rebrand__grid-cap {
+    @apply max-w-[2400px] edge:mx-auto edge:my-0;
+  }
+
+  /*
+   * Hugeinc 2.0 Grid
+   * TODO: Move to another file under the new landing scope?
+  */
+  .v2__grid__column-gap {
+    @apply gap-x-[24px];
+  }
+
+  .v2__grid__padding {
+    @apply px-[24px] md:px-[40px];
+  }
+
+  .v2__subgrid {
+    @apply v2__grid__column-gap
+      grid grid-cols-4
+      md:grid-cols-8
+      xl:grid-cols-20;
+  }
+
+  .v2__grid {
+    @apply v2__subgrid v2__grid__padding
+      mx-auto max-w-full;
+  }
+}
