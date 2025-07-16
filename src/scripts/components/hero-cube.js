@@ -878,6 +878,49 @@ class HeroCube {
         });
     }
     
+    // Сброс состояния видео при мгновенном скролле (для scroll-to-top кнопки)
+    resetVideoState() {
+        console.log('🔄 Сброс состояния видео при мгновенном скролле');
+        
+        // Сбрасываем флаги состояния
+        this.videoShown = false;
+        this.playButtonActivated = false;
+        this.scaleCompleted = false; // Временно сбрасываем для предотвращения автопоказа
+        
+        // Скрываем видео если оно показано
+        if (this.video) {
+            this.video.pause();
+            gsap.set(this.video, { opacity: 0 });
+        }
+        
+        // Деактивируем магнитную кнопку
+        if (window.cursorPlayButton && window.cursorPlayButton.isActivated()) {
+            window.cursorPlayButton.deactivate();
+        }
+        
+        // Скрываем фиксированную play кнопку
+        if (this.playButton) {
+            this.playButton.classList.remove('active');
+            gsap.set(this.playButton, { opacity: 0 });
+        }
+        
+        // Устанавливаем задержку для восстановления scaleCompleted
+        // Это предотвращает мгновенный показ видео после скролла
+        setTimeout(() => {
+            // Проверяем текущий прогресс скролла
+            const scrollProgress = this.calculateScrollProgress();
+            const { backgroundStart } = this.animationPhases;
+            
+            // Восстанавливаем scaleCompleted только если мы все еще в зоне масштабирования
+            if (scrollProgress >= backgroundStart && this.cubeToSquareSwapped) {
+                this.scaleCompleted = true;
+                console.log('✅ scaleCompleted восстановлен после задержки');
+            }
+        }, 300); // 300ms задержка
+        
+        console.log('✅ Состояние видео сброшено');
+    }
+    
     // Уничтожение экземпляра
     destroy() {
         ScrollTrigger.getAll().forEach(trigger => {

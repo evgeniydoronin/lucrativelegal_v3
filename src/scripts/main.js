@@ -363,6 +363,9 @@ class LLGApp {
         // Initialize Case Studies Horizontal Scroll (after Lenis and GSAP)
         this.initCaseStudiesHorizontalScroll();
         
+        // Initialize Scroll to Top Button (after Lenis)
+        this.initScrollToTop();
+        
         // Initialize performance monitoring
         this.performanceMonitor = new PerformanceMonitor();
         
@@ -490,6 +493,11 @@ class LLGApp {
     const heroElement = document.querySelector('#hero');
     if (heroElement) {
       this.heroCube = new HeroCube(heroElement);
+      
+      // Делаем экземпляр доступным для scroll-to-top кнопки
+      if (this.heroCube) {
+        console.log('✅ Hero cube экземпляр сохранен в window.app.heroCube');
+      }
     }
   }
   
@@ -530,6 +538,32 @@ class LLGApp {
     this.caseStudiesScroll = window.initCaseStudiesHorizontalScroll();
     
     console.log('✅ Case Studies Horizontal Scroll initialized');
+  }
+  
+  initScrollToTop() {
+    // Check if initScrollToTop function is available
+    if (typeof window.initScrollToTop === 'undefined') {
+      console.warn('⚠️ Scroll to Top component not found');
+      return;
+    }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.scrollToTop) {
+      console.warn('⚠️ Scroll to Top already initialized');
+      return;
+    }
+    
+    // Check if button exists
+    const button = document.getElementById('scroll-to-top');
+    if (!button) {
+      console.warn('⚠️ Scroll to Top button not found');
+      return;
+    }
+    
+    // Initialize scroll to top button
+    this.scrollToTop = window.initScrollToTop();
+    
+    console.log('✅ Scroll to Top button initialized');
   }
   
   setupGlobalEvents() {

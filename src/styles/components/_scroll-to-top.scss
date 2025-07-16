@@ -1,0 +1,174 @@
+// =============================================================================
+// Scroll to Top Button Component Styles
+// =============================================================================
+
+@use '../variables' as *;
+@use 'sass:color';
+
+.scroll-to-top {
+    // Фиксированная позиция в правом нижнем углу
+    position: fixed;
+    bottom: $space-8; // 2rem
+    right: $space-8;  // 2rem
+    z-index: 1000;
+    
+    // Скрыта по умолчанию
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+    transition: all $transition-normal;
+    pointer-events: none;
+    
+    // Показана когда есть класс visible
+    &.visible {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+    }
+    
+    // Адаптивность для мобильных устройств
+    @media (max-width: $mobile) {
+        bottom: $space-6; // 1.5rem
+        right: $space-6;  // 1.5rem
+    }
+}
+
+.scroll-to-top__button {
+    // Размеры и форма
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    
+    // Цвета и фон
+    background: $primary-color;
+    color: $white;
+    
+    // Тень для глубины
+    box-shadow: $shadow-lg;
+    
+    // Центрирование иконки
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    // Плавные переходы
+    transition: all $transition-normal;
+    
+    // Hover эффекты
+    &:hover {
+        background: color.adjust($primary-color, $lightness: -10%);
+        transform: translateY(-2px) scale(1.05);
+        box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.15);
+    }
+    
+    // Active состояние (при клике)
+    &:active,
+    &.clicked {
+        transform: translateY(0) scale(0.95);
+        box-shadow: $shadow-md;
+    }
+    
+    // Focus состояние для accessibility
+    &:focus {
+        outline: none;
+        box-shadow: $shadow-lg, 0 0 0 3px rgba($primary-color, 0.3);
+    }
+    
+    // Адаптивность для мобильных
+    @media (max-width: $mobile) {
+        width: 48px;
+        height: 48px;
+        
+        &:hover {
+            // Убираем hover эффекты на мобильных
+            background: $primary-color;
+            transform: none;
+            box-shadow: $shadow-lg;
+        }
+    }
+    
+    // Состояние для пользователей с ограниченной анимацией
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+        
+        &:hover {
+            transform: none;
+        }
+        
+        &:active,
+        &.clicked {
+            transform: none;
+        }
+    }
+}
+
+.scroll-to-top__icon {
+    width: 24px;
+    height: 24px;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+    
+    // Плавный переход для иконки
+    transition: transform $transition-fast;
+    
+    // Анимация иконки при hover
+    .scroll-to-top__button:hover & {
+        transform: translateY(-1px);
+    }
+    
+    // Адаптивность для мобильных
+    @media (max-width: $mobile) {
+        width: 20px;
+        height: 20px;
+        
+        .scroll-to-top__button:hover & {
+            transform: none;
+        }
+    }
+}
+
+// =============================================================================
+// Дополнительные анимации и эффекты
+// =============================================================================
+
+// Пульсирующий эффект при первом появлении (опционально)
+.scroll-to-top.first-show {
+    animation: scrollToTopPulse 2s ease-in-out;
+}
+
+@keyframes scrollToTopPulse {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(0) scale(1.1);
+    }
+}
+
+// Альтернативный стиль кнопки (квадратная) - закомментирован
+/*
+.scroll-to-top__button {
+    border-radius: $radius-lg;
+    
+    &:hover {
+        border-radius: $radius-md;
+    }
+}
+*/
+
+// Темная тема (если потребуется)
+/*
+@media (prefers-color-scheme: dark) {
+    .scroll-to-top__button {
+        background: lighten($primary-color, 10%);
+        
+        &:hover {
+            background: lighten($primary-color, 20%);
+        }
+    }
+}
+*/
