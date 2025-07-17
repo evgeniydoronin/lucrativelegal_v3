@@ -20,6 +20,7 @@
 // =============================================================================
 // 4. Components - Simple components (no complex mixins)
 // =============================================================================
+@use 'components/fonts';
 @use 'components/preloader';
 @use 'components/hero-cube';
 @use 'components/cursor-play-button';
@@ -42,5 +43,4 @@
 // =============================================================================
 // 6. External Resources (CSS @import for fonts)
 // =============================================================================
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&display=swap');

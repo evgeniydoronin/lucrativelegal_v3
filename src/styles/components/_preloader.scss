@@ -43,7 +43,7 @@
     margin-bottom: $space-8;
     opacity: 0.6;
     transition: opacity $transition-normal;
-    font-family: $font-display;
+    font-family: $font-headings;
 }
 
 .preloader__text {
@@ -64,7 +64,7 @@
     transition: opacity 0.5s ease;
     text-align: center;
     white-space: nowrap;
-    font-family: $font-display;
+    font-family: $font-headings;
 
     &.visible {
         opacity: 1;
