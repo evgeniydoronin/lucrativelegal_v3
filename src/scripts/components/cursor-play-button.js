@@ -73,7 +73,7 @@ class CursorPlayButton {
         this.button.appendChild(this.content);
         document.body.appendChild(this.button);
         
-        console.log('✅ Cursor play button created');
+        // console.log('✅ Cursor play button created');
     }
     
     setupEvents() {
@@ -88,7 +88,7 @@ class CursorPlayButton {
         // Запуск анимационного цикла
         gsap.ticker.add(() => this.updatePosition());
         
-        console.log('✅ Cursor play button events setup');
+        // console.log('✅ Cursor play button events setup');
     }
     
     updatePosition() {

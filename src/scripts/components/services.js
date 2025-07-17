@@ -6,30 +6,30 @@
 window.initServicesSlider = function() {
     'use strict';
     
-    console.log('🔧 DEBUG: initServicesSlider() called');
+    // console.log('🔧 DEBUG: initServicesSlider() called');
 
     // Check for necessary libraries
     function checkDependencies() {
-        console.log('🔧 DEBUG: Checking dependencies...');
+        // console.log('🔧 DEBUG: Checking dependencies...');
         
         if (typeof gsap === 'undefined') {
             console.error('❌ Services Slider: GSAP is not loaded.');
             return false;
         } else {
-            console.log('✅ GSAP is loaded:', gsap.version);
+            // console.log('✅ GSAP is loaded:', gsap.version);
         }
         
         if (typeof ScrollTrigger === 'undefined') {
             console.error('❌ Services Slider: ScrollTrigger is not loaded.');
             return false;
         } else {
-            console.log('✅ ScrollTrigger is loaded');
+            // console.log('✅ ScrollTrigger is loaded');
         }
         
         if (typeof Lenis === 'undefined') {
             console.warn('⚠️ Services Slider: Lenis is not loaded. Smooth scroll will be disabled.');
         } else {
-            console.log('✅ Lenis is loaded');
+            // console.log('✅ Lenis is loaded');
         }
         
         return true;
@@ -37,10 +37,10 @@ window.initServicesSlider = function() {
 
     // Main function to initialize the cards effect
     function initCardsEffect() {
-        console.log('🔧 DEBUG: initCardsEffect() called');
+        // console.log('🔧 DEBUG: initCardsEffect() called');
         
         const section = document.querySelector('.llg-services-section');
-        console.log('🔧 DEBUG: section found:', !!section, section);
+        // console.log('🔧 DEBUG: section found:', !!section, section);
         if (!section) {
             console.error('❌ Section .llg-services-section not found!');
             return;
@@ -51,11 +51,11 @@ window.initServicesSlider = function() {
         const cards = section.querySelectorAll('.js-card');
         const clientNumberEl = section.querySelector('.js-client-number');
 
-        console.log('🔧 DEBUG: Elements found:');
-        console.log('  - pinSpacer:', !!pinSpacer, pinSpacer);
-        console.log('  - cardsViewer:', !!cardsViewer, cardsViewer);
-        console.log('  - cards:', cards.length, cards);
-        console.log('  - clientNumberEl:', !!clientNumberEl, clientNumberEl);
+        // console.log('🔧 DEBUG: Elements found:');
+        // console.log('  - pinSpacer:', !!pinSpacer, pinSpacer);
+        // console.log('  - cardsViewer:', !!cardsViewer, cardsViewer);
+        // console.log('  - cards:', cards.length, cards);
+        // console.log('  - clientNumberEl:', !!clientNumberEl, clientNumberEl);
 
         if (!pinSpacer || !cardsViewer || cards.length === 0) {
             console.error('❌ Services Slider: Required elements for the effect are not found.');
@@ -72,16 +72,16 @@ window.initServicesSlider = function() {
         const header = document.querySelector('.header');
         const headerHeight = header ? header.offsetHeight : 0;
 
-        console.log('🔧 DEBUG: Height calculations:');
-        console.log('  - cards.length:', cards.length);
-        console.log('  - spacerHeight:', spacerHeight + 'vh');
-        console.log('  - header found:', !!header);
-        console.log('  - headerHeight:', headerHeight + 'px');
+        // console.log('🔧 DEBUG: Height calculations:');
+        // console.log('  - cards.length:', cards.length);
+        // console.log('  - spacerHeight:', spacerHeight + 'vh');
+        // console.log('  - header found:', !!header);
+        // console.log('  - headerHeight:', headerHeight + 'px');
 
         // Extra headerHeight so последняя карточка полностью прокручивается
         const finalHeight = `calc(${spacerHeight}vh + ${headerHeight}px)`;
         pinSpacer.style.height = finalHeight;
-        console.log('🔧 DEBUG: pinSpacer height set to:', finalHeight);
+        // console.log('🔧 DEBUG: pinSpacer height set to:', finalHeight);
 
         // Move sticky viewer below fixed header
         if (headerHeight) {
@@ -89,14 +89,14 @@ window.initServicesSlider = function() {
             const viewerHeight = `calc(100vh - ${headerHeight}px)`;
             cardsViewer.style.top = viewerTop;
             cardsViewer.style.height = viewerHeight;
-            console.log('🔧 DEBUG: cardsViewer positioned:');
-            console.log('  - top:', viewerTop);
-            console.log('  - height:', viewerHeight);
+            // console.log('🔧 DEBUG: cardsViewer positioned:');
+            // console.log('  - top:', viewerTop);
+            // console.log('  - height:', viewerHeight);
         } else {
-            console.log('🔧 DEBUG: No header found, using default positioning');
+            // console.log('🔧 DEBUG: No header found, using default positioning');
         }
 
-        console.log('🔧 DEBUG: Creating ScrollTrigger timeline...');
+        // console.log('🔧 DEBUG: Creating ScrollTrigger timeline...');
         
         const mainTimeline = gsap.timeline({
             scrollTrigger: {
@@ -107,34 +107,34 @@ window.initServicesSlider = function() {
                 pin: cardsViewer,
                 anticipatePin: 1,
                 onUpdate: (self) => {
-                    console.log('🔧 DEBUG: ScrollTrigger progress:', self.progress);
+                    // console.log('🔧 DEBUG: ScrollTrigger progress:', self.progress);
                     updateCardCounter(self.progress, cards.length);
                     
                     // Debug positioning and styling
-                    const viewerRect = cardsViewer.getBoundingClientRect();
-                    const viewerStyles = window.getComputedStyle(cardsViewer);
-                    console.log('🔧 DEBUG: cardsViewer position:', {
-                        top: viewerRect.top,
-                        left: viewerRect.left,
-                        width: viewerRect.width,
-                        height: viewerRect.height,
-                        background: viewerStyles.backgroundColor,
-                        position: viewerStyles.position,
-                        zIndex: viewerStyles.zIndex
-                    });
+                    // const viewerRect = cardsViewer.getBoundingClientRect();
+                    // const viewerStyles = window.getComputedStyle(cardsViewer);
+                    // console.log('🔧 DEBUG: cardsViewer position:', {
+                    //     top: viewerRect.top,
+                    //     left: viewerRect.left,
+                    //     width: viewerRect.width,
+                    //     height: viewerRect.height,
+                    //     background: viewerStyles.backgroundColor,
+                    //     position: viewerStyles.position,
+                    //     zIndex: viewerStyles.zIndex
+                    // });
                 },
                 onEnter: () => {
-                    console.log('🔧 DEBUG: ScrollTrigger entered - pinning started');
+                    // console.log('🔧 DEBUG: ScrollTrigger entered - pinning started');
                     // Ensure black background is maintained
                     cardsViewer.style.backgroundColor = '#000000';
                 },
-                onLeave: () => console.log('🔧 DEBUG: ScrollTrigger left'),
-                onEnterBack: () => console.log('🔧 DEBUG: ScrollTrigger entered back'),
-                onLeaveBack: () => console.log('🔧 DEBUG: ScrollTrigger left back'),
+                onLeave: () => {}, // console.log('🔧 DEBUG: ScrollTrigger left'),
+                onEnterBack: () => {}, // console.log('🔧 DEBUG: ScrollTrigger entered back'),
+                onLeaveBack: () => {}, // console.log('🔧 DEBUG: ScrollTrigger left back'),
             }
         });
         
-        console.log('🔧 DEBUG: Timeline created:', mainTimeline);
+        // console.log('🔧 DEBUG: Timeline created:', mainTimeline);
 
         // Initialize all cards with hidden state
         cards.forEach((card, index) => {
@@ -142,12 +142,12 @@ window.initServicesSlider = function() {
             const description = card.querySelector('.js-card-description');
             const scrollTitle = card.querySelector('.js-scroll-title');
 
-            console.log(`🔧 DEBUG: Processing card ${index + 1}:`, {
-                card: !!card,
-                image: !!image,
-                description: !!description,
-                scrollTitle: !!scrollTitle
-            });
+            // console.log(`🔧 DEBUG: Processing card ${index + 1}:`, {
+            //     card: !!card,
+            //     image: !!image,
+            //     description: !!description,
+            //     scrollTitle: !!scrollTitle
+            // });
 
             // Set initial hidden state for ALL cards (including first one)
             gsap.set(card, { opacity: 0, visibility: 'hidden' });

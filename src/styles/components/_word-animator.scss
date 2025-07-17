@@ -1,0 +1,158 @@
+// =============================================================================
+// Word Animator Component - LLG v3 (HugeInc Style)
+// =============================================================================
+
+// Section Title Styles for Main Page
+.section-title {
+    font-size: 8.25rem;        // 132px - крупный размер для заголовков секций
+    letter-spacing: -5px;      // Плотная компоновка букв
+    font-weight: 600;         // Жирный шрифт
+    line-height: 0.9;          // Плотная высота строки
+    margin: 0;                 // Убираем отступы
+    font-family: inherit;      // Наследуем шрифт от родителя
+    
+    // Адаптивные размеры
+    @media (max-width: 1024px) {
+        font-size: 6rem;        // 96px для планшетов
+        letter-spacing: -4px;
+    }
+    
+    @media (max-width: 768px) {
+        font-size: 4rem;        // 64px для мобильных
+        letter-spacing: -3px;
+    }
+    
+    @media (max-width: 480px) {
+        font-size: 3rem;        // 48px для маленьких экранов
+        letter-spacing: -2px;
+    }
+}
+
+// Universal Word Animation Styles (HugeInc Style)
+.js-word-animate {
+    overflow: hidden;
+    
+    .word {
+        display: inline-block;
+        position: relative;
+        margin-right: 0.3em;
+        
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+// Scroll Blur Effect Styles (Donor Site Style)
+.js-scroll-blur-effect,
+.js-scroll-blur-effect-adaptive {
+    .word.blur-word {
+        display: inline-block;
+        position: relative;
+        margin-right: 0.3em;
+        transition: filter 0.1s ease-out;
+        will-change: opacity, filter;
+        
+        &:last-child {
+            margin-right: 0;
+        }
+    }
+}
+
+// Специальные стили для адаптивных длинных текстов
+.js-scroll-blur-effect-adaptive {
+    // 🔧 ИСПРАВЛЕНИЕ: предотвращаем обрезание текста
+    overflow: visible !important;
+    
+    &.section-description {
+        line-height: 1.4;           // Увеличенный межстрочный интервал
+        word-spacing: 0.05em;       // Немного больше расстояние между словами
+        
+        // 🔧 КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: ограничиваем ширину
+        max-width: 100%;            // Не выходить за границы контейнера
+        width: 100%;                // Занимать всю доступную ширину
+        box-sizing: border-box;     // Учитывать padding в ширине
+        overflow-wrap: normal;      // 🔧 НЕ разрывать дефисные слова
+        word-break: normal;         // Обычное поведение переносов
+        hyphens: none;              // Отключить автоматические переносы
+        
+        .word.blur-word {
+            margin-right: 0.25em;   // Чуть меньше отступ для длинных текстов
+            
+            &:last-child {
+                margin-right: 0;
+            }
+        }
+    }
+}
+
+// Global styles for any element that needs word animation
+h1, h2, h3, h4, h5, h6 {
+    &.js-word-animate {
+        .word {
+            // Inherit font properties from parent
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+            color: inherit;
+            letter-spacing: inherit;
+        }
+    }
+    
+    &.js-scroll-blur-effect,
+    &.js-scroll-blur-effect-adaptive {
+        .word.blur-word {
+            // Inherit font properties from parent
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+            color: inherit;
+            letter-spacing: inherit;
+        }
+    }
+}
+
+// Section Title Integration with Animations
+.section-title {
+    &.js-word-animate,
+    &.js-scroll-blur-effect,
+    &.js-scroll-blur-effect-adaptive {
+        .word, .word.blur-word {
+            // Наследуем все стили от section-title
+            font-family: inherit;
+            font-size: inherit;
+            font-weight: inherit;
+            line-height: inherit;
+            letter-spacing: inherit;
+            color: inherit;
+        }
+    }
+}
+
+// Specific styles for different heading levels
+h1.js-word-animate .word {
+    margin-right: 0.2em;
+}
+
+h2.js-word-animate .word {
+    margin-right: 0.25em;
+}
+
+h3.js-word-animate .word {
+    margin-right: 0.3em;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+    .js-word-animate .word {
+        margin-right: 0.2em;
+    }
+}
+
+@media (max-width: 480px) {
+    .js-word-animate .word {
+        margin-right: 0.15em;
+    }
+}

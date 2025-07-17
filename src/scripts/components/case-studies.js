@@ -53,7 +53,7 @@ class CaseStudiesHorizontalScroll {
   }
   
   init() {
-    console.log('🎢 Initializing Case Studies Horizontal Scroll');
+    // console.log('🎢 Initializing Case Studies Horizontal Scroll');
     
     // Wait for GSAP and ScrollTrigger to be available
     if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
@@ -235,6 +235,11 @@ class CaseStudiesHorizontalScroll {
   }
   
   updateSlideIndicators(progress) {
+    // Safety check: ensure indicators are initialized before updating
+    if (!this.indicators || !this.indicators.length) {
+      return;
+    }
+    
     const currentSlideIndex = Math.round(progress * (this.slides.length - 1));
     
     this.indicators.forEach((indicator, index) => {

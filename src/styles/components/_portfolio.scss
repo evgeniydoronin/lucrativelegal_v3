@@ -1,0 +1,127 @@
+// =============================================================================
+// Portfolio Component - LLG v3 (HugeInc Style)
+// =============================================================================
+
+// Section Header (Donor Site Style + LLG Grid)
+.section-header {
+    padding: 176px 0 100px; // 176px для больших экранов, 100px для мобильных
+    position: relative;
+    
+    // Tablet
+    @media (min-width: 768px) {
+        padding-top: 248px;
+        padding-bottom: 0;
+    }
+    
+    // Desktop - возвращаем нижний отступ
+    @media (min-width: 1200px) {
+        padding-bottom: 100px;
+    }
+    
+    &__title {
+        margin-bottom: 112px;
+    }
+    
+    &__description {
+        // Grid positioning handled by LLG grid classes
+        // col-span-4 md:col-span-5 md:col-start-4 xl:col-span-8 xl:col-start-3
+        
+        // 🔧 ИСПРАВЛЕНИЕ: предотвращаем обрезание длинных текстов
+        grid-row-gap: 0;           // Убираем вертикальный gap
+        overflow: visible;         // Разрешаем переполнение
+        align-self: start;         // Выравнивание по верху grid-ячейки
+        min-height: auto;          // Автоматическая высота
+        
+        // 🔧 КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: ограничиваем ширину контейнера
+        max-width: 100%;           // Не выходить за границы grid-ячейки
+        width: 100%;               // Занимать всю доступную ширину
+        box-sizing: border-box;    // Учитывать padding в ширине
+    }
+}
+
+// Section Description Styles
+.section-description {
+    font-size: 2rem;
+    line-height: 1.2;
+    font-weight: 400;
+    margin: 0;
+    
+    @media (min-width: 768px) {
+        font-size: 2.5rem;
+    }
+    
+    @media (min-width: 1200px) {
+        font-size: 3rem;
+    }
+}
+
+.portfolio {
+    min-height: 100vh;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 4rem 2rem;
+
+
+    .portfolio-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 2rem;
+        max-width: 1200px;
+        width: 100%;
+
+        .portfolio-item {
+            img {
+                width: 300px;
+                height: 300px;
+                object-fit: contain;
+                border-radius: 4%;
+                display: block;
+                pointer-events: none;
+                will-change: transform;
+            }
+        }
+    }
+
+    // Responsive Design
+    @media (max-width: 992px) {
+        padding: 3rem 1.5rem;
+        
+        .portfolio-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            
+            .portfolio-item img {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    }
+
+    @media (max-width: 768px) {
+        padding: 2rem 1rem;
+        
+        .portfolio-grid {
+            gap: 1rem;
+            
+            .portfolio-item img {
+                width: 200px;
+                height: 200px;
+            }
+        }
+    }
+
+    @media (max-width: 480px) {
+        .portfolio-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            
+            .portfolio-item img {
+                width: 280px;
+                height: 280px;
+            }
+        }
+    }
+}

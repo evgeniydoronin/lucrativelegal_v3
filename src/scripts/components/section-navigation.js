@@ -24,7 +24,7 @@ class SectionNavigation {
     }
     
     init() {
-        console.log('🧭 Initializing Section Navigation');
+        // console.log('🧭 Initializing Section Navigation');
         
         // Собираем элементы навигации и секции
         this.collectElements();
@@ -63,7 +63,7 @@ class SectionNavigation {
             };
         }).filter(Boolean); // Убираем null значения
         
-        console.log(`📋 Found ${this.sections.length} sections for navigation`);
+        // console.log(`📋 Found ${this.sections.length} sections for navigation`);
     }
     
     bindEvents() {
@@ -87,7 +87,7 @@ class SectionNavigation {
         // Отслеживание скролла для обновления активной секции
         this.setupScrollTracking();
         
-        console.log('✅ Section navigation events bound');
+        // console.log('✅ Section navigation events bound');
     }
     
     setupScrollTracking() {

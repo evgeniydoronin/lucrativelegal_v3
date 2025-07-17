@@ -309,7 +309,7 @@ class PerformanceMonitor {
         entries.forEach(entry => {
           if (!entry.hadRecentInput) {
             clsValue += entry.value;
-            console.log('CLS:', clsValue);
+            // console.log('CLS:', clsValue);
           }
         });
       });
@@ -368,6 +368,12 @@ class LLGApp {
         
         // Initialize Section Navigation (after Lenis)
         this.initSectionNavigation();
+        
+        // Initialize Portfolio (after Lenis and GSAP)
+        this.initPortfolio();
+        
+        // Initialize Word Animator (after GSAP and ScrollTrigger)
+        this.initWordAnimator();
         
         // Initialize performance monitoring
         this.performanceMonitor = new PerformanceMonitor();
@@ -600,6 +606,52 @@ class LLGApp {
     
     console.log('✅ Section Navigation initialized');
   }
+  
+  initPortfolio() {
+    // Check if initPortfolio function is available
+    if (typeof window.initPortfolio === 'undefined') {
+      console.warn('⚠️ Portfolio component not found');
+      return;
+    }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.portfolio) {
+      console.warn('⚠️ Portfolio already initialized');
+      return;
+    }
+    
+    // Check if portfolio section exists
+    const portfolioSection = document.getElementById('portfolio');
+    if (!portfolioSection) {
+      console.warn('⚠️ Portfolio section not found');
+      return;
+    }
+    
+    // Initialize portfolio
+    this.portfolio = window.initPortfolio();
+    
+    console.log('✅ Portfolio initialized');
+  }
+  
+  initWordAnimator() {
+    // Check if initWordAnimator function is available
+    if (typeof window.initWordAnimator === 'undefined') {
+      console.warn('⚠️ Word Animator component not found');
+      return;
+    }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.wordAnimator) {
+      console.warn('⚠️ Word Animator already initialized');
+      return;
+    }
+    
+    // Initialize word animator
+    this.wordAnimator = window.initWordAnimator();
+    
+    console.log('✅ Word Animator initialized');
+  }
+  
   
   setupGlobalEvents() {
     // Handle reduced motion preference

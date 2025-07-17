@@ -17,7 +17,7 @@ class ScrollToTop {
     }
     
     init() {
-        console.log('🔝 Initializing Scroll to Top button');
+        // console.log('🔝 Initializing Scroll to Top button');
         
         // Привязываем обработчики событий
         this.bindEvents();
