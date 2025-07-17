@@ -340,6 +340,9 @@ class LLGApp {
     start() {
         console.log('🚀 LLG Design System initialized');
         
+        // Initialize header FIRST (before preloader)
+        this.initHeader();
+        
         // Initialize preloader FIRST
         this.initPreloader();
         
@@ -653,6 +656,35 @@ class LLGApp {
     this.wordAnimator = window.initWordAnimator();
     
     console.log('✅ Word Animator initialized');
+  }
+  
+  initHeader() {
+    // Check if initHeader function is available
+    if (typeof window.initHeader === 'undefined') {
+      console.warn('⚠️ Header component not found');
+      return;
+    }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.header) {
+      console.warn('⚠️ Header already initialized');
+      return;
+    }
+    
+    // Check if header exists
+    const headerElement = document.querySelector('.header');
+    if (!headerElement) {
+      console.warn('⚠️ Header element not found');
+      return;
+    }
+    
+    // Initialize header
+    this.header = window.initHeader();
+    
+    // Make globally available
+    window.headerAPI = this.header;
+    
+    console.log('✅ Header initialized');
   }
   
   initFooter() {

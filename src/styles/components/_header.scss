@@ -1,0 +1,737 @@
+// =============================================================================
+// Header Navigation System - БЭМ методология
+// Основано на layout/index.php с адаптацией под v3.0 архитектуру
+// =============================================================================
+
+@use "../variables" as *;
+
+// =============================================================================
+// Основной блок header
+// =============================================================================
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  transition: all $transition-normal;
+  padding: $space-4 0;
+}
+
+// Transparent state - начальное состояние
+.header--transparent {
+  background-color: transparent;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+// Scrolled state - при скролле
+.header--scrolled {
+  background-color: $white;
+  box-shadow: $shadow-lg;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+// Blur эффект
+.header--blur {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+// Border эффект
+.header--border {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header--scrolled.header--border {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+// =============================================================================
+// Logo
+// =============================================================================
+
+.header__logo {
+  display: flex;
+  align-items: center;
+}
+
+.header__logo a {
+  display: inline-block;
+  text-decoration: none;
+}
+
+.header__logo img {
+  height: 40px;
+  width: auto;
+  transition: opacity $transition-fast;
+}
+
+// Logo switching logic
+.header--transparent .header__logo-white {
+  display: block;
+}
+
+.header--transparent .header__logo-black {
+  display: none;
+}
+
+.header--scrolled .header__logo-white {
+  display: none;
+}
+
+.header--scrolled .header__logo-black {
+  display: block;
+}
+
+// =============================================================================
+// Navigation
+// =============================================================================
+
+.header__nav-box {
+  display: flex;
+  justify-content: center;
+}
+
+.header__nav {
+  display: flex;
+  align-items: center;
+}
+
+.header__nav nav ul {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: $space-6;
+}
+
+.header__nav nav ul li {
+  position: relative;
+}
+
+.header__nav nav ul li > a {
+  color: $white;
+  text-decoration: none;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-base;
+  letter-spacing: 0.5px;
+  padding: 7px 10px;
+  transition: all $transition-fast;
+  position: relative;
+}
+
+.header--scrolled .header__nav nav ul li > a {
+  color: $gray-dark;
+}
+
+.header__nav nav ul li > a:hover {
+  color: $primary-color;
+}
+
+// =============================================================================
+// Dropdown menus
+// =============================================================================
+
+.header__nav .has-dropdown {
+  position: relative;
+}
+
+.header__submenu {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  background: $white;
+  min-width: 220px;
+  box-shadow: $shadow-lg;
+  border-radius: $radius-lg;
+  padding: $space-2 0;
+  padding-top: calc($space-2 + 10px);
+  margin-top: -10px;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(10px);
+  transition: all $transition-normal;
+  z-index: 1001;
+}
+
+// Invisible bridge to prevent dropdown from closing when moving cursor
+.header__submenu::before {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: transparent;
+  pointer-events: auto;
+}
+
+.header__nav .has-dropdown:hover > .header__submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+// Dropdown Arrow Indicator
+.header__nav .has-dropdown > a::after {
+  content: '';
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  margin-left: 8px;
+  vertical-align: middle;
+  transition: transform $transition-normal;
+}
+
+// Rotate arrow on hover
+.header__nav .has-dropdown:hover > a::after {
+  transform: rotate(180deg);
+}
+
+// Arrow for nested submenus
+.header__submenu .menu-item-has-children > a::after {
+  content: '';
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  width: 0;
+  height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 4px solid currentColor;
+  transition: transform $transition-normal;
+}
+
+.header__submenu .menu-item-has-children:hover > a::after {
+  transform: translateY(-50%) rotate(0deg);
+}
+
+.header__submenu li {
+  display: block;
+  width: 100%;
+}
+
+.header__submenu li a {
+  display: block;
+  text-align: left;
+  color: $gray-dark !important;
+  font-weight: $font-weight-medium;
+  font-size: $font-size-base;
+  padding: $space-2 $space-4;
+  transition: all $transition-fast;
+  position: relative;
+}
+
+.header__submenu li a:hover {
+  background-color: $gray-light;
+  border-radius: $radius-md;
+  color: $primary-color !important;
+}
+
+// Multi-level dropdown
+.header__submenu .menu-item-has-children {
+  position: relative;
+}
+
+.header__submenu .menu-item-has-children:hover > .header__submenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.header__submenu .menu-item-has-children > .header__submenu {
+  left: 100%;
+  top: 0;
+}
+
+// =============================================================================
+// Actions
+// =============================================================================
+
+.header__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: $space-4;
+}
+
+// =============================================================================
+// Gooey Button Component (from v2.0)
+// =============================================================================
+
+.btn-goo {
+  /* Sizing Variables */
+  --btn-font-size: 16px;
+  --btn-padding: 7px 22px;
+  --btn-circle-size: 36px;
+  --btn-circle-font-size: 14px;
+  --btn-circle-transform: translateX(-2px);
+  --btn-hover-transform: translateX(12px) rotate(45deg);
+
+  /* Color Variables */
+  --btn-bg-color: $primary-color; /* Default color */
+  --btn-text-color: $white;
+
+  position: relative;
+  display: inline-block;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-goo__filter-blur {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.btn-goo__filter {
+  display: inline-flex;
+  align-items: center;
+}
+
+.btn-goo__text {
+  font-size: var(--btn-font-size);
+  font-weight: 500;
+  padding: var(--btn-padding);
+  border-radius: 9999px;
+  color: var(--btn-text-color);
+  background-color: var(--btn-bg-color);
+  transition: background-color 0.3s;
+}
+
+.btn-goo__circle {
+  width: var(--btn-circle-size);
+  height: var(--btn-circle-size);
+  line-height: calc(var(--btn-circle-size) - 4px);
+  margin-left: -4px;
+  text-align: center;
+  border-radius: 9999px;
+  background: var(--btn-bg-color);
+  transition: transform 0.9s cubic-bezier(0.135, 0.9, 0.15, 1), background-color 0.3s;
+}
+
+.btn-goo__circle > svg {
+  width: var(--btn-circle-font-size);
+  margin-left: 3px;
+  color: var(--btn-text-color);
+  transform: var(--btn-circle-transform);
+}
+
+.btn-goo:hover .btn-goo__circle {
+  transform: var(--btn-hover-transform);
+}
+
+/* Color Modifiers */
+.btn-goo--red {
+  --btn-bg-color: #ff4757;
+  --btn-text-color: #{$white};
+}
+
+.btn-goo--red:hover {
+  --btn-bg-color: #dc3545;
+}
+
+.btn-goo--black {
+  --btn-bg-color: #{$gray-dark};
+  --btn-text-color: #{$white};
+}
+
+/* Size Modifiers */
+.btn-goo--lg {
+  --btn-font-size: 18px;
+  --btn-padding: 10px 28px;
+  --btn-circle-size: 42px;
+  --btn-circle-font-size: 16px;
+}
+
+.btn-goo--sm {
+  --btn-font-size: 14px;
+  --btn-padding: 5px 18px;
+  --btn-circle-size: 32px;
+  --btn-circle-font-size: 12px;
+  --btn-hover-transform: translateX(10px) rotate(45deg);
+}
+
+// =============================================================================
+// Additional Button Styles from v2.0 header.css
+// =============================================================================
+
+// Additional filter styles for button components
+.btn__filter {
+  display: flex;
+  align-items: center;
+  gap: $space-1;
+}
+
+.btn__circle {
+  width: 20px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-fast;
+}
+
+.btn--special:hover .btn__circle {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(45deg);
+}
+
+// Primary button styles from v2.0
+.btn-primary {
+  background: linear-gradient(135deg, #ff4757, #ff3742);
+  color: $white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all $transition-normal;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(255, 71, 87, 0.4);
+  color: $white;
+}
+
+// Secondary button styles from v2.0
+.btn-secondary {
+  background: $gray-dark;
+  color: $white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 16px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: all $transition-normal;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.btn-secondary:hover {
+  background: #333333;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(26, 26, 26, 0.3);
+  color: $white;
+}
+
+// =============================================================================
+// Mobile toggle
+// =============================================================================
+
+.header__mobile-toggle {
+  display: none;
+  
+  @media (max-width: 767px) {
+    display: block;
+  }
+}
+
+.header__offcanvas-open-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $space-2;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.header__offcanvas-open-btn i {
+  width: 24px;
+  height: 2px;
+  background: $white;
+  transition: all $transition-fast;
+  display: block;
+}
+
+.header--scrolled .header__offcanvas-open-btn i {
+  background: $gray-dark;
+}
+
+// =============================================================================
+// Offcanvas
+// =============================================================================
+
+.header__offcanvas-area {
+  position: fixed;
+  top: 0;
+  right: -100%;
+  width: 400px;
+  height: 100vh;
+  background: $white;
+  z-index: 9999;
+  transition: all $transition-normal;
+  overflow-y: auto;
+  
+  @media (max-width: $mobile) {
+    width: 100%;
+  }
+}
+
+.header__offcanvas-area.open {
+  right: 0;
+}
+
+.header__offcanvas-wrapper {
+  padding: $space-8;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  
+  @media (max-width: $mobile) {
+    padding: $space-6;
+  }
+}
+
+.header__offcanvas-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-8;
+  padding-bottom: $space-4;
+  border-bottom: 1px solid $gray-light;
+}
+
+.header__offcanvas-logo img {
+  height: 35px;
+}
+
+.header__offcanvas-close-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: $space-2;
+  color: $gray-dark;
+}
+
+.header__offcanvas-main {
+  flex: 1;
+}
+
+.header__offcanvas-title {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  margin-bottom: $space-4;
+  color: $gray-dark;
+}
+
+.header__offcanvas-title.sm {
+  font-size: $font-size-large;
+  margin-bottom: $space-3;
+}
+
+.header__offcanvas-content {
+  margin-bottom: $space-8;
+  
+  @media (max-width: $tablet) {
+    display: none;
+  }
+}
+
+.header__offcanvas-content p {
+  color: $secondary-color;
+  line-height: 1.6;
+}
+
+.header__offcanvas-contact {
+  margin-bottom: $space-8;
+}
+
+.header__offcanvas-contact ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.header__offcanvas-contact ul li {
+  margin-bottom: $space-3;
+}
+
+.header__offcanvas-contact ul li a {
+  color: $gray-dark;
+  text-decoration: none;
+  transition: color $transition-fast;
+}
+
+.header__offcanvas-contact ul li a:hover {
+  color: $primary-color;
+}
+
+.header__offcanvas-social ul {
+  display: flex;
+  gap: $space-3;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.header__offcanvas-social ul li a {
+  width: 40px;
+  height: 40px;
+  background: $gray-light;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $gray-dark;
+  transition: all $transition-fast;
+}
+
+.header__offcanvas-social ul li a:hover {
+  background: $primary-color;
+  color: $white;
+}
+
+// =============================================================================
+// Body overlay
+// =============================================================================
+
+.body-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+  opacity: 0;
+  visibility: hidden;
+  transition: all $transition-normal;
+}
+
+.body-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+// =============================================================================
+// Mobile menu styles
+// =============================================================================
+
+.header__mobile-menu ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.header__mobile-menu > ul > li {
+  border-bottom: 1px solid $gray-light;
+}
+
+.header__mobile-menu > ul > li:last-child {
+  border-bottom: none;
+}
+
+.header__mobile-menu a {
+  display: block;
+  padding: $space-3 0;
+  color: $gray-dark;
+  text-decoration: none;
+  font-weight: $font-weight-semibold;
+  font-size: $font-size-base;
+  transition: color $transition-fast;
+}
+
+.header__mobile-menu a:hover {
+  color: $primary-color;
+}
+
+.header__mobile-submenu {
+  padding-left: $space-4;
+  margin-top: $space-2;
+}
+
+.header__mobile-submenu li {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.header__mobile-submenu a {
+  font-weight: $font-weight-medium;
+  font-size: $font-size-small;
+  padding: $space-2 0;
+}
+
+// =============================================================================
+// Responsive
+// =============================================================================
+
+@media (max-width: $tablet) {
+  .header__nav nav ul {
+    gap: $space-4;
+  }
+  
+  .header__nav nav ul li > a {
+    font-size: $font-size-small;
+  }
+}
+
+@media (max-width: $mobile) {
+  .header {
+    padding: $space-3 0;
+  }
+  
+  .header__logo img {
+    height: 35px;
+  }
+  
+  .btn-goo {
+    padding: 10px 20px;
+    font-size: $font-size-small;
+  }
+  
+  .btn-goo__text {
+    display: none;
+  }
+}
+
+// =============================================================================
+// GSAP Animation Classes
+// =============================================================================
+
+.header-animate-in {
+  opacity: 0;
+  transform: translateY(-100%);
+}
+
+.header-animate-in.gsap-animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.logo-switch-animation {
+  transition: opacity $transition-fast;
+}
+
+.dropdown-animate {
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+}
+
+.dropdown-animate.show {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
