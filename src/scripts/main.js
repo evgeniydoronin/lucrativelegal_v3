@@ -375,6 +375,9 @@ class LLGApp {
         // Initialize Word Animator (after GSAP and ScrollTrigger)
         this.initWordAnimator();
         
+        // Initialize Footer (after GSAP and ScrollTrigger)
+        this.initFooter();
+        
         // Initialize performance monitoring
         this.performanceMonitor = new PerformanceMonitor();
         
@@ -650,6 +653,35 @@ class LLGApp {
     this.wordAnimator = window.initWordAnimator();
     
     console.log('✅ Word Animator initialized');
+  }
+  
+  initFooter() {
+    // Check if FooterAnimations class is available
+    if (typeof FooterAnimations === 'undefined') {
+      console.warn('⚠️ Footer component not found');
+      return;
+    }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.footer) {
+      console.warn('⚠️ Footer already initialized');
+      return;
+    }
+    
+    // Check if footer exists
+    const footerElement = document.querySelector('.footer');
+    if (!footerElement) {
+      console.warn('⚠️ Footer element not found');
+      return;
+    }
+    
+    // Initialize footer animations
+    this.footer = new FooterAnimations();
+    
+    // Make globally available
+    window.footerAnimations = this.footer;
+    
+    console.log('✅ Footer initialized');
   }
   
   

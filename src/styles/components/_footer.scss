@@ -1,0 +1,397 @@
+// =============================================================================
+// Footer Component - Migrated from v2.0
+// =============================================================================
+
+@use "../variables" as *;
+
+// =============================================================================
+// Main Footer Block
+// =============================================================================
+.footer {
+  background-color: $white;
+  color: $gray-dark;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid $gray-light;
+}
+
+// Footer Container
+.footer__container {
+  // Uses llg-container from grid system
+}
+
+// =============================================================================
+// Main Section
+// =============================================================================
+.footer__main {
+  padding: 160px 0 35px;
+  
+  @media (max-width: $tablet) {
+    padding: 80px 0 35px;
+  }
+  
+  @media (max-width: $mobile) {
+    padding: 60px 0 25px;
+  }
+}
+
+.footer__content {
+  // Uses llg-grid-container from grid system
+  align-items: flex-start;
+  
+  @media (max-width: $desktop) {
+    gap: $space-8;
+  }
+  
+  @media (max-width: $mobile) {
+    gap: $space-6;
+  }
+}
+
+// =============================================================================
+// Footer Columns
+// =============================================================================
+.footer__column {
+  display: flex;
+  flex-direction: column;
+}
+
+// Main column (left)
+.footer__column--main {
+  @media (max-width: $desktop) {
+    margin-bottom: $space-8;
+  }
+}
+
+// Office columns
+.footer__column--office {
+  @media (max-width: $desktop) {
+    text-align: center;
+    margin-bottom: $space-8;
+  }
+}
+
+// =============================================================================
+// Widgets
+// =============================================================================
+.footer__widget {
+  padding-bottom: $space-10;
+  // Initial state for GSAP animations
+  opacity: 1;
+}
+
+.footer__widget--primary {
+  // Styles for main widget
+}
+
+.footer__widget--office {
+  margin-bottom: $space-8;
+  
+  @media (max-width: $mobile) {
+    margin-bottom: $space-8;
+  }
+}
+
+// =============================================================================
+// Titles
+// =============================================================================
+.footer__title {
+  font-weight: $font-weight-semibold;
+  line-height: 1.2;
+  margin-bottom: $space-6;
+  color: $gray-dark;
+}
+
+// Large title
+.footer__title--large {
+  font-size: 80px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -7px;
+  margin-bottom: $space-8;
+  color: $gray-dark;
+  
+  @media (max-width: $desktop) {
+    font-size: 40px;
+  }
+  
+  @media (max-width: $mobile) {
+    font-size: 32px;
+    text-align: center;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 28px;
+  }
+}
+
+// Small title
+.footer__title--small {
+  font-size: $font-size-base;
+  font-weight: $font-weight-semibold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: $space-6;
+  color: $gray-dark;
+}
+
+// =============================================================================
+// Social Media
+// =============================================================================
+.footer__social {
+  display: flex;
+  gap: $space-4;
+  margin-top: $space-8;
+  
+  @media (max-width: $mobile) {
+    justify-content: center;
+    margin-top: $space-6;
+  }
+}
+
+.footer__social-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: transparent;
+  border: 1px solid rgba(88, 14, 184, 0.2);
+  border-radius: $radius-sm;
+  color: $secondary-color;
+  text-decoration: none;
+  transition: all $transition-normal;
+  position: relative;
+  overflow: hidden;
+  
+  @media (max-width: 480px) {
+    width: 40px;
+    height: 40px;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: $primary-color;
+    color: $white;
+    border-color: $primary-color;
+    transform: translateY(-2px);
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+    transition: transform $transition-normal;
+    
+    @media (max-width: 480px) {
+      width: 14px;
+      height: 14px;
+    }
+  }
+
+  &:hover svg {
+    transform: scale(1.1);
+  }
+}
+
+// =============================================================================
+// Contact Information
+// =============================================================================
+.footer__contact-group {
+  margin-bottom: $space-6;
+}
+
+.footer__contact-item {
+  margin-bottom: $space-4;
+}
+
+.footer__link {
+  color: $gray-dark;
+  text-decoration: none;
+  transition: color $transition-fast;
+  display: inline-block;
+  line-height: 1.5;
+
+  &:hover,
+  &:focus {
+    color: $primary-color;
+  }
+}
+
+// =============================================================================
+// Copyright Section
+// =============================================================================
+.footer__copyright {
+  border-top: 1px solid rgba(88, 14, 184, 0.1);
+  position: relative;
+}
+
+.footer__copyright-content {
+  padding: $space-16 0 0;
+}
+
+.footer__copyright-main {
+  text-align: center;
+  position: relative;
+  
+  @media (min-width: $mobile) {
+    text-align: left;
+  }
+}
+
+.footer__copyright-text {
+  font-size: 160px;
+  font-weight: 700;
+  line-height: 1;
+  color: $primary-color;
+  margin: 0;
+  position: relative;
+  display: inline-block;
+  letter-spacing: -16px;
+  // Initial state for GSAP animations
+  opacity: 1;
+  
+  @media (max-width: $desktop) {
+    font-size: 80px;
+  }
+  
+  @media (max-width: $mobile) {
+    font-size: 48px;
+    letter-spacing: -1px;
+  }
+  
+  @media (max-width: 480px) {
+    font-size: 36px;
+  }
+}
+
+.footer__copyright-shape {
+  position: absolute;
+  top: 50%;
+  right: 50px;
+  transform: translateY(-50%);
+  width: auto;
+  height: 60px;
+  opacity: 0.8;
+  display: none;
+  animation: footerShapeRotate 20s linear infinite;
+  
+  @media (min-width: $mobile) {
+    display: block;
+  }
+  
+  @media (max-width: $mobile) {
+    display: none !important;
+  }
+}
+
+// Continuous rotation animation
+@keyframes footerShapeRotate {
+  from {
+    transform: translateY(-50%) rotate(0deg);
+  }
+  to {
+    transform: translateY(-50%) rotate(360deg);
+  }
+}
+
+.footer__copyright-bottom {
+  padding: $space-8 0 $space-6;
+}
+
+.footer__copyright-info {
+  text-align: center;
+}
+
+.footer__copyright-year {
+  color: $secondary-color;
+  font-size: $font-size-small;
+}
+
+// =============================================================================
+// Hover Effects for Desktop
+// =============================================================================
+@media (hover: hover) {
+  .footer__link {
+    position: relative;
+    overflow: hidden;
+
+    &::before {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background-color: currentColor;
+      transition: width $transition-normal;
+    }
+
+    &:hover::before {
+      width: 100%;
+    }
+  }
+}
+
+// =============================================================================
+// Accessibility
+// =============================================================================
+@media (prefers-reduced-motion: reduce) {
+  .footer__widget,
+  .footer__copyright-text {
+    animation: none;
+    opacity: 1;
+  }
+  
+  .footer__copyright-shape {
+    animation: none;
+  }
+  
+  .footer__social-link {
+    transition: none;
+
+    &:hover {
+      transform: none;
+    }
+  }
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .footer {
+    background-color: $black;
+  }
+  
+  .footer__title,
+  .footer__copyright-text {
+    color: $white;
+  }
+  
+  .footer__link {
+    color: $white;
+  }
+  
+  .footer__social-link {
+    border-color: $white;
+  }
+}
+
+// =============================================================================
+// Print Styles
+// =============================================================================
+@media print {
+  .footer {
+    background: $white !important;
+    color: $black !important;
+    page-break-inside: avoid;
+  }
+  
+  .footer__social,
+  .footer__copyright-shape {
+    display: none !important;
+  }
+  
+  .footer__link {
+    color: $black !important;
+    text-decoration: underline !important;
+  }
+}
