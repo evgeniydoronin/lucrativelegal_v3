@@ -4,7 +4,7 @@
 
 // Section Header (Donor Site Style + LLG Grid)
 .section-header {
-    padding: 176px 0 100px; // 176px для больших экранов, 100px для мобильных
+    padding: 4rem 2rem; // 176px для больших экранов, 100px для мобильных
     position: relative;
     
     // Tablet
@@ -62,7 +62,6 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 4rem 2rem;
 
 
     .portfolio-grid {

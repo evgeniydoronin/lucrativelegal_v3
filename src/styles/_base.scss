@@ -110,7 +110,7 @@ img {
 }
 
 // White background for sections 2-11 (excluding hero, footer, and future-marketing)
-.section:not(.hero):not(.footer):not(.future-marketing) {
+.section:not(.hero):not(.footer):not(.future-marketing):not(.case-studies) {
   background-color: $white;
 }
 
