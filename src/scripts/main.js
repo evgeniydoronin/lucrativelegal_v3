@@ -363,6 +363,9 @@ class LLGApp {
         // Initialize Services Slider (after Lenis and GSAP)
         this.initServicesSlider();
         
+        // Initialize Future Marketing Cards (after Lenis and GSAP)
+        this.initFutureMarketingCards();
+        
         // Initialize Case Studies Horizontal Scroll (after Lenis and GSAP)
         this.initCaseStudiesHorizontalScroll();
         
@@ -717,6 +720,35 @@ class LLGApp {
     window.footerAnimations = this.footer;
     
     console.log('✅ Footer initialized');
+  }
+  
+  initFutureMarketingCards() {
+    // Check if initFutureMarketingCards function is available
+    if (typeof window.initFutureMarketingCards === 'undefined') {
+      console.warn('⚠️ Future Marketing Cards not found');
+      return;
+    }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.futureMarketingCards) {
+      console.warn('⚠️ Future Marketing Cards already initialized');
+      return;
+    }
+    
+    // Check if section exists
+    const section = document.querySelector('#future-marketing');
+    if (!section) {
+      console.warn('⚠️ Future Marketing section not found');
+      return;
+    }
+    
+    // Initialize future marketing cards
+    this.futureMarketingCards = window.initFutureMarketingCards();
+    
+    // Make globally available
+    window.futureMarketingCards = this.futureMarketingCards;
+    
+    console.log('✅ Future Marketing Cards initialized');
   }
   
   initHeroStarsScrollEffect() {

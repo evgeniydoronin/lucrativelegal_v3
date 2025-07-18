@@ -1,0 +1,155 @@
+// =============================================================================
+// Section Header Component - Universal - LLG v3
+// =============================================================================
+
+@use '../variables' as *;
+
+// =============================================================================
+// Base Section Header Styles
+// =============================================================================
+
+.section-header {
+    position: relative;
+    margin-bottom: $space-16;
+    
+    @media (max-width: $mobile) {
+        margin-bottom: $space-12;
+    }
+    
+    // Common element styles
+    &__subtitle {
+        margin: 0 0 $space-4 0;
+        font-family: $font-headings;
+        font-weight: $font-weight-semibold;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        
+        @media (max-width: $mobile) {
+            margin-bottom: $space-3;
+        }
+    }
+    
+    &__title {
+        margin: 0 0 $space-6 0;
+        font-family: $font-headings;
+        font-weight: $font-weight-bold;
+        line-height: 0.9;
+        
+        @media (max-width: $mobile) {
+            margin-bottom: $space-4;
+        }
+    }
+    
+    &__description {
+        margin: 0;
+        line-height: 1.6;
+        
+        &:last-child {
+            margin-bottom: 0;
+        }
+    }
+}
+
+// =============================================================================
+// Modifier: Centered Header
+// =============================================================================
+
+.section-header--center {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto $space-16 auto;
+    padding: 0 $space-4;
+    
+    .section-header__subtitle {
+        display: inline-block; // Контейнер по ширине текста
+        background-image: linear-gradient(45deg, #d3d0ff, #f9a4c1 50%, #f56bf4);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent; // Fallback для старых браузеров
+        font-size: $font-size-small;
+        font-weight: $font-weight-bold;
+        
+        @media (max-width: $mobile) {
+            font-size: 0.75rem;
+        }
+    }
+    
+    .section-header__title {
+        color: $white;
+        font-size: $font-size-7xl;
+        
+        @media (max-width: $tablet) {
+            font-size: $font-size-3xl;
+        }
+        
+        @media (max-width: $mobile) {
+            font-size: $font-size-2xl;
+        }
+    }
+    
+    .section-header__description {
+        color: rgba(255, 255, 255, 0.9);
+        font-size: $font-size-large;
+        font-weight: $font-weight-normal;
+        font-family: $font-headings;
+        max-width: 800px;
+        margin: 0 auto;
+        
+        @media (max-width: $tablet) {
+            font-size: $font-size-base;
+        }
+        
+        @media (max-width: $mobile) {
+            font-size: $font-size-small;
+        }
+    }
+    
+    @media (max-width: $mobile) {
+        padding: 0 $space-2;
+        margin-bottom: $space-12;
+    }
+}
+
+// =============================================================================
+// Future Modifiers (Placeholders for expansion)
+// =============================================================================
+
+/*
+.section-header--grid {
+    // Grid-based header layout (like portfolio)
+    // Will be implemented when needed
+}
+
+.section-header--minimal {
+    // Minimal header style
+    // Will be implemented when needed
+}
+
+.section-header--hero {
+    // Hero-specific header style
+    // Will be implemented when needed
+}
+
+.section-header--animated {
+    // Headers with advanced animations
+    // Will be implemented when needed
+}
+*/
+
+// =============================================================================
+// Animation States (Future)
+// =============================================================================
+
+/*
+.section-header {
+    // Animation classes will be added here when JavaScript component is created
+    &.is-animating {
+        // Animation states
+    }
+    
+    &.is-visible {
+        // Visibility states
+    }
+}
+*/

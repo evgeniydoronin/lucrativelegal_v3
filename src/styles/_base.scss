@@ -109,6 +109,11 @@ img {
   }
 }
 
+// White background for sections 2-11 (excluding hero, footer, and future-marketing)
+.section:not(.hero):not(.footer):not(.future-marketing) {
+  background-color: $white;
+}
+
 // Utility classes for overflow control
 .overflow-x-hidden {
   overflow-x: hidden;

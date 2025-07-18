@@ -1,0 +1,513 @@
+// =============================================================================
+// Future Marketing Cards - Horizontal Scroll - LLG v3
+// =============================================================================
+
+@use '../variables' as *;
+@use 'sass:color';
+
+// =============================================================================
+// Gradient Variables for Cards (From Services Section)
+// =============================================================================
+
+$gradient-1: linear-gradient(135deg, #34A853 0%, #FBBC04 100%);  // Зелено-желтый
+$gradient-2: linear-gradient(135deg, #EA4335 0%, #FF6D01 100%);  // Красно-оранжевый
+$gradient-3: linear-gradient(135deg, #FBBC04 0%, #FF9800 100%);  // Желто-оранжевый
+$gradient-4: linear-gradient(135deg, #1877F2 0%, #00BCD4 100%);  // Сине-голубой
+$gradient-5: linear-gradient(135deg, #FF6D01 0%, #E91E63 100%);  // Оранжево-розовый
+$gradient-6: linear-gradient(135deg, #00BCD4 0%, #2E7D32 100%);  // Голубо-зеленый
+$gradient-7: linear-gradient(135deg, #4285F4 0%, #34A853 100%);  // Сине-зеленый
+$gradient-8: linear-gradient(135deg, #9C27B0 0%, #673AB7 100%);  // Фиолетовый
+$gradient-9: linear-gradient(135deg, #E91E63 0%, #9C27B0 100%);  // Розово-фиолетовый
+$gradient-10: linear-gradient(135deg, #FF9800 0%, #FF5722 100%); // Оранжево-красный
+
+// =============================================================================
+// Main Section Styles
+// =============================================================================
+
+.future-marketing {
+    position: relative;
+    overflow: hidden;
+    background: transparent; // Прозрачный фон
+    
+    // Section number styles
+    .section-number {
+        color: $primary-color;
+        font-family: $font-headings;
+        font-size: $font-size-xl;
+        font-weight: $font-weight-bold;
+        margin-bottom: $space-4;
+    }
+}
+
+// =============================================================================
+// Horizontal Scroll Container System
+// =============================================================================
+
+.future-cards-spacer {
+    position: relative;
+    // Высота будет установлена динамически в JavaScript
+    // Примерно 300vh для горизонтального скролла 10 карточек
+}
+
+// GSAP ScrollTrigger создает pin-spacer элемент
+.pin-spacer {
+    overflow: visible !important; // Позволяем картинкам выходить за границы
+}
+
+.future-cards-viewer {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background: transparent; // Прозрачный фон
+    overflow-x: hidden; // Скрываем только горизонтальный overflow
+    overflow-y: visible; // Позволяем картинкам выходить за верхние границы
+    padding-top: 80px; // Отступ для картинок, которые выходят за пределы карточек
+    box-sizing: border-box;
+    
+    // Subtle background pattern
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: 
+            radial-gradient(circle at 20% 80%, rgba(88, 14, 184, 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(88, 14, 184, 0.1) 0%, transparent 50%);
+        pointer-events: none;
+    }
+    
+    @media (max-width: $tablet) {
+        padding-top: 70px; // Меньший отступ для планшетов
+    }
+    
+    @media (max-width: $mobile) {
+        padding-top: 60px; // Еще меньший отступ для мобильных
+    }
+}
+
+.future-cards-track {
+    position: relative;
+    display: flex;
+    align-items: center;
+    height: calc(100% - 80px); // Учитываем padding-top viewer'а
+    width: max-content; // Ширина будет рассчитана по содержимому
+    gap: $space-16; // Расстояние между карточками
+    padding: 0 50vw; // Padding чтобы первая и последняя карточки были по центру
+    
+    @media (max-width: $tablet) {
+        height: calc(100% - 70px); // Учитываем padding-top для планшетов
+    }
+    
+    @media (max-width: $mobile) {
+        gap: $space-12;
+        padding: 0 25vw;
+        height: calc(100% - 60px); // Учитываем padding-top для мобильных
+    }
+}
+
+// =============================================================================
+// Individual Card Styles
+// =============================================================================
+
+.future-card {
+    position: relative;
+    flex-shrink: 0; // Не сжимать карточки
+    width: 575px; // Увеличено на 15% (500px * 1.15)
+    height: 600px; // Фиксированная высота карточки
+    
+    // Градиентный бордер через псевдоэлемент
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 24px;
+        padding: 3px;
+        background: var(--card-gradient);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask-composite: xor;
+        -webkit-mask-composite: xor;
+        z-index: 1;
+    }
+    
+    // Hover эффект для градиентного бордера
+    &:hover::before {
+        filter: brightness(1.2);
+        box-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
+    }
+    
+    // Индивидуальные градиенты для каждой карточки
+    &[data-card="1"] { --card-gradient: #{$gradient-1}; }
+    &[data-card="2"] { --card-gradient: #{$gradient-2}; }
+    &[data-card="3"] { --card-gradient: #{$gradient-3}; }
+    &[data-card="4"] { --card-gradient: #{$gradient-4}; }
+    &[data-card="5"] { --card-gradient: #{$gradient-5}; }
+    &[data-card="6"] { --card-gradient: #{$gradient-6}; }
+    &[data-card="7"] { --card-gradient: #{$gradient-7}; }
+    &[data-card="8"] { --card-gradient: #{$gradient-8}; }
+    &[data-card="9"] { --card-gradient: #{$gradient-9}; }
+    &[data-card="10"] { --card-gradient: #{$gradient-10}; }
+    
+    @media (max-width: $tablet) {
+        width: 460px; // Увеличено на 15% (400px * 1.15)
+        height: 500px;
+    }
+    
+    @media (max-width: $mobile) {
+        width: 368px; // Увеличено на 15% (320px * 1.15)
+        height: 450px;
+    }
+}
+
+// =============================================================================
+// Card Content Styles
+// =============================================================================
+
+.future-card__content {
+    position: relative;
+    background: var(--card-gradient);
+    border-radius: 21px; // 3px меньше чем внешний радиус для градиентного бордера
+    padding: $space-16 $space-12 $space-20 $space-12; // Увеличен верхний и нижний padding
+    text-align: center;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    
+    // Subtle inner glow
+    box-shadow: 
+        inset 0 1px 0 rgba(255, 255, 255, 0.2),
+        0 20px 40px rgba(0, 0, 0, 0.15);
+    
+    @media (max-width: $tablet) {
+        padding: $space-12 $space-10 $space-16 $space-10;
+        border-radius: 18px;
+    }
+    
+    @media (max-width: $mobile) {
+        padding: $space-10 $space-8 $space-12 $space-8;
+        border-radius: 16px;
+    }
+}
+
+// =============================================================================
+// Card Elements Styles
+// =============================================================================
+
+.future-card__image {
+    position: absolute;
+    top: -60px; // Половина высоты картинки (120px / 2)
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+    
+    img {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 3px solid rgba(255, 255, 255, 0.1);
+        transition: $transition-normal;
+        
+        // Subtle hover animation
+        &:hover {
+            transform: scale(1.05);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+    }
+    
+    @media (max-width: $tablet) {
+        top: -50px; // Половина высоты картинки (100px / 2)
+        
+        img {
+            width: 100px;
+            height: 100px;
+        }
+    }
+    
+    @media (max-width: $mobile) {
+        top: -40px; // Половина высоты картинки (80px / 2)
+        
+        img {
+            width: 80px;
+            height: 80px;
+        }
+    }
+}
+
+.future-card__subtitle {
+    color: $white;
+    font-size: $font-size-small;
+    font-weight: $font-weight-semibold;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-top: $space-8; // Отступ сверху чтобы не залезать под картинку
+    margin-bottom: $space-4;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    
+    @media (max-width: $tablet) {
+        margin-top: $space-6;
+    }
+    
+    @media (max-width: $mobile) {
+        font-size: 0.75rem;
+        margin-top: $space-4;
+        margin-bottom: $space-3;
+    }
+}
+
+.future-card__title {
+    color: $white;
+    font-family: $font-headings;
+    font-size: $font-size-3xl;
+    font-weight: $font-weight-bold;
+    line-height: 1.2;
+    margin-bottom: $space-6;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+    
+    @media (max-width: $tablet) {
+        font-size: $font-size-2xl;
+        margin-bottom: $space-4;
+    }
+    
+    @media (max-width: $mobile) {
+        font-size: $font-size-xl;
+        margin-bottom: $space-3;
+    }
+}
+
+.future-card__description {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: $font-size-base;
+    line-height: 1.6;
+    margin-bottom: $space-8;
+    flex-grow: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+    
+    // Стили для параграфов
+    p {
+        margin: 0;
+        display: block;
+        
+        &:not(:last-child) {
+            margin-bottom: $space-4;
+        }
+        
+        strong {
+            font-weight: $font-weight-bold;
+            color: rgba(255, 255, 255, 1);
+        }
+    }
+    
+    @media (max-width: $tablet) {
+        font-size: $font-size-small;
+        margin-bottom: $space-6;
+    }
+    
+    @media (max-width: $mobile) {
+        font-size: 0.8rem;
+        margin-bottom: $space-4;
+        line-height: 1.5;
+    }
+}
+
+// Стили для списков в карточках
+.future-card__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    
+    li {
+        position: relative;
+        padding-left: $space-6;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: $font-size-base;
+        line-height: 1.5;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        
+        // Стильная галочка
+        &::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: rgba(255, 255, 255, 1);
+            font-weight: $font-weight-bold;
+            font-size: $font-size-base;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+        }
+        
+        &:not(:last-child) {
+            margin-bottom: $space-1;
+        }
+    }
+    
+    @media (max-width: $tablet) {
+        li {
+            font-size: $font-size-small;
+            padding-left: $space-5;
+            
+            &::before {
+                font-size: $font-size-small;
+            }
+        }
+    }
+    
+    @media (max-width: $mobile) {
+        li {
+            font-size: 0.8rem;
+            padding-left: $space-4;
+            
+            &::before {
+                font-size: 0.8rem;
+            }
+        }
+    }
+}
+
+.future-card__button {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 5;
+}
+
+.future-card__cta {
+    display: inline-block;
+    background: $primary-color;
+    color: $white;
+    padding: $space-4 $space-8;
+    border-radius: $radius-lg;
+    text-decoration: none;
+    font-weight: $font-weight-semibold;
+    font-size: $font-size-base;
+    transition: all $transition-normal;
+    position: relative;
+    overflow: hidden;
+    
+    // Hover effects
+    &:hover {
+        transform: translateY(-2px);
+        background: color.adjust($primary-color, $lightness: -10%);
+        box-shadow: 0 10px 25px rgba(88, 14, 184, 0.3);
+        color: $white; // Текст остается белым при наведении
+        
+        &::before {
+            opacity: 1;
+        }
+    }
+    
+    // Shine effect on hover
+    &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+        opacity: 0;
+    }
+    
+    &:hover::before {
+        left: 100%;
+        opacity: 1;
+    }
+    
+    @media (max-width: $mobile) {
+        padding: $space-3 $space-6;
+        font-size: $font-size-small;
+    }
+}
+
+
+// =============================================================================
+// Animation States
+// =============================================================================
+
+// Floating animation for cards
+.future-card {
+    animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+// =============================================================================
+// Performance Optimizations
+// =============================================================================
+
+// GPU acceleration for smooth animations
+.future-cards-track,
+.future-card,
+.future-card__content,
+.future-card__image img {
+    will-change: transform;
+    backface-visibility: hidden;
+    perspective: 1000px;
+}
+
+// Reduce motion for accessibility
+@media (prefers-reduced-motion: reduce) {
+    .future-card,
+    .future-card__cta,
+    .future-card__image img {
+        transition: none;
+        animation: none;
+    }
+    
+    .future-cards-track {
+        will-change: auto;
+    }
+}
+
+// =============================================================================
+// Scroll Indicators (Optional)
+// =============================================================================
+
+.future-cards-viewer {
+    // Optional: Add scroll indicators
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: $space-4;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100px;
+        height: 2px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 1px;
+        
+        @media (max-width: $mobile) {
+            width: 60px;
+        }
+    }
+}
+
+// Progress indicator (will be updated via JavaScript)
+.future-cards-progress {
+    position: absolute;
+    bottom: $space-4;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0%;
+    height: 2px;
+    background: $primary-color;
+    border-radius: 1px;
+    transition: width 0.3s ease;
+    z-index: 11;
+}
