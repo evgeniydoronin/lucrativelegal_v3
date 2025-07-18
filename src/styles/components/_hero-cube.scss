@@ -6,6 +6,8 @@
 #hero {
     position: relative; // Контекст для absolute позиционирования куба
     height: 350vh; // Увеличена высота для полной заливки фона (было 300vh)
+    margin-top: -73px; // Поднимаем секцию под навигацию (73px - высота header)
+    padding-top: 73px; // Компенсируем отступ для контента
 }
 
 
@@ -60,28 +62,23 @@
     // Переход для плавной подмены
     transition: opacity 0.3s ease;
     
-    // Реальный элемент для картинки (управляется JavaScript)
+    // Реальный элемент для фиолетового градиента (как у начальной грани куба)
     .hero-square-bg {
         position: absolute;
         top: 50%;
         left: 50%;
-        width: 100vw;  // Начальный размер viewport
-        height: 100vh; // Начальный размер viewport
+        width: 100%;  // Заполняем родительский квадрат
+        height: 100%; // Заполняем родительский квадрат
         
-        // КОМПЕНСАЦИЯ масштабирования родителя + центрирование
-        transform: translate(-50%, -50%) scale(var(--inverse-scale-x, 1), var(--inverse-scale-y, 1));
+        // Центрирование элемента
+        transform: translate(-50%, -50%);
         
-        background: url('../assets/images/liquid-pattern-17.jpg') center no-repeat;
-        background-size: cover; // Начальное значение, будет управляться JavaScript
+        // Фиолетовый градиент из front грани куба
+        background: linear-gradient(135deg, #9C27B0 0%, #673AB7 100%);
         
         z-index: -1; // Под содержимым квадрата
         
-        // Улучшение качества изображения при масштабировании
-        image-rendering: high-quality;
-        image-rendering: -webkit-optimize-contrast;
-        image-rendering: smooth;
-        
-        // Оптимизация производительности и качества
+        // Оптимизация производительности
         will-change: transform;
         backface-visibility: hidden;
         
@@ -124,34 +121,34 @@
     height: 180px; // Уменьшено с учетом перспективы
     opacity: 0.9;
     
-    // Цветные грани куба
+    // Градиентные грани куба (из services секции)
     &--front {
-        background: #ff6b6b;
+        background: linear-gradient(135deg, #9C27B0 0%, #673AB7 100%); // Фиолетово-индиго (Advanced AI)
         transform: rotateY(0deg) translateZ(90px); // Половина от 180px
     }
     
     &--back {
-        background: #4ecdc4;
+        background: linear-gradient(135deg, #1877F2 0%, #00BCD4 100%); // Сине-голубой (Local Market Domination)
         transform: rotateY(180deg) translateZ(90px); // Половина от 180px
     }
     
     &--right {
-        background: #45b7d1;
+        background: linear-gradient(135deg, #EA4335 0%, #FF6D01 100%); // Красно-оранжевый (Law Firm Brand)
         transform: rotateY(90deg) translateZ(90px); // Половина от 180px
     }
     
     &--left {
-        background: #f9ca24;
+        background: linear-gradient(135deg, #34A853 0%, #FBBC04 100%); // Зелено-желтый (Aggressive Case Generation)
         transform: rotateY(-90deg) translateZ(90px); // Половина от 180px
     }
     
     &--top {
-        background: #6c5ce7;
+        background: linear-gradient(135deg, #FBBC04 0%, #FF9800 100%); // Желто-оранжевый (Quality Content & SEO)
         transform: rotateX(90deg) translateZ(90px); // Половина от 180px
     }
     
     &--bottom {
-        background: #a29bfe;
+        background: linear-gradient(135deg, #4285F4 0%, #34A853 100%); // Сине-зеленый (Live Intake Teams)
         transform: rotateX(-90deg) translateZ(90px); // Половина от 180px
     }
 }

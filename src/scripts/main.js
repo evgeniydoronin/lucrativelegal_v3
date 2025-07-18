@@ -381,6 +381,9 @@ class LLGApp {
         // Initialize Footer (after GSAP and ScrollTrigger)
         this.initFooter();
         
+        // Initialize Hero Stars Scroll Effect (after all other components)
+        this.initHeroStarsScrollEffect();
+        
         // Initialize performance monitoring
         this.performanceMonitor = new PerformanceMonitor();
         
@@ -714,6 +717,35 @@ class LLGApp {
     window.footerAnimations = this.footer;
     
     console.log('✅ Footer initialized');
+  }
+  
+  initHeroStarsScrollEffect() {
+    // Check if initHeroStarsScrollEffect function is available
+    if (typeof window.initHeroStarsScrollEffect === 'undefined') {
+      console.warn('⚠️ Hero Stars Scroll Effect component not found');
+      return;
+    }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.heroStarsScrollEffect) {
+      console.warn('⚠️ Hero Stars Scroll Effect already initialized');
+      return;
+    }
+    
+    // Check if hero stars animation exists
+    const heroStarsElement = document.querySelector('.hero-stars-animation');
+    if (!heroStarsElement) {
+      console.warn('⚠️ Hero stars animation element not found');
+      return;
+    }
+    
+    // Initialize hero stars scroll effect
+    this.heroStarsScrollEffect = window.initHeroStarsScrollEffect();
+    
+    // Make globally available
+    window.heroStarsScrollEffect = this.heroStarsScrollEffect;
+    
+    console.log('✅ Hero Stars Scroll Effect initialized');
   }
   
   

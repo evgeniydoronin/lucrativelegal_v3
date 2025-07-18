@@ -108,3 +108,23 @@ img {
     padding: $space-20 0;
   }
 }
+
+// Utility classes for overflow control
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+
+.overflow-y-hidden {
+  overflow-y: hidden;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+// Prevent horizontal scroll on specific elements that might cause it
+.header__offcanvas-area {
+  overflow-x: hidden;
+}
+
+// НЕ добавляем overflow-x: hidden к .llg-container - это обрезает dropdown меню!

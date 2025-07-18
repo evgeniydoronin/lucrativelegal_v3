@@ -15,6 +15,7 @@
   z-index: 1000;
   transition: all $transition-normal;
   padding: $space-4 0;
+  width: 100%;
 }
 
 // Transparent state - начальное состояние
@@ -138,40 +139,64 @@
   position: relative;
 }
 
-.header__submenu {
+// Стили для dropdown меню (поддержка 3 уровней)
+.header__submenu,
+.submenu {
   position: absolute;
-  top: calc(100% + 10px);
+  top: 100%;
   left: 0;
   background: $white;
   min-width: 220px;
+  max-width: 300px; // Увеличил для лучшего отображения
   box-shadow: $shadow-lg;
   border-radius: $radius-lg;
   padding: $space-2 0;
-  padding-top: calc($space-2 + 10px);
-  margin-top: -10px;
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(10px);
-  transition: all $transition-normal;
   z-index: 1001;
+  display: none !important; // По умолчанию скрыт с !important
+  
+  // Автоматическое позиционирование для предотвращения выхода за границы
+  &.dropdown-right {
+    left: auto;
+    right: 0;
+  }
 }
 
-// Invisible bridge to prevent dropdown from closing when moving cursor
-.header__submenu::before {
-  content: '';
-  position: absolute;
-  top: -10px;
-  left: 0;
-  right: 0;
-  height: 10px;
-  background: transparent;
-  pointer-events: auto;
+// Дополнительные селекторы для надежного скрытия
+.header__nav .header__submenu,
+.header__nav .submenu,
+.header__desktop-menu .header__submenu,
+.header__desktop-menu .submenu,
+.header__dropdown .header__submenu,
+.header__dropdown .submenu {
+  display: none !important;
 }
 
-.header__nav .has-dropdown:hover > .header__submenu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+// 1-й уровень dropdown (основные пункты меню)
+.has-dropdown:hover > .header__submenu,
+.has-dropdown:hover > .submenu {
+  display: block !important;
+}
+
+// 2-й и 3-й уровни dropdown (вложенные меню)
+.menu-item-has-children:hover > .header__submenu,
+.menu-item-has-children:hover > .submenu {
+  display: block !important;
+}
+
+// Дополнительные селекторы для надежности
+.header__nav .has-dropdown:hover > .header__submenu,
+.header__nav .has-dropdown:hover > .submenu,
+.header__desktop-menu .has-dropdown:hover > .header__submenu,
+.header__desktop-menu .has-dropdown:hover > .submenu {
+  display: block !important;
+}
+
+// Селекторы для вложенных уровней
+.header__nav .menu-item-has-children:hover > .header__submenu,
+.header__nav .menu-item-has-children:hover > .submenu,
+.header__desktop-menu .menu-item-has-children:hover > .header__submenu,
+.header__desktop-menu .menu-item-has-children:hover > .submenu {
+  display: block !important;
 }
 
 // Dropdown Arrow Indicator
@@ -193,8 +218,9 @@
   transform: rotate(180deg);
 }
 
-// Arrow for nested submenus
-.header__submenu .menu-item-has-children > a::after {
+// Arrow for nested submenus (для всех уровней)
+.header__submenu .menu-item-has-children > a::after,
+.submenu .menu-item-has-children > a::after {
   content: '';
   position: absolute;
   right: 20px;
@@ -208,7 +234,8 @@
   transition: transform $transition-normal;
 }
 
-.header__submenu .menu-item-has-children:hover > a::after {
+.header__submenu .menu-item-has-children:hover > a::after,
+.submenu .menu-item-has-children:hover > a::after {
   transform: translateY(-50%) rotate(0deg);
 }
 
@@ -234,18 +261,23 @@
   color: $primary-color !important;
 }
 
-// Multi-level dropdown
-.header__submenu .menu-item-has-children {
+// Multi-level dropdown (упрощенная логика)
+.header__submenu .menu-item-has-children,
+.submenu .menu-item-has-children {
   position: relative;
 }
 
-.header__submenu .menu-item-has-children:hover > .header__submenu {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+// Показывание вложенных dropdown
+.menu-item-has-children:hover .header__submenu,
+.menu-item-has-children:hover .submenu {
+  display: block !important;
 }
 
-.header__submenu .menu-item-has-children > .header__submenu {
+// Позиционирование вложенных dropdown
+.header__submenu .menu-item-has-children > .header__submenu,
+.header__submenu .menu-item-has-children > .submenu,
+.submenu .menu-item-has-children > .header__submenu,
+.submenu .menu-item-has-children > .submenu {
   left: 100%;
   top: 0;
 }
@@ -481,11 +513,13 @@
   top: 0;
   right: -100%;
   width: 400px;
+  max-width: 100vw; // Предотвращаем переполнение viewport
   height: 100vh;
   background: $white;
   z-index: 9999;
   transition: all $transition-normal;
   overflow-y: auto;
+  overflow-x: hidden; // Предотвращаем горизонтальный скролл
   
   @media (max-width: $mobile) {
     width: 100%;

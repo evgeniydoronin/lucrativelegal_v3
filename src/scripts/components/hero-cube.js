@@ -21,17 +21,17 @@ class HeroCube {
         this.currentRotation = { x: 0, y: 0 };
         
         // Отслеживание поворотов граней
-        this.lastFaceAngle = 0; // Начальный угол (красная грань)
-        this.currentFace = 'red'; // Текущая видимая грань
+        this.lastFaceAngle = 0; // Начальный угол (фиолетовая грань)
+        this.currentFace = 'purple'; // Текущая видимая грань
         this.faceHistory = []; // История смены граней
         
-        // Определение граней по углам поворота (реальный порядок вращения)
+        // Определение граней по углам поворота (градиентные цвета из services)
         this.faceAngles = {
-            '0': { name: 'red', color: '#ff6b6b', emoji: '❤️' },      // front (начальная)
-            '90': { name: 'yellow', color: '#f9ca24', emoji: '💛' },  // left → front при вращении
-            '180': { name: 'green', color: '#4ecdc4', emoji: '💚' },  // back → front при вращении
-            '270': { name: 'blue', color: '#45b7d1', emoji: '💙' },   // right → front при вращении
-            '360': { name: 'red', color: '#ff6b6b', emoji: '❤️' }     // Полный оборот
+            '0': { name: 'purple', color: 'linear-gradient(135deg, #9C27B0 0%, #673AB7 100%)', emoji: '💜' },      // front (фиолетово-индиго)
+            '90': { name: 'green', color: 'linear-gradient(135deg, #34A853 0%, #FBBC04 100%)', emoji: '💚' },     // left → front (зелено-желтый)
+            '180': { name: 'blue', color: 'linear-gradient(135deg, #1877F2 0%, #00BCD4 100%)', emoji: '💙' },     // back → front (сине-голубой)
+            '270': { name: 'orange', color: 'linear-gradient(135deg, #EA4335 0%, #FF6D01 100%)', emoji: '🧡' },   // right → front (красно-оранжевый)
+            '360': { name: 'purple', color: 'linear-gradient(135deg, #9C27B0 0%, #673AB7 100%)', emoji: '💜' }    // Полный оборот
         };
         
         // Настройки анимации
@@ -81,6 +81,11 @@ class HeroCube {
         this.navigationReset = false; // Флаг сброса через навигацию
         this.navigationResetTime = 0; // Время установки navigationReset
         
+        // Управление видимостью заголовков
+        this.titleContainer = null;
+        this.subtitleContainer = null;
+        this.textHidden = false; // Флаг скрытия заголовков
+        
         // Throttling для защиты от слишком частых обновлений
         this.lastUpdate = 0;
         this.updateThrottle = 16; // ~60fps (1000ms / 60fps = 16.67ms)
@@ -112,12 +117,33 @@ class HeroCube {
         this.setX = gsap.quickSetter(this.cubeContainer, "x", "px");
         this.setY = gsap.quickSetter(this.cubeContainer, "y", "px");
         
+        // Инициализируем элементы заголовков
+        this.initTextContainers();
+        
         this.setupScrollTrigger();
         
         // Выводим начальную грань
         const initialFaceInfo = this.faceAngles['0'];
         // console.log('🎲 Hero 3D Cube initialized');
         // console.log(`🎲${initialFaceInfo.emoji} ${initialFaceInfo.name.toUpperCase()} ГРАНЬ ИЗНАЧАЛЬНО ВИДНА! (0°)`);
+    }
+    
+    // Инициализация элементов заголовков
+    initTextContainers() {
+        this.titleContainer = document.querySelector('.hero-title-container');
+        this.subtitleContainer = document.querySelector('.hero-subtitle-container');
+        
+        if (this.titleContainer) {
+            console.log('✅ Hero title container найден');
+        } else {
+            console.warn('⚠️ Hero title container не найден');
+        }
+        
+        if (this.subtitleContainer) {
+            console.log('✅ Hero subtitle container найден');
+        } else {
+            console.warn('⚠️ Hero subtitle container не найден');
+        }
     }
     
     setupScrollTrigger() {
@@ -153,10 +179,12 @@ class HeroCube {
         if (!this.isAbsoluteMode && shouldBeAbsolute) {
             // console.log(`🎲 SWITCHING TO ABSOLUTE: diff=${diff}, timeSinceLastSwitch=${timeSinceLastSwitch}ms`);
             this.switchToAbsoluteMode();
+            this.updateTextContainersPositioning(true); // ✅ НОВОЕ: Обновляем позиционирование заголовков
             this.lastSwitchTime = now;
         } else if (this.isAbsoluteMode && shouldBeFixed) {
             // console.log(`🎲 SWITCHING TO FIXED: diff=${diff}, timeSinceLastSwitch=${timeSinceLastSwitch}ms`);
             this.switchToFixedMode();
+            this.updateTextContainersPositioning(false); // ✅ НОВОЕ: Обновляем позиционирование заголовков
             this.lastSwitchTime = now;
         }
     }
@@ -363,12 +391,12 @@ class HeroCube {
             }
         } else {
             // Фаза 2: Застывание (rotationEnd - scaleStart%)
-            targetRotation = 360; // Куб застыл на красной грани
+            targetRotation = 360; // Куб застыл на фиолетовой грани
             
             // Проверяем завершение вращения
             if (!this.rotationComplete) {
                 this.rotationComplete = true;
-                console.log('🎲 Вращение завершено! Куб застыл на красной грани.');
+                console.log('🎲 Вращение завершено! Куб застыл на фиолетовой грани.');
                 
                 // Подмена куба на квадрат
                 this.swapCubeToSquare();
@@ -391,6 +419,9 @@ class HeroCube {
         if (!this.isScalingMode) {
             this.trackFaceRotation(targetRotation);
         }
+        
+        // ✅ НОВОЕ: Управление видимостью заголовков
+        this.updateTextVisibility(scrollProgress);
         
         // Сохраняем текущий прогресс для следующего кадра
         this.lastScrollProgress = scrollProgress;
@@ -510,48 +541,12 @@ class HeroCube {
         
         // console.log(`✅ Заполнение viewport: ширина ${isWidthCovered ? '✅' : '❌'}, высота ${isHeightCovered ? '✅' : '❌'}, полное ${isFullyFilled ? '✅' : '❌'}`);
         
-        // 🖼️ ДИНАМИЧЕСКОЕ JAVASCRIPT УПРАВЛЕНИЕ РАЗМЕРОМ КАРТИНКИ
+        // 🎨 ГРАДИЕНТ АВТОМАТИЧЕСКИ МАСШТАБИРУЕТСЯ - никаких дополнительных расчетов не нужно
+        // Фиолетовый градиент заполняет квадрат автоматически благодаря width: 100% и height: 100%
         if (this.squareBg) {
-            const imageAspectRatio = 1.679; // Соотношение сторон картинки (5696×3392px)
-            
-            // ДИНАМИЧЕСКАЯ ЛОГИКА: выбираем контейнер в зависимости от заполнения viewport
-            let containerWidth, containerHeight;
-            if (isFullyFilled) {
-                // Фаза 2: прямоугольник заполнил viewport → используем размер viewport
-                containerWidth = window.innerWidth;
-                containerHeight = window.innerHeight;
-                // console.log(`🔄 РЕЖИМ VIEWPORT: прямоугольник заполнил экран`);
-            } else {
-                // Фаза 1: прямоугольник растет → используем размер прямоугольника
-                containerWidth = realWidth;
-                containerHeight = realHeight;
-                // console.log(`🔄 РЕЖИМ ПРЯМОУГОЛЬНИКА: картинка растет вместе с прямоугольником`);
-            }
-            
-            // Логика cover для выбранного контейнера
-            let bgWidth, bgHeight;
-            if (containerWidth / containerHeight > imageAspectRatio) {
-                // Контейнер шире картинки - заполняем по ШИРИНЕ (cover эффект)
-                bgWidth = containerWidth;  // Заполняем всю ширину контейнера
-                bgHeight = containerWidth / imageAspectRatio;  // Высота пропорционально
-            } else {
-                // Контейнер выше картинки - заполняем по высоте
-                bgHeight = containerHeight;
-                bgWidth = containerHeight * imageAspectRatio;
-            }
-            
-            // Применяем размеры к элементу фона
-            this.squareBg.style.width = `${containerWidth}px`;
-            this.squareBg.style.height = `${containerHeight}px`;
-            this.squareBg.style.backgroundSize = `${bgWidth}px ${bgHeight}px`;
-            
-            // console.log(`🖼️ ДИНАМИЧЕСКИЙ background-size: ${bgWidth.toFixed(1)}×${bgHeight.toFixed(1)}px`);
-            // console.log(`📦 ДИНАМИЧЕСКИЙ размер контейнера фона: ${containerWidth.toFixed(1)}×${containerHeight.toFixed(1)}px`);
-            // console.log(`🎯 Режим: ${isFullyFilled ? 'VIEWPORT' : 'ПРЯМОУГОЛЬНИК'}`);
-        } else {
-            // console.warn('⚠️ Элемент фона не инициализирован!');
+            // console.log(`💜 Фиолетовый градиент автоматически заполняет квадрат ${realWidth.toFixed(1)}×${realHeight.toFixed(1)}px`);
         }
-        // console.log(`🎨 === КОНЕЦ РЕСАЙЗА ===\n`);
+        // console.log(` === КОНЕЦ РЕСАЙЗА ===\n`);
         
         // Останавливаем масштабирование когда viewport полностью заполнен
         if (isFullyFilled && !this.scaleCompleted) {
@@ -609,18 +604,17 @@ class HeroCube {
                     position: absolute;
                     top: 50%;
                     left: 50%;
-                    width: 100vw;
-                    height: 100vh;
+                    width: 100%;
+                    height: 100%;
                     transform: translate(-50%, -50%);
-                    background: url('assets/images/liquid-pattern-17.jpg') center no-repeat;
-                    background-size: cover;
+                    background: linear-gradient(135deg, #9C27B0 0%, #673AB7 100%);
                     z-index: -1;
-                    image-rendering: auto;
-                    image-rendering: -webkit-optimize-contrast;
+                    will-change: transform;
+                    backface-visibility: hidden;
                     transition: opacity 0.3s ease;
                 `;
                 this.square.appendChild(this.squareBg);
-                console.log('✅ Элемент фона создан через JavaScript');
+                console.log('✅ Элемент фиолетового градиента создан через JavaScript');
             } else {
                 console.log('✅ Элемент фона найден в HTML');
             }
@@ -852,6 +846,129 @@ class HeroCube {
                 }
             }
         }
+    }
+    
+    // ✅ НОВОЕ: Управление позиционированием заголовков (fixed/absolute)
+    updateTextContainersPositioning(shouldBeAbsolute) {
+        if (!this.titleContainer && !this.subtitleContainer) return; // Нет элементов для управления
+        
+        if (shouldBeAbsolute) {
+            // Переключаем на absolute режим - заголовки движутся вместе с секцией
+            if (this.titleContainer) {
+                this.titleContainer.classList.add('absolute-mode');
+            }
+            if (this.subtitleContainer) {
+                this.subtitleContainer.classList.add('absolute-mode');
+            }
+            console.log('📝 Заголовки переключены в absolute режим - движутся вместе с секцией');
+        } else {
+            // Переключаем на fixed режим - заголовки зафиксированы на экране
+            if (this.titleContainer) {
+                this.titleContainer.classList.remove('absolute-mode');
+            }
+            if (this.subtitleContainer) {
+                this.subtitleContainer.classList.remove('absolute-mode');
+            }
+            console.log('📝 Заголовки переключены в fixed режим - зафиксированы на экране');
+        }
+    }
+    
+    // ✅ НОВОЕ: Управление видимостью заголовков
+    updateTextVisibility(scrollProgress) {
+        if (!this.titleContainer && !this.subtitleContainer) return; // Нет элементов для управления
+        
+        // Получаем позицию hero секции
+        const heroRect = this.element.getBoundingClientRect();
+        const isSectionVisible = heroRect.bottom >= window.innerHeight;
+        
+        // Получаем реальные размеры квадрата (если он активен)
+        let isFullyFilled = false;
+        if (this.cubeToSquareSwapped && this.square) {
+            const realRect = this.square.getBoundingClientRect();
+            const realWidth = realRect.width;
+            const realHeight = realRect.height;
+            
+            const isWidthFullyFilled = realWidth >= window.innerWidth;
+            const isHeightFullyFilled = realHeight >= window.innerHeight;
+            isFullyFilled = isWidthFullyFilled && isHeightFullyFilled;
+        }
+        
+        // Используем настройки из единого места
+        const { backgroundStart } = this.animationPhases;
+        const isProgressReached = scrollProgress >= backgroundStart;
+        
+        // 📝 ЛОГИКА СКРЫТИЯ ЗАГОЛОВКОВ: такая же как у магнитной кнопки
+        const shouldHideText = this.scaleCompleted && 
+                              this.cubeToSquareSwapped && 
+                              isFullyFilled && 
+                              isSectionVisible && 
+                              isProgressReached;
+        
+        // 📈 СКРЫТИЕ ЗАГОЛОВКОВ: когда квадрат заполняет экран
+        if (shouldHideText && !this.textHidden) {
+            this.hideTextContainers();
+        }
+        
+        // 📉 ПОКАЗ ЗАГОЛОВКОВ: когда условия не выполнены
+        if (!shouldHideText && this.textHidden) {
+            this.showTextContainers();
+        }
+    }
+    
+    // Скрытие заголовков
+    hideTextContainers() {
+        if (this.textHidden) return; // Уже скрыты
+        
+        console.log('📝 Скрываем заголовки hero секции');
+        
+        // Плавно скрываем title container
+        if (this.titleContainer) {
+            gsap.to(this.titleContainer, {
+                opacity: 0,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        }
+        
+        // Плавно скрываем subtitle container
+        if (this.subtitleContainer) {
+            gsap.to(this.subtitleContainer, {
+                opacity: 0,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        }
+        
+        this.textHidden = true;
+        console.log('✅ Заголовки hero секции скрыты');
+    }
+    
+    // Показ заголовков
+    showTextContainers() {
+        if (!this.textHidden) return; // Уже показаны
+        
+        console.log('📝 Показываем заголовки hero секции');
+        
+        // Плавно показываем title container
+        if (this.titleContainer) {
+            gsap.to(this.titleContainer, {
+                opacity: 1,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        }
+        
+        // Плавно показываем subtitle container
+        if (this.subtitleContainer) {
+            gsap.to(this.subtitleContainer, {
+                opacity: 1,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        }
+        
+        this.textHidden = false;
+        console.log('✅ Заголовки hero секции показаны');
     }
     
     // Рассчитываем прогресс скролла через hero секцию (0 = начало, 1 = конец)

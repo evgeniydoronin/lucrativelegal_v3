@@ -73,8 +73,7 @@ function html() {
 **Подключение с переменными:**
 ```html
 @@include('components/hero/hero.html', {
-    "title": "Professional Legal Services",
-    "background": "assets/images/bg-wrap-2.jpg"
+    "title": "Professional Legal Services"
 })
 ```
 
@@ -104,8 +103,7 @@ function html() {
     @@include('templates/navigation.html')
 
     @@include('components/hero/hero.html', {
-        "title": "Professional Legal Services",
-        "background": "assets/images/bg-wrap-2.jpg"
+        "title": "Professional Legal Services"
     })
 
     @@include('components/future-marketing/future-marketing.html')
