@@ -203,6 +203,16 @@ class PerformanceConfig {
      */
     logPerformanceMetrics() {
         const avgFPS = this.performanceMetrics.averageFPS.toFixed(1);
+        
+        // Проверяем, есть ли данные FPS
+        if (this.performanceMetrics.fps.length === 0) {
+            console.log(`📊 Performance Metrics:`);
+            console.log(`   - Average FPS: ${avgFPS} (collecting data...)`);
+            console.log(`   - Min FPS: -- (no data yet)`);
+            console.log(`   - Max FPS: -- (no data yet)`);
+            return;
+        }
+        
         const minFPS = Math.min(...this.performanceMetrics.fps).toFixed(1);
         const maxFPS = Math.max(...this.performanceMetrics.fps).toFixed(1);
         
@@ -210,6 +220,7 @@ class PerformanceConfig {
         console.log(`   - Average FPS: ${avgFPS}`);
         console.log(`   - Min FPS: ${minFPS}`);
         console.log(`   - Max FPS: ${maxFPS}`);
+        console.log(`   - Samples: ${this.performanceMetrics.fps.length}`);
         
         // Предупреждение при низком FPS
         if (this.performanceMetrics.averageFPS < 30) {
@@ -245,8 +256,9 @@ class PerformanceConfig {
     getMetrics() {
         return {
             averageFPS: this.performanceMetrics.averageFPS,
-            minFPS: Math.min(...this.performanceMetrics.fps),
-            maxFPS: Math.max(...this.performanceMetrics.fps),
+            minFPS: this.performanceMetrics.fps.length > 0 ? Math.min(...this.performanceMetrics.fps) : null,
+            maxFPS: this.performanceMetrics.fps.length > 0 ? Math.max(...this.performanceMetrics.fps) : null,
+            samplesCount: this.performanceMetrics.fps.length,
             memoryUsage: performance.memory ? {
                 used: performance.memory.usedJSHeapSize,
                 total: performance.memory.totalJSHeapSize,

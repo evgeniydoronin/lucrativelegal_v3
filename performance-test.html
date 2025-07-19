@@ -237,7 +237,11 @@
                 
                 if (metrics.averageFPS) {
                     const fps = metrics.averageFPS.toFixed(1);
-                    fpsValue.textContent = `${fps} FPS`;
+                    const minFPS = metrics.minFPS ? metrics.minFPS.toFixed(1) : '--';
+                    const maxFPS = metrics.maxFPS ? metrics.maxFPS.toFixed(1) : '--';
+                    const samples = metrics.samplesCount || 0;
+                    
+                    fpsValue.textContent = `${fps} FPS (${minFPS}-${maxFPS}, ${samples} samples)`;
                     
                     if (fps >= 55) {
                         fpsMetric.className = 'metric good';
