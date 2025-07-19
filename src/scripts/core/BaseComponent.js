@@ -151,6 +151,12 @@ class BaseComponent {
         const prefix = `[${this.constructor.name}#${this.id}]`;
         const fullMessage = `${prefix} ${message}`;
         
+        // Используем кастомный логгер если он установлен
+        if (this.options.customLogger && typeof this.options.customLogger === 'function') {
+            this.options.customLogger(level, fullMessage, data);
+            return;
+        }
+        
         switch (level) {
             case 'error':
                 console.error(`❌ ${fullMessage}`, data || '');

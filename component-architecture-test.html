@@ -279,7 +279,33 @@
         
         function initializePortfolio() {
             try {
-                testPortfolio = initPortfolioNew();
+                // Создаем кастомный логгер для компонента
+                const customLogger = (level, message, data) => {
+                    let icon = '';
+                    switch (level) {
+                        case 'error': icon = '❌'; break;
+                        case 'warn': icon = '⚠️'; break;
+                        case 'success': icon = '✅'; break;
+                        case 'info': icon = 'ℹ️'; break;
+                        case 'debug': icon = '🔍'; break;
+                        default: icon = '📝'; break;
+                    }
+                    log(`${icon} ${message}`);
+                };
+                
+                // Инициализируем компонент с кастомным логгером
+                const portfolioElement = document.querySelector('#portfolio');
+                if (!portfolioElement) {
+                    log('❌ Portfolio element not found');
+                    return;
+                }
+                
+                testPortfolio = new Portfolio(portfolioElement, {
+                    debug: true, // Включаем отладку
+                    mouseTrackingEnabled: true,
+                    hoverAnimationEnabled: true,
+                    customLogger: customLogger // Передаем кастомный логгер
+                });
                 
                 if (testPortfolio) {
                     log('✅ Portfolio component initialized successfully');
