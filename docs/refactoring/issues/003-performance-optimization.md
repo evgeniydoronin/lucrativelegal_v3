@@ -372,6 +372,10 @@ class PerformanceMonitor {
 
 ## 📚 Дополнительные ресурсы
 
+### Официальная документация GSAP
+- **[Банк знаний GSAP](../GSAP_DOCUMENTATION_BANK.md#проблема-003-проблемы-производительности)** - Структурированные ссылки на документацию для этой проблемы
+
+### Дополнительные материалы
 - [GSAP Performance Tips](https://greensock.com/performance/)
 - [Web Performance Optimization](https://developers.google.com/web/fundamentals/performance)
 - [CSS will-change Property](https://developer.mozilla.org/en-US/docs/Web/CSS/will-change)

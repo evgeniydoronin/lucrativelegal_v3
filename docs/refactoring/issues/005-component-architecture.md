@@ -593,6 +593,10 @@ if (portfolioElement) {
 
 ## 📚 Дополнительные ресурсы
 
+### Официальная документация GSAP
+- **[Банк знаний GSAP](../GSAP_DOCUMENTATION_BANK.md#проблема-005-архитектура-компонентов)** - Структурированные ссылки на документацию для этой проблемы
+
+### Дополнительные материалы
 - [Component Architecture Patterns](https://addyosmani.com/resources/essentialjsdesignpatterns/book/#modulepatternjavascript)
 - [JavaScript Class Inheritance](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
 - [Event-Driven Architecture](https://martinfowler.com/articles/201701-event-driven.html)

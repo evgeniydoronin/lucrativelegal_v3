@@ -397,6 +397,10 @@ src/styles/mixins/
 
 ## 📚 Дополнительные ресурсы
 
+### Официальная документация
+- **[Банк знаний документации](../GSAP_DOCUMENTATION_BANK.md#проблема-004-дублирование-scss-кода)** - Структурированные ссылки на документацию для этой проблемы
+
+### Дополнительные материалы
 - [Sass Mixins Best Practices](https://sass-lang.com/documentation/at-rules/mixin)
 - [CSS Architecture Guidelines](https://cssguidelin.es/)
 - [SCSS Style Guide](https://sass-guidelin.es/)

@@ -197,6 +197,10 @@ ScrollTrigger.batch(".slide", {
 
 ## 📚 Дополнительные ресурсы
 
+### Официальная документация GSAP
+- **[Банк знаний GSAP](../GSAP_DOCUMENTATION_BANK.md#проблема-001-gsap-scrolltrigger-конфликты)** - Структурированные ссылки на документацию для этой проблемы
+
+### Дополнительные материалы
 - [GSAP ScrollTrigger Best Practices](https://greensock.com/docs/v3/Plugins/ScrollTrigger)
 - [Performance Optimization Guide](https://greensock.com/performance/)
 - [Timeline vs Multiple Tweens](https://greensock.com/timeline-tips/)

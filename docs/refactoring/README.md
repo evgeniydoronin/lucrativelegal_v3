@@ -66,6 +66,7 @@
 
 - **📅 Дорожная карта:** [IMPLEMENTATION_ROADMAP.md](IMPLEMENTATION_ROADMAP.md) - Детальный план реализации (3 недели)
 - **📊 Прогресс:** [implementation-checklist.md](progress/implementation-checklist.md) - Чекбокс отслеживания задач
+- **📚 Банк знаний:** [GSAP_DOCUMENTATION_BANK.md](GSAP_DOCUMENTATION_BANK.md) - Ссылки на официальную документацию GSAP
 
 ## 🚀 Следующие шаги
 

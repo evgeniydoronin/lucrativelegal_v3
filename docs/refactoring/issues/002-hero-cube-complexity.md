@@ -327,6 +327,10 @@ class CubeAnimationService {
 
 ## 📚 Дополнительные ресурсы
 
+### Официальная документация GSAP
+- **[Банк знаний GSAP](../GSAP_DOCUMENTATION_BANK.md#проблема-002-сложность-hero-cube-компонента)** - Структурированные ссылки на документацию для этой проблемы
+
+### Дополнительные материалы
 - [Single Responsibility Principle](https://en.wikipedia.org/wiki/Single-responsibility_principle)
 - [Observer Pattern in JavaScript](https://refactoring.guru/design-patterns/observer/javascript/example)
 - [Service Layer Pattern](https://martinfowler.com/eaaCatalog/serviceLayer.html)

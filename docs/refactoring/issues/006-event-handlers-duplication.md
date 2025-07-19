@@ -671,6 +671,10 @@ this.delegate('.slide-indicator', 'mouseleave', (e, indicator) => {
 
 ## 📚 Дополнительные ресурсы
 
+### Официальная документация
+- **[Банк знаний документации](../GSAP_DOCUMENTATION_BANK.md#проблема-006-дублирование-обработчиков-событий)** - Структурированные ссылки на документацию для этой проблемы
+
+### Дополнительные материалы
 - [Event Delegation Best Practices](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Building_blocks/Events#event_delegation)
 - [Memory Leaks in JavaScript](https://auth0.com/blog/four-types-of-leaks-in-your-javascript-code-and-how-to-get-rid-of-them/)
 - [Debouncing and Throttling](https://css-tricks.com/debouncing-throttling-explained-examples/)
