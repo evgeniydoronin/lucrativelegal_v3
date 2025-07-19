@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Component Architecture Test - New Base Classes</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            line-height: 1.6;
+        }
+        
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .portfolio-item {
+            background: linear-gradient(135deg, #9C27B0 0%, #673AB7 100%);
+            border-radius: 8px;
+            padding: 20px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .portfolio-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        
+        .portfolio-item .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .portfolio-item .description {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+        
+        .controls {
+            background: #3a3a3a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .controls h3 {
+            margin-top: 0;
+            color: #9C27B0;
+        }
+        
+        button {
+            background: #9C27B0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background: #673AB7;
+        }
+        
+        button:disabled {
+            background: #555;
+            cursor: not-allowed;
+        }
+        
+        .log {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            border: 1px solid #444;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .stat-card {
+            background: #3a3a3a;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #9C27B0;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.7;
+            margin-top: 5px;
+        }
+        
+        .placeholder-img {
+            background: linear-gradient(45deg, #444, #666);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #999;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🏗️ Component Architecture Test</h1>
+        <p>Демонстрация новой архитектуры компонентов с BaseComponent, AnimatedComponent, InteractiveComponent и AnimatedInteractiveComponent.</p>
+        
+        <div class="controls">
+            <h3>🎮 Управление компонентом</h3>
+            <button onclick="testPortfolio.focusItem(0)">Focus Item 1</button>
+            <button onclick="testPortfolio.focusItem(1)">Focus Item 2</button>
+            <button onclick="testPortfolio.blurAllItems()">Blur All</button>
+            <button onclick="testPortfolio.toggleMouseTracking()">Toggle Mouse Tracking</button>
+            <button onclick="testPortfolio.refresh()">Refresh Component</button>
+            <button onclick="testPortfolio.logStats()">Log Statistics</button>
+            <button onclick="clearLog()">Clear Log</button>
+        </div>
+        
+        <div class="section">
+            <h2>📊 Component Statistics</h2>
+            <div class="stats" id="stats-container">
+                <div class="stat-card">
+                    <div class="stat-value" id="animations-count">--</div>
+                    <div class="stat-label">Active Animations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="events-count">--</div>
+                    <div class="stat-label">Event Handlers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="scrolltriggers-count">--</div>
+                    <div class="stat-label">ScrollTriggers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="component-status">--</div>
+                    <div class="stat-label">Component Status</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section" id="portfolio">
+            <h2>🎨 Portfolio Component (New Architecture)</h2>
+            <p>Этот компонент использует AnimatedInteractiveComponent и демонстрирует:</p>
+            <ul>
+                <li>✅ Единый lifecycle (init, setupElements, bindEvents, setupAnimations)</li>
+                <li>✅ Автоматическое управление анимациями и событиями</li>
+                <li>✅ Throttling и debouncing</li>
+                <li>✅ Система логирования и отладки</li>
+                <li>✅ Автоматическая очистка ресурсов</li>
+                <li>✅ Система событий компонента</li>
+            </ul>
+            
+            <div class="portfolio-grid">
+                <div class="portfolio-item">
+                    <div class="placeholder-img">Portfolio Image 1</div>
+                    <div class="title">Project Alpha</div>
+                    <div class="description">Innovative web application with modern design and smooth animations.</div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="placeholder-img">Portfolio Image 2</div>
+                    <div class="title">Project Beta</div>
+                    <div class="description">Mobile-first responsive website with interactive elements.</div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="placeholder-img">Portfolio Image 3</div>
+                    <div class="title">Project Gamma</div>
+                    <div class="description">E-commerce platform with advanced user experience.</div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="placeholder-img">Portfolio Image 4</div>
+                    <div class="title">Project Delta</div>
+                    <div class="description">Corporate website with professional animations and interactions.</div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="placeholder-img">Portfolio Image 5</div>
+                    <div class="title">Project Epsilon</div>
+                    <div class="description">Creative portfolio showcasing artistic works and projects.</div>
+                </div>
+                <div class="portfolio-item">
+                    <div class="placeholder-img">Portfolio Image 6</div>
+                    <div class="title">Project Zeta</div>
+                    <div class="description">Educational platform with interactive learning modules.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="section">
+            <h2>📝 Component Log</h2>
+            <div class="log" id="component-log"></div>
+        </div>
+    </div>
+
+    <!-- GSAP Library -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    
+    <!-- Our Component Architecture -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    <script src="src/scripts/core/AnimatedInteractiveComponent.js"></script>
+    
+    <!-- Portfolio Component -->
+    <script src="src/scripts/components/portfolio-new.js"></script>
+    
+    <script>
+        // Global variables
+        let testPortfolio = null;
+        
+        // Initialize test
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Component Architecture Test initialized');
+            
+            // Check dependencies
+            if (typeof BaseComponent === 'undefined') {
+                log('❌ BaseComponent not found');
+                return;
+            }
+            
+            if (typeof AnimatedInteractiveComponent === 'undefined') {
+                log('❌ AnimatedInteractiveComponent not found');
+                return;
+            }
+            
+            log('✅ All component classes loaded successfully');
+            
+            // Initialize portfolio component
+            initializePortfolio();
+            
+            // Start statistics monitoring
+            startStatsMonitoring();
+            
+            // Setup global event listeners
+            setupGlobalListeners();
+        });
+        
+        function initializePortfolio() {
+            try {
+                testPortfolio = initPortfolioNew();
+                
+                if (testPortfolio) {
+                    log('✅ Portfolio component initialized successfully');
+                    
+                    // Add custom event listeners
+                    testPortfolio.on('itemClicked', (event) => {
+                        log(`🎯 Portfolio item clicked: ${event.detail.index}`);
+                        updateStats();
+                    });
+                    
+                    testPortfolio.on('gridAnimated', (event) => {
+                        log(`🎬 Portfolio grid animated: ${event.detail.direction}`);
+                    });
+                    
+                    testPortfolio.on('portfolioResized', (event) => {
+                        log(`📐 Portfolio resized: ${event.detail.width}x${event.detail.height}`);
+                    });
+                    
+                    // Initial stats update
+                    updateStats();
+                } else {
+                    log('❌ Failed to initialize portfolio component');
+                }
+            } catch (error) {
+                log(`❌ Error initializing portfolio: ${error.message}`);
+            }
+        }
+        
+        function startStatsMonitoring() {
+            setInterval(() => {
+                updateStats();
+            }, 2000);
+        }
+        
+        function updateStats() {
+            if (!testPortfolio) return;
+            
+            const stats = testPortfolio.getStats();
+            
+            document.getElementById('animations-count').textContent = stats.animations || 0;
+            document.getElementById('events-count').textContent = stats.eventHandlers || 0;
+            document.getElementById('scrolltriggers-count').textContent = stats.scrollTriggers || 0;
+            
+            const status = testPortfolio.isReady() ? '✅ Ready' : '❌ Not Ready';
+            document.getElementById('component-status').textContent = status;
+        }
+        
+        function setupGlobalListeners() {
+            // Listen for component events globally
+            document.addEventListener('component:initialized', (event) => {
+                log(`🎉 Component initialized: ${event.detail.componentName}`);
+            });
+            
+            document.addEventListener('component:destroyed', (event) => {
+                log(`💀 Component destroyed: ${event.detail.componentName}`);
+            });
+            
+            document.addEventListener('component:error', (event) => {
+                log(`💥 Component error: ${event.detail.message}`);
+            });
+        }
+        
+        function log(message) {
+            const logElement = document.getElementById('component-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('component-log').textContent = '';
+            log('📝 Log cleared');
+        }
+        
+        // Test functions for buttons
+        window.testPortfolio = null; // Will be set after initialization
+        window.clearLog = clearLog;
+        
+        // Make testPortfolio available globally after initialization
+        setTimeout(() => {
+            window.testPortfolio = testPortfolio;
+        }, 1000);
+    </script>
+</body>
+</html>
