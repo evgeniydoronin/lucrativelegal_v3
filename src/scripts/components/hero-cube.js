@@ -86,9 +86,10 @@ class HeroCube {
         this.subtitleContainer = null;
         this.textHidden = false; // Флаг скрытия заголовков
         
-        // Throttling для защиты от слишком частых обновлений
+        // Адаптивный throttling с использованием PerformanceConfig
         this.lastUpdate = 0;
-        this.updateThrottle = 16; // ~60fps (1000ms / 60fps = 16.67ms)
+        this.updateThrottle = 16; // Базовое значение ~60fps
+        this.throttleOptimizationInterval = null;
         
         // Ссылка на элемент фона для прямого управления
         this.squareBg = null;
@@ -121,6 +122,9 @@ class HeroCube {
         this.initTextContainers();
         
         this.setupScrollTrigger();
+        
+        // Настройка адаптивной оптимизации throttling
+        this.setupThrottleOptimization();
         
         // Выводим начальную грань
         const initialFaceInfo = this.faceAngles['0'];
@@ -156,6 +160,31 @@ class HeroCube {
                 this.updateCubeRotation(self);
             }
         });
+    }
+    
+    // Настройка адаптивной оптимизации throttling
+    setupThrottleOptimization() {
+        // Проверяем доступность PerformanceConfig
+        if (typeof window.PerformanceConfig === 'undefined') {
+            console.warn('⚠️ PerformanceConfig недоступен, используем статический throttling');
+            return;
+        }
+        
+        // Запускаем оптимизацию throttling каждые 3 секунды
+        this.throttleOptimizationInterval = setInterval(() => {
+            const optimizedThrottle = window.PerformanceConfig.optimizeThrottling(
+                'HeroCube', 
+                this.updateThrottle
+            );
+            
+            // Обновляем throttling только если значение изменилось
+            if (optimizedThrottle !== this.updateThrottle) {
+                this.updateThrottle = optimizedThrottle;
+                console.log(`🎲 HeroCube throttling обновлен: ${this.updateThrottle}ms`);
+            }
+        }, 3000);
+        
+        console.log('✅ Адаптивная оптимизация throttling для HeroCube настроена');
     }
     
     checkPositioningMode() {
@@ -1097,11 +1126,19 @@ class HeroCube {
     
     // Уничтожение экземпляра
     destroy() {
+        // Очищаем ScrollTrigger
         ScrollTrigger.getAll().forEach(trigger => {
             if (trigger.trigger === this.element) {
                 trigger.kill();
             }
         });
+        
+        // Очищаем интервал оптимизации throttling
+        if (this.throttleOptimizationInterval) {
+            clearInterval(this.throttleOptimizationInterval);
+            this.throttleOptimizationInterval = null;
+            console.log('🧹 Throttle optimization interval очищен');
+        }
         
         console.log('🎲 Hero 3D Cube destroyed');
     }

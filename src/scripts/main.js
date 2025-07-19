@@ -465,8 +465,8 @@ class LLGApp {
       this.lenis.raf(time * 1000); // Convert to milliseconds
     });
     
-    // Disable lag smoothing for better performance
-    gsap.ticker.lagSmoothing(0);
+    // Performance configuration is now handled by PerformanceConfig
+    // which is loaded before this script
     
     console.log('✅ Lenis controlled smooth scroll initialized');
     console.log('🎮 Scroll speed is now fully controlled and limited');

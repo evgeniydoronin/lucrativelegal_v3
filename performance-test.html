@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Performance Test - GSAP Optimization</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+        }
+        
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .metrics-display {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding: 10px;
+            background: #3a3a3a;
+            border-radius: 4px;
+        }
+        
+        .metric.good { border-left: 4px solid #4CAF50; }
+        .metric.warning { border-left: 4px solid #FF9800; }
+        .metric.error { border-left: 4px solid #F44336; }
+        
+        .test-section {
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .animated-box {
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, #9C27B0 0%, #673AB7 100%);
+            margin: 10px;
+            border-radius: 8px;
+            display: inline-block;
+        }
+        
+        .controls {
+            margin: 20px 0;
+        }
+        
+        button {
+            background: #9C27B0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #673AB7;
+        }
+        
+        .log {
+            background: #1a1a1a;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🚀 GSAP Performance Test</h1>
+        
+        <div class="metrics-display">
+            <h2>📊 Real-time Metrics</h2>
+            <div class="metric" id="fps-metric">
+                <span>Average FPS:</span>
+                <span id="fps-value">--</span>
+            </div>
+            <div class="metric" id="memory-metric">
+                <span>Memory Usage:</span>
+                <span id="memory-value">--</span>
+            </div>
+            <div class="metric" id="config-metric">
+                <span>Performance Config:</span>
+                <span id="config-status">Loading...</span>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🎯 Animation Test</h2>
+            <div class="controls">
+                <button onclick="startAnimationTest()">Start Animation Test</button>
+                <button onclick="stopAnimationTest()">Stop Test</button>
+                <button onclick="clearLog()">Clear Log</button>
+            </div>
+            
+            <div id="animation-container">
+                <!-- Animated boxes will be added here -->
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📝 Performance Log</h2>
+            <div class="log" id="performance-log"></div>
+        </div>
+    </div>
+
+    <!-- GSAP Library -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+    
+    <!-- Our Performance Configuration -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    
+    <script>
+        // Test variables
+        let animationTest = null;
+        let metricsInterval = null;
+        
+        // Initialize test
+        document.addEventListener('DOMContentLoaded', function() {
+            log('🚀 Performance Test initialized');
+            
+            // Check if PerformanceConfig is available
+            if (typeof window.PerformanceConfig !== 'undefined') {
+                document.getElementById('config-status').textContent = '✅ Active';
+                document.getElementById('config-metric').className = 'metric good';
+                log('✅ PerformanceConfig loaded successfully');
+            } else {
+                document.getElementById('config-status').textContent = '❌ Not Found';
+                document.getElementById('config-metric').className = 'metric error';
+                log('❌ PerformanceConfig not found');
+            }
+            
+            // Start metrics monitoring
+            startMetricsMonitoring();
+            
+            // Create some test boxes
+            createTestBoxes();
+        });
+        
+        function createTestBoxes() {
+            const container = document.getElementById('animation-container');
+            for (let i = 0; i < 20; i++) {
+                const box = document.createElement('div');
+                box.className = 'animated-box';
+                box.id = `box-${i}`;
+                container.appendChild(box);
+            }
+            log(`📦 Created 20 test boxes`);
+        }
+        
+        function startAnimationTest() {
+            if (animationTest) {
+                log('⚠️ Animation test already running');
+                return;
+            }
+            
+            log('🎬 Starting animation test...');
+            
+            const boxes = document.querySelectorAll('.animated-box');
+            
+            // Create timeline with multiple animations
+            animationTest = gsap.timeline({ repeat: -1 });
+            
+            boxes.forEach((box, index) => {
+                animationTest.to(box, {
+                    rotation: 360,
+                    scale: 1.2,
+                    duration: 2,
+                    ease: "power2.inOut",
+                    yoyo: true,
+                    repeat: 1
+                }, index * 0.1);
+                
+                animationTest.to(box, {
+                    x: Math.random() * 200 - 100,
+                    y: Math.random() * 200 - 100,
+                    duration: 1.5,
+                    ease: "power2.inOut",
+                    yoyo: true,
+                    repeat: 1
+                }, index * 0.05);
+            });
+            
+            log('✅ Animation test started with 20 animated elements');
+        }
+        
+        function stopAnimationTest() {
+            if (animationTest) {
+                animationTest.kill();
+                animationTest = null;
+                
+                // Reset all boxes
+                gsap.set('.animated-box', {
+                    rotation: 0,
+                    scale: 1,
+                    x: 0,
+                    y: 0
+                });
+                
+                log('🛑 Animation test stopped and reset');
+            }
+        }
+        
+        function startMetricsMonitoring() {
+            metricsInterval = setInterval(() => {
+                updateMetrics();
+            }, 1000);
+        }
+        
+        function updateMetrics() {
+            // Update FPS
+            if (window.PerformanceConfig) {
+                const metrics = window.PerformanceConfig.getMetrics();
+                
+                const fpsValue = document.getElementById('fps-value');
+                const fpsMetric = document.getElementById('fps-metric');
+                
+                if (metrics.averageFPS) {
+                    const fps = metrics.averageFPS.toFixed(1);
+                    fpsValue.textContent = `${fps} FPS`;
+                    
+                    if (fps >= 55) {
+                        fpsMetric.className = 'metric good';
+                    } else if (fps >= 30) {
+                        fpsMetric.className = 'metric warning';
+                    } else {
+                        fpsMetric.className = 'metric error';
+                    }
+                }
+                
+                // Update Memory
+                if (metrics.memoryUsage) {
+                    const memoryValue = document.getElementById('memory-value');
+                    const memoryMetric = document.getElementById('memory-metric');
+                    
+                    const usedMB = (metrics.memoryUsage.used / 1024 / 1024).toFixed(1);
+                    const limitMB = (metrics.memoryUsage.limit / 1024 / 1024).toFixed(1);
+                    const usagePercent = ((metrics.memoryUsage.used / metrics.memoryUsage.limit) * 100).toFixed(1);
+                    
+                    memoryValue.textContent = `${usedMB}MB / ${limitMB}MB (${usagePercent}%)`;
+                    
+                    if (usagePercent < 60) {
+                        memoryMetric.className = 'metric good';
+                    } else if (usagePercent < 80) {
+                        memoryMetric.className = 'metric warning';
+                    } else {
+                        memoryMetric.className = 'metric error';
+                    }
+                }
+            }
+        }
+        
+        function log(message) {
+            const logElement = document.getElementById('performance-log');
+            const timestamp = new Date().toLocaleTimeString();
+            logElement.textContent += `[${timestamp}] ${message}\n`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        function clearLog() {
+            document.getElementById('performance-log').textContent = '';
+            log('📝 Log cleared');
+        }
+        
+        // Override console.log to capture PerformanceConfig logs
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            
+            // Capture performance-related logs
+            const message = args.join(' ');
+            if (message.includes('Performance') || message.includes('FPS') || message.includes('Memory') || message.includes('GSAP')) {
+                log(message);
+            }
+        };
+        
+        // Capture warnings and errors
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            originalWarn.apply(console, args);
+            log('⚠️ ' + args.join(' '));
+        };
+        
+        const originalError = console.error;
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            log('❌ ' + args.join(' '));
+        };
+    </script>
+</body>
+</html>
