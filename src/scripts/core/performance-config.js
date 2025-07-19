@@ -102,6 +102,9 @@ class PerformanceConfig {
         this.frameInterval = 1000 / this.targetFPS; // 16.67ms для 60fps
         this.lastFrameTime = performance.now();
         
+        // Создаем собственный ticker для мониторинга FPS
+        this.startFPSMonitoring();
+        
         // Создаем обертку для ticker с ограничением FPS
         this.originalTicker = gsap.ticker.add;
         
@@ -126,6 +129,34 @@ class PerformanceConfig {
         };
         
         console.log(`✅ FPS ограничение установлено: ${this.targetFPS} FPS (${this.frameInterval.toFixed(2)}ms интервал)`);
+    }
+    
+    /**
+     * Запуск независимого мониторинга FPS
+     */
+    startFPSMonitoring() {
+        let lastTime = performance.now();
+        let frameCount = 0;
+        
+        const measureFPS = () => {
+            frameCount++;
+            const currentTime = performance.now();
+            const elapsed = currentTime - lastTime;
+            
+            // Обновляем метрики каждый кадр
+            this.updatePerformanceMetrics(elapsed);
+            
+            // Сбрасываем счетчик каждую секунду для точности
+            if (elapsed >= 1000) {
+                lastTime = currentTime;
+                frameCount = 0;
+            }
+            
+            requestAnimationFrame(measureFPS);
+        };
+        
+        requestAnimationFrame(measureFPS);
+        console.log('✅ Независимый FPS мониторинг запущен');
     }
     
     /**
