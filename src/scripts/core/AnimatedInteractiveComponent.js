@@ -10,6 +10,14 @@
 class AnimatedInteractiveComponent extends BaseComponent {
     constructor(element, options = {}) {
         super(element, options);
+    }
+    
+    // =============================================================================
+    // Переопределенные lifecycle методы
+    // =============================================================================
+    
+    beforeInit() {
+        super.beforeInit();
         
         // Инициализируем функциональность из AnimatedComponent
         this.initAnimatedFeatures();

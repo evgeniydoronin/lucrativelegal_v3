@@ -71,10 +71,19 @@ class BaseComponent {
         try {
             this.log('info', 'Initializing component...');
             
+            this.log('debug', 'Running beforeInit...');
             this.beforeInit();
+            
+            this.log('debug', 'Running setupElements...');
             this.setupElements();
+            
+            this.log('debug', 'Running bindEvents...');
             this.bindEvents();
+            
+            this.log('debug', 'Running setupAnimations...');
             this.setupAnimations();
+            
+            this.log('debug', 'Running afterInit...');
             this.afterInit();
             
             this.isInitialized = true;

@@ -62,7 +62,7 @@ class Portfolio extends AnimatedInteractiveComponent {
         }
         
         // Добавляем обработчик resize для адаптивности
-        this.addResizeHandler(() => {
+        this.addDebouncedEventHandler(window, 'resize', () => {
             this.handlePortfolioResize();
         });
     }
@@ -113,15 +113,18 @@ class Portfolio extends AnimatedInteractiveComponent {
         }
         
         // Клик обработчик с защитой от двойного клика
-        this.addClickHandler(item, (event) => {
+        this.addEventHandler(item, 'click', (event) => {
             this.handleItemClick(item, index, event);
         });
         
         // Touch события для мобильных устройств
         if (this.touchDevice) {
-            this.addPointerHandler(item, {
-                onStart: (event) => this.handleItemTouchStart(item, event),
-                onEnd: (event) => this.handleItemTouchEnd(item, event)
+            this.addEventHandler(item, 'touchstart', (event) => {
+                this.handleItemTouchStart(item, event);
+            });
+            
+            this.addEventHandler(item, 'touchend', (event) => {
+                this.handleItemTouchEnd(item, event);
             });
         }
     }
