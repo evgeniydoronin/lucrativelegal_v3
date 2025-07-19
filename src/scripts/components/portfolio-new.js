@@ -150,25 +150,30 @@ class Portfolio extends AnimatedInteractiveComponent {
     
     animateGridEntrance() {
         // Создаем stagger анимацию появления
-        const animation = this.animateStagger(this.portfolioItems, {
+        const animation = gsap.to(this.portfolioItems, {
             opacity: 1,
             y: 0,
             scale: 1,
             duration: this.options.animationDuration,
-            ease: this.options.animationEase
-        }, this.options.staggerDelay);
+            ease: this.options.animationEase,
+            stagger: this.options.staggerDelay
+        });
         
+        this.addAnimation(animation, 'grid_entrance');
         this.emit('gridAnimated', { direction: 'in' });
         return animation;
     }
     
     animateGridExit() {
         // Анимация исчезновения при выходе из viewport
-        const animation = this.animateStagger(this.portfolioItems, {
+        const animation = gsap.to(this.portfolioItems, {
             opacity: 0.3,
-            scale: 0.95
-        }, this.options.staggerDelay / 2);
+            scale: 0.95,
+            duration: this.options.animationDuration / 2,
+            stagger: this.options.staggerDelay / 2
+        });
         
+        this.addAnimation(animation, 'grid_exit');
         this.emit('gridAnimated', { direction: 'out' });
         return animation;
     }
