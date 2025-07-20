@@ -795,8 +795,8 @@ class LLGApp {
   }
   
   initFooter() {
-    // Check if FooterAnimations class is available
-    if (typeof FooterAnimations === 'undefined') {
+    // Check if Footer class is available
+    if (typeof Footer === 'undefined') {
       console.warn('⚠️ Footer component not found');
       return;
     }
@@ -807,20 +807,45 @@ class LLGApp {
       return;
     }
     
-    // Check if footer exists
+    // Find DOM element for footer (required by BaseComponent)
     const footerElement = document.querySelector('.footer');
     if (!footerElement) {
       console.warn('⚠️ Footer element not found');
       return;
     }
     
-    // Initialize footer animations
-    this.footer = new FooterAnimations();
+    // Initialize with DOM element (required by AnimatedInteractiveComponent)
+    this.footer = new Footer(footerElement);
+    
+    // Listen to footer events (new architecture)
+    this.footer.on('widgetAnimationStart', (data) => {
+      console.log('🎬 Footer widget animation started:', data);
+    });
+    
+    this.footer.on('widgetAnimationComplete', (data) => {
+      console.log('✨ Footer widget animation completed:', data);
+    });
+    
+    this.footer.on('copyrightAnimationStart', () => {
+      console.log('©️ Footer copyright animation started');
+    });
+    
+    this.footer.on('copyrightAnimationComplete', () => {
+      console.log('©️ Footer copyright animation completed');
+    });
+    
+    this.footer.on('copyrightRotationStart', () => {
+      console.log('🔄 Footer copyright rotation started');
+    });
+    
+    this.footer.on('reducedMotionChanged', (data) => {
+      console.log('♿ Footer reduced motion preference changed:', data);
+    });
     
     // Make globally available
-    window.footerAnimations = this.footer;
+    window.footerAPI = this.footer;
     
-    console.log('✅ Footer initialized');
+    console.log('✅ Footer initialized with new architecture');
   }
   
   initFutureMarketingCards() {
