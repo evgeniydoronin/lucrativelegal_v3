@@ -313,7 +313,7 @@ git checkout -b refactoring/integrate-header
 | Компонент | Статус | FPS | Memory | Ошибки | Время интеграции |
 |-----------|--------|-----|--------|--------|------------------|
 | preloader | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 2 часа |
-| header | ⏳ | - | - | - | - |
+| header | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 1.5 часа |
 | scroll-to-top | ⏳ | - | - | - | - |
 | section-navigation | ⏳ | - | - | - | - |
 | word-animator | ⏳ | - | - | - | - |
