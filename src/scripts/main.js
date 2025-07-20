@@ -590,29 +590,49 @@ class LLGApp {
   }
   
   initScrollToTop() {
-    // Check if initScrollToTop function is available
-    if (typeof window.initScrollToTop === 'undefined') {
-      console.warn('⚠️ Scroll to Top component not found');
+    // Check if ScrollToTop class is available
+    if (typeof ScrollToTop === 'undefined') {
+      console.warn('⚠️ ScrollToTop component not found');
       return;
     }
     
     // Check if already initialized to prevent duplicates
     if (this.scrollToTop) {
-      console.warn('⚠️ Scroll to Top already initialized');
+      console.warn('⚠️ ScrollToTop already initialized');
       return;
     }
     
-    // Check if button exists
-    const button = document.getElementById('scroll-to-top');
-    if (!button) {
-      console.warn('⚠️ Scroll to Top button not found');
+    // Find DOM element for scroll-to-top (required by BaseComponent)
+    const scrollToTopElement = document.getElementById('scroll-to-top');
+    if (!scrollToTopElement) {
+      console.warn('⚠️ Scroll to top element not found');
       return;
     }
     
-    // Initialize scroll to top button
-    this.scrollToTop = window.initScrollToTop();
+    // Initialize with DOM element (required by InteractiveComponent)
+    this.scrollToTop = new ScrollToTop(scrollToTopElement);
     
-    console.log('✅ Scroll to Top button initialized');
+    // Listen to scroll-to-top events (new architecture)
+    this.scrollToTop.on('buttonShown', () => {
+      console.log('👆 Scroll to top button shown');
+    });
+    
+    this.scrollToTop.on('buttonHidden', () => {
+      console.log('👇 Scroll to top button hidden');
+    });
+    
+    this.scrollToTop.on('scrollToTopClicked', () => {
+      console.log('🚀 Scroll to top clicked');
+    });
+    
+    this.scrollToTop.on('scrollStarted', (data) => {
+      console.log('📍 Scroll to top started:', data);
+    });
+    
+    // Make globally available
+    window.scrollToTopAPI = this.scrollToTop;
+    
+    console.log('✅ ScrollToTop initialized with new architecture');
   }
   
   initSectionNavigation() {

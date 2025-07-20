@@ -213,7 +213,7 @@
 - [x] Унифицировать обработку событий
 - [x] Добавить lifecycle методы
 
-#### Интеграция в основной проект ✅ **ЗАВЕРШЕН** (Preloader + Header)
+#### Интеграция в основной проект ✅ **ЗАВЕРШЕН** (Preloader + Header + ScrollToTop)
 - [x] **Preloader Integration** - Успешно интегрирован отрефакторенный preloader
 - [x] Исправлены критические ошибки с fallback timer в main.js
 - [x] Обновлена архитектура инициализации под BaseComponent
@@ -223,7 +223,13 @@
 - [x] Event-driven архитектура: scrollStateChanged, offcanvas события
 - [x] Dropdown меню (4 найдено) и навигация работают корректно
 - [x] Scroll поведение функционирует: transparent ↔ scrolled состояния
-- [ ] Заменить остальные 11 оригинальных файлов на -new.js версии
+- [x] **ScrollToTop Integration** - Успешно интегрирован отрефакторенный scroll-to-top
+- [x] ScrollToTop использует InteractiveComponent архитектуру
+- [x] Event-driven архитектура: buttonShown, buttonHidden, scrollToTopClicked, scrollStarted
+- [x] Интеграция с Lenis smooth scroll и Hero Cube reset функциональностью
+- [x] Throttled scroll обработчики для 60 FPS производительности
+- [x] CSS transitions анимации (без GSAP зависимостей)
+- [ ] Заменить остальные 10 оригинальных файлов на -new.js версии
 - [ ] Обновить импорты в main.js для остальных компонентов
 - [ ] Провести полное интеграционное тестирование
 - [ ] Убедиться в отсутствии регрессий

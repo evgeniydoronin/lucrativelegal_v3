@@ -314,7 +314,7 @@ git checkout -b refactoring/integrate-header
 |-----------|--------|-----|--------|--------|------------------|
 | preloader | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 2 часа |
 | header | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 1.5 часа |
-| scroll-to-top | ⏳ | - | - | - | - |
+| scroll-to-top | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 30 мин |
 | section-navigation | ⏳ | - | - | - | - |
 | word-animator | ⏳ | - | - | - | - |
 | footer | ⏳ | - | - | - | - |
