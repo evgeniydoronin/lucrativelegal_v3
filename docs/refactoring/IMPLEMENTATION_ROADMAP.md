@@ -228,8 +228,8 @@ git checkout -b refactoring/integrate-header
 6. ✅ `footer.js` → `footer-new.js` **ЗАВЕРШЕН**
 
 **ГРУППА 3 - Сложные компоненты с множественными зависимостями:**
-7. `hero-cube.js` → `hero-cube-new.js`
-8. `services.js` → `services-new.js`
+7. ✅ `hero-cube.js` → `hero-cube-new.js` **ЗАВЕРШЕН**
+8. ✅ `services.js` → `services-new.js` **ЗАВЕРШЕН**
 9. `future-marketing.js` → `future-marketing-new.js`
 10. `case-studies.js` → `case-studies-new.js`
 11. `portfolio.js` → `portfolio-new.js`
@@ -318,8 +318,8 @@ git checkout -b refactoring/integrate-header
 | section-navigation | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 45 мин |
 | word-animator | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 45 мин |
 | footer | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 45 мин |
-| hero-cube | ⏳ | - | - | - | - |
-| services | ⏳ | - | - | - | - |
+| hero-cube | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 2.5 часа |
+| services | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 2 часа |
 | future-marketing | ⏳ | - | - | - | - |
 | case-studies | ⏳ | - | - | - | - |
 | portfolio | ⏳ | - | - | - | - |
