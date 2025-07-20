@@ -687,8 +687,8 @@ class LLGApp {
   }
   
   initHeader() {
-    // Check if initHeader function is available
-    if (typeof window.initHeader === 'undefined') {
+    // Check if Header class is available
+    if (typeof Header === 'undefined') {
       console.warn('⚠️ Header component not found');
       return;
     }
@@ -699,20 +699,33 @@ class LLGApp {
       return;
     }
     
-    // Check if header exists
+    // Find DOM element for header (required by BaseComponent)
     const headerElement = document.querySelector('.header');
     if (!headerElement) {
       console.warn('⚠️ Header element not found');
       return;
     }
     
-    // Initialize header
-    this.header = window.initHeader();
+    // Initialize with DOM element (required by AnimatedInteractiveComponent)
+    this.header = new Header(headerElement);
+    
+    // Listen to header events (new architecture)
+    this.header.on('scrollStateChanged', (data) => {
+      console.log('🔄 Header scroll state changed:', data);
+    });
+    
+    this.header.on('offcanvasOpened', () => {
+      console.log('📱 Header offcanvas opened');
+    });
+    
+    this.header.on('offcanvasClosed', () => {
+      console.log('📱 Header offcanvas closed');
+    });
     
     // Make globally available
     window.headerAPI = this.header;
     
-    console.log('✅ Header initialized');
+    console.log('✅ Header initialized with new architecture');
   }
   
   initFooter() {
