@@ -494,7 +494,15 @@ class LLGApp {
       return;
     }
     
-    this.preloader = new Preloader();
+    // Find DOM element for preloader
+    const preloaderElement = document.getElementById('preloader');
+    if (!preloaderElement) {
+      console.warn('⚠️ Preloader element not found');
+      return;
+    }
+    
+    // Initialize with DOM element (required by BaseComponent)
+    this.preloader = new Preloader(preloaderElement);
     
     // Add fallback timer for safety
     window.fallbackTimer = setTimeout(() => {
