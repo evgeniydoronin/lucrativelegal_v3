@@ -49,11 +49,11 @@ class HeroCubeController extends AnimatedInteractiveComponent {
         };
         
         if (this.prefersReducedMotion) {
-            console.log('Reduced motion preference detected, cube animation disabled');
+            // console.log('Reduced motion preference detected, cube animation disabled');
             return;
         }
         
-        console.log('🎲 HeroCubeController beforeInit - готовим микросервисы');
+        // console.log('🎲 HeroCubeController beforeInit - готовим микросервисы');
     }
     
     /**
@@ -72,7 +72,7 @@ class HeroCubeController extends AnimatedInteractiveComponent {
             return false;
         }
         
-        console.log('✅ All DOM elements found');
+        // console.log('✅ All DOM elements found');
         
         // ✅ ИСПРАВЛЕНИЕ: Инициализируем сервисы ПОСЛЕ поиска DOM элементов
         this.initServices();
@@ -84,7 +84,7 @@ class HeroCubeController extends AnimatedInteractiveComponent {
      * Инициализация микросервисов с использованием namespace pattern
      */
     initServices() {
-        console.log('🔧 ПЕРЕД созданием сервисов:', this.services);
+        // console.log('🔧 ПЕРЕД созданием сервисов:', this.services);
         
         // Инициализируем сервисы в защищенном namespace
         this.services.cube = new CubeAnimationService(this.cube, this.animationService);
@@ -93,8 +93,8 @@ class HeroCubeController extends AnimatedInteractiveComponent {
         this.services.scale = new ScaleEffectService(this.square, this.cube, this.animationService);
         this.services.text = new TextVisibilityService(this.animationService);
         
-        console.log('🔧 ПОСЛЕ создания сервисов:', this.services);
-        console.log('✅ All microservices initialized in protected namespace');
+        // console.log('🔧 ПОСЛЕ создания сервисов:', this.services);
+        // console.log('✅ All microservices initialized in protected namespace');
     }
     
     /**
@@ -247,41 +247,41 @@ class HeroCubeController extends AnimatedInteractiveComponent {
         // ✅ КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Применяем вращение к кубу ТОЛЬКО если он НЕ подменен
         if (!this.services.scale.cubeToSquareSwapped) {
             this.services.cube.applyRotation(targetRotation, this.services.scale.isScalingMode);
-            console.log('🎲 Вращение куба:', targetRotation + '°');
+            // console.log('🎲 Вращение куба:', targetRotation + '°');
         } else {
-            console.log('🔄 Куб подменен - вращение остановлено');
+            // console.log('🔄 Куб подменен - вращение остановлено');
         }
         
         // ✅ ИСПРАВЛЕНИЕ: Проверяем подмену ПОСЛЕ применения вращения
         // Используем состояние rotationComplete вместо возвращаемого значения
         if (scrollProgress > rotationEnd && this.services.cube.rotationComplete && !this.services.scale.cubeToSquareSwapped) {
             this.services.scale.swapCubeToSquare();
-            console.log('🔄 Подмена выполнена: куб → квадрат');
+            // console.log('🔄 Подмена выполнена: куб → квадрат');
         }
         
         // Фаза 3: Эффект масштабирования (scaleStart - 100%)
-        // 🔍 ДИАГНОСТИКА: Детальное логирование условий масштабирования
         const scaleCondition1 = scrollProgress >= scaleStart;
         const scaleCondition2 = this.services.cube.rotationComplete;
         const bothConditions = scaleCondition1 && scaleCondition2;
         
-        console.log(`🔍 ДИАГНОСТИКА МАСШТАБИРОВАНИЯ:`, {
-            scrollProgress: scrollProgress.toFixed(3),
-            scaleStart: scaleStart,
-            'scrollProgress >= scaleStart': scaleCondition1,
-            'rotationComplete': scaleCondition2,
-            'cubeToSquareSwapped': this.services.scale.cubeToSquareSwapped,
-            'bothConditions': bothConditions
-        });
+        // 🔍 ДИАГНОСТИКА: Детальное логирование условий масштабирования (закомментировано для production)
+        // console.log(`🔍 ДИАГНОСТИКА МАСШТАБИРОВАНИЯ:`, {
+        //     scrollProgress: scrollProgress.toFixed(3),
+        //     scaleStart: scaleStart,
+        //     'scrollProgress >= scaleStart': scaleCondition1,
+        //     'rotationComplete': scaleCondition2,
+        //     'cubeToSquareSwapped': this.services.scale.cubeToSquareSwapped,
+        //     'bothConditions': bothConditions
+        // });
         
         if (bothConditions) {
-            console.log('✅ Условие масштабирования выполнено - вызываем handleScaleEffect()');
+            // console.log('✅ Условие масштабирования выполнено - вызываем handleScaleEffect()');
             this.handleScaleEffect(scrollProgress);
         } else {
-            console.log(`❌ Условие масштабирования НЕ выполнено:`, {
-                'scrollProgress >= scaleStart': scaleCondition1,
-                'rotationComplete': scaleCondition2
-            });
+            // console.log(`❌ Условие масштабирования НЕ выполнено:`, {
+            //     'scrollProgress >= scaleStart': scaleCondition1,
+            //     'rotationComplete': scaleCondition2
+            // });
         }
         
         // Управление магнитной кнопкой
