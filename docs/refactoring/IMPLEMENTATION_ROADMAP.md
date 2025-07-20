@@ -231,8 +231,8 @@ git checkout -b refactoring/integrate-header
 7. ✅ `hero-cube.js` → `hero-cube-new.js` **ЗАВЕРШЕН**
 8. ✅ `services.js` → `services-new.js` **ЗАВЕРШЕН**
 9. ✅ `future-marketing.js` → `future-marketing-new.js` **ЗАВЕРШЕН**
-10. `case-studies.js` → `case-studies-new.js`
-11. `portfolio.js` → `portfolio-new.js`
+10. ✅ `case-studies.js` → `case-studies-new.js` **ЗАВЕРШЕН**
+11. ✅ `portfolio.js` → `portfolio-new.js` **ЗАВЕРШЕН**
 
 **ГРУППА 4 - Финальные компоненты:**
 12. `cursor-play-button.js` → `cursor-play-button-new.js`
@@ -321,8 +321,8 @@ git checkout -b refactoring/integrate-header
 | hero-cube | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 2.5 часа |
 | services | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 2 часа |
 | future-marketing | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 1.5 часа |
-| case-studies | ⏳ | - | - | - | - |
-| portfolio | ⏳ | - | - | - | - |
+| case-studies | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 1.5 часа |
+| portfolio | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 1.5 часа |
 | cursor-play-button | ⏳ | - | - | - | - |
 | hero-stars-scroll | ⏳ | - | - | - | - |
 
