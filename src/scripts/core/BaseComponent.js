@@ -67,32 +67,32 @@ class BaseComponent {
      */
     init() {
         if (this.isInitialized) {
-            this.log('warn', 'Component already initialized');
+            // this.log('warn', 'Component already initialized');
             return;
         }
         
         try {
-            this.log('info', 'Initializing component...');
+            // this.log('info', 'Initializing component...');
             
-            this.log('debug', 'Running beforeInit...');
+            // this.log('debug', 'Running beforeInit...');
             this.beforeInit();
             
-            this.log('debug', 'Running setupElements...');
+            // this.log('debug', 'Running setupElements...');
             this.setupElements();
             
-            this.log('debug', 'Running bindEvents...');
+            // this.log('debug', 'Running bindEvents...');
             this.bindEvents();
             
-            this.log('debug', 'Running setupAnimations...');
+            // this.log('debug', 'Running setupAnimations...');
             this.setupAnimations();
             
-            this.log('debug', 'Running afterInit...');
+            // this.log('debug', 'Running afterInit...');
             this.afterInit();
             
             this.isInitialized = true;
             this.emit('initialized');
             
-            this.log('success', 'Component initialized successfully');
+            // this.log('success', 'Component initialized successfully');
         } catch (error) {
             this.handleError('Initialization failed', error);
         }
@@ -144,7 +144,7 @@ class BaseComponent {
             return false;
         }
         
-        this.log('info', `All dependencies available: ${this.requiredDependencies.join(', ')}`);
+        // this.log('info', `All dependencies available: ${this.requiredDependencies.join(', ')}`);
         return true;
     }
     
@@ -156,38 +156,42 @@ class BaseComponent {
      * Централизованная система логирования
      */
     log(level, message, data = null) {
-        if (!this.options.debug && level === 'debug') {
-            return;
-        }
+        // 🚨 PRODUCTION: Отключаем все логи для производительности
+        // Раскомментируйте для отладки в development режиме
+        return;
         
-        const prefix = `[${this.constructor.name}#${this.id}]`;
-        const fullMessage = `${prefix} ${message}`;
+        // if (!this.options.debug && level === 'debug') {
+        //     return;
+        // }
         
-        // Используем кастомный логгер если он установлен
-        if (this.options.customLogger && typeof this.options.customLogger === 'function') {
-            this.options.customLogger(level, fullMessage, data);
-            return;
-        }
+        // const prefix = `[${this.constructor.name}#${this.id}]`;
+        // const fullMessage = `${prefix} ${message}`;
         
-        switch (level) {
-            case 'error':
-                console.error(`❌ ${fullMessage}`, data || '');
-                break;
-            case 'warn':
-                console.warn(`⚠️ ${fullMessage}`, data || '');
-                break;
-            case 'success':
-                console.log(`✅ ${fullMessage}`, data || '');
-                break;
-            case 'info':
-                console.log(`ℹ️ ${fullMessage}`, data || '');
-                break;
-            case 'debug':
-                console.log(`🔍 ${fullMessage}`, data || '');
-                break;
-            default:
-                console.log(`${fullMessage}`, data || '');
-        }
+        // // Используем кастомный логгер если он установлен
+        // if (this.options.customLogger && typeof this.options.customLogger === 'function') {
+        //     this.options.customLogger(level, fullMessage, data);
+        //     return;
+        // }
+        
+        // switch (level) {
+        //     case 'error':
+        //         console.error(`❌ ${fullMessage}`, data || '');
+        //         break;
+        //     case 'warn':
+        //         console.warn(`⚠️ ${fullMessage}`, data || '');
+        //         break;
+        //     case 'success':
+        //         console.log(`✅ ${fullMessage}`, data || '');
+        //         break;
+        //     case 'info':
+        //         console.log(`ℹ️ ${fullMessage}`, data || '');
+        //         break;
+        //     case 'debug':
+        //         console.log(`🔍 ${fullMessage}`, data || '');
+        //         break;
+        //     default:
+        //         console.log(`${fullMessage}`, data || '');
+        // }
     }
     
     // =============================================================================
@@ -251,7 +255,7 @@ class BaseComponent {
             return acc;
         }, {});
         
-        this.log('debug', `Event emitted: ${eventName}`, safeData);
+        // this.log('debug', `Event emitted: ${eventName}`, safeData);
     }
     
     /**
@@ -259,7 +263,7 @@ class BaseComponent {
      */
     on(eventName, callback) {
         this.element.addEventListener(`component:${eventName}`, callback);
-        this.log('debug', `Event listener added: ${eventName}`);
+        // this.log('debug', `Event listener added: ${eventName}`);
     }
     
     /**
@@ -267,7 +271,7 @@ class BaseComponent {
      */
     off(eventName, callback) {
         this.element.removeEventListener(`component:${eventName}`, callback);
-        this.log('debug', `Event listener removed: ${eventName}`);
+        // this.log('debug', `Event listener removed: ${eventName}`);
     }
     
     /**
@@ -291,7 +295,7 @@ class BaseComponent {
         // Добавляем обработчик
         target.addEventListener(eventName, handler, options);
         
-        this.log('debug', `Event handler added: ${handlerKey}`);
+        // this.log('debug', `Event handler added: ${handlerKey}`);
     }
     
     /**
@@ -312,7 +316,7 @@ class BaseComponent {
                     this.eventHandlers.delete(handlerKey);
                 }
                 
-                this.log('debug', `Event handler removed: ${handlerKey}`);
+                // this.log('debug', `Event handler removed: ${handlerKey}`);
             }
         }
     }
@@ -359,17 +363,17 @@ class BaseComponent {
      */
     refresh() {
         if (!this.isReady()) {
-            this.log('warn', 'Cannot refresh: component not ready');
+            // this.log('warn', 'Cannot refresh: component not ready');
             return;
         }
         
-        this.log('info', 'Refreshing component...');
+        // this.log('info', 'Refreshing component...');
         this.emit('refresh');
         
         // Переопределяется в дочерних классах
         this.onRefresh();
         
-        this.log('success', 'Component refreshed');
+        // this.log('success', 'Component refreshed');
     }
     
     /**
@@ -388,12 +392,12 @@ class BaseComponent {
      */
     destroy() {
         if (this.isDestroyed) {
-            this.log('warn', 'Component already destroyed');
+            // this.log('warn', 'Component already destroyed');
             return;
         }
         
         try {
-            this.log('info', 'Destroying component...');
+            // this.log('info', 'Destroying component...');
             
             this.beforeDestroy();
             this.unbindEvents();
@@ -403,7 +407,7 @@ class BaseComponent {
             this.isDestroyed = true;
             this.emit('destroyed');
             
-            this.log('success', 'Component destroyed successfully');
+            // this.log('success', 'Component destroyed successfully');
         } catch (error) {
             this.handleError('Destruction failed', error);
         }
@@ -425,7 +429,7 @@ class BaseComponent {
         });
         
         this.eventHandlers.clear();
-        this.log('debug', 'All event handlers cleaned up');
+        // this.log('debug', 'All event handlers cleaned up');
         
         // Переопределяется в дочерних классах для дополнительной очистки
     }
@@ -434,7 +438,7 @@ class BaseComponent {
         // Базовая очистка GSAP анимаций
         if (window.gsap) {
             gsap.killTweensOf(this.element);
-            this.log('debug', 'GSAP animations cleaned up');
+            // this.log('debug', 'GSAP animations cleaned up');
         }
     }
     

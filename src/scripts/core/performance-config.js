@@ -10,6 +10,12 @@
 class PerformanceConfig {
     constructor() {
         this.isInitialized = false;
+        
+        // 🚨 PRODUCTION: Отключаем мониторинг производительности
+        // Для включения в development раскомментируйте строку ниже:
+        // this.enableMonitoring = true;
+        this.enableMonitoring = false;
+        
         this.performanceMetrics = {
             fps: [],
             lastFrameTime: performance.now(),
@@ -25,7 +31,7 @@ class PerformanceConfig {
             return;
         }
         
-        console.log('🚀 Инициализация GSAP Performance Configuration...');
+        // console.log('🚀 Инициализация GSAP Performance Configuration...');
         
         // 1. Основная конфигурация GSAP
         this.setupGSAPConfig();
@@ -33,17 +39,17 @@ class PerformanceConfig {
         // 2. Настройка lagSmoothing
         this.setupLagSmoothing();
         
-        // 3. Настройка FPS ограничения
-        this.setupFPSLimit();
+        // 3. Настройка FPS ограничения (DISABLED for production)
+        // this.setupFPSLimit();
         
         // 4. Настройка willChange управления
         this.setupWillChangeManagement();
         
-        // 5. Мониторинг производительности
-        this.setupPerformanceMonitoring();
+        // 5. Мониторинг производительности (DISABLED for production)
+        // this.setupPerformanceMonitoring();
         
         this.isInitialized = true;
-        console.log('✅ GSAP Performance Configuration инициализирован');
+        // console.log('✅ GSAP Performance Configuration инициализирован');
     }
     
     /**
@@ -74,9 +80,9 @@ class PerformanceConfig {
             nullTargetWarn: false, // Отключаем предупреждения для null целей в production
         });
         
-        console.log('✅ GSAP глобальная конфигурация установлена');
-        console.log('   - force3D: true (GPU ускорение включено)');
-        console.log('   - autoSleep: 60s (автоотключение неактивных анимаций)');
+        // console.log('✅ GSAP глобальная конфигурация установлена');
+        // console.log('   - force3D: true (GPU ускорение включено)');
+        // console.log('   - autoSleep: 60s (автоотключение неактивных анимаций)');
     }
     
     /**
@@ -89,9 +95,9 @@ class PerformanceConfig {
         // adjustedLag: 16ms - ограничиваем deltaTime до 16ms (~60fps)
         gsap.ticker.lagSmoothing(1000, 16);
         
-        console.log('✅ GSAP lagSmoothing настроен: threshold=1000ms, adjustedLag=16ms');
-        console.log('   - Защита от лагов при переключении вкладок');
-        console.log('   - Ограничение deltaTime до 16ms для стабильного FPS');
+        // console.log('✅ GSAP lagSmoothing настроен: threshold=1000ms, adjustedLag=16ms');
+        // console.log('   - Защита от лагов при переключении вкладок');
+        // console.log('   - Ограничение deltaTime до 16ms для стабильного FPS');
     }
     
     /**
@@ -185,9 +191,9 @@ class PerformanceConfig {
             }
         });
         
-        console.log('✅ willChange управление настроено');
-        console.log('   - Автоматическое добавление willChange при анимации');
-        console.log('   - Автоматическое удаление willChange при завершении');
+        // console.log('✅ willChange управление настроено');
+        // console.log('   - Автоматическое добавление willChange при анимации');
+        // console.log('   - Автоматическое удаление willChange при завершении');
     }
     
     /**

@@ -86,7 +86,7 @@ class SectionNavigation extends InteractiveComponent {
         this.scrollTimeout = null;
         this.throttledUpdateActiveSection = null;
         
-        this.log('debug', 'SectionNavigation beforeInit - конфигурация готова');
+        // this.log('debug', 'SectionNavigation beforeInit - конфигурация готова');
         return true;
     }
     
@@ -176,18 +176,18 @@ class SectionNavigation extends InteractiveComponent {
     }
     
     collectSections() {
-        console.log('🔧 DEBUG: collectSections called');
+        // console.log('🔧 DEBUG: collectSections called');
         
         this.elements.sections = this.elements.navItems.map((item, index) => {
             const sectionId = item.dataset.section;
             const sectionElement = document.getElementById(sectionId);
             
-            console.log(`🔧 DEBUG: Section ${index}:`, {
-                sectionId,
-                hasElement: !!sectionElement,
-                element: sectionElement,
-                navItem: item
-            });
+            // console.log(`🔧 DEBUG: Section ${index}:`, {
+            //     sectionId,
+            //     hasElement: !!sectionElement,
+            //     element: sectionElement,
+            //     navItem: item
+            // });
             
             if (!sectionElement) {
                 console.warn(`❌ Section element not found: ${sectionId}`);
@@ -202,12 +202,12 @@ class SectionNavigation extends InteractiveComponent {
                 title: item.dataset.title || sectionId
             };
             
-            console.log(`✅ Section data created:`, sectionData);
+            // console.log(`✅ Section data created:`, sectionData);
             return sectionData;
         }).filter(Boolean); // Убираем null значения
         
-        console.log('🔧 DEBUG: Final sections array:', this.elements.sections);
-        this.log('debug', `Found ${this.elements.sections.length} sections for navigation`);
+        // console.log('🔧 DEBUG: Final sections array:', this.elements.sections);
+        // this.log('debug', `Found ${this.elements.sections.length} sections for navigation`);
     }
     
     // =============================================================================
@@ -215,9 +215,9 @@ class SectionNavigation extends InteractiveComponent {
     // =============================================================================
     
     bindNavigationClicks() {
-        console.log('🔧 DEBUG: bindNavigationClicks called');
-        console.log('🔧 DEBUG: navItems count:', this.elements.navItems.length);
-        console.log('🔧 DEBUG: button selector:', this.options.navButtonSelector);
+        // console.log('🔧 DEBUG: bindNavigationClicks called');
+        // console.log('🔧 DEBUG: navItems count:', this.elements.navItems.length);
+        // console.log('🔧 DEBUG: button selector:', this.options.navButtonSelector);
         
         // 🚨 ГЛУБОКАЯ ДИАГНОСТИКА: Document-level click tracking
         this.setupDocumentClickTracking();
@@ -226,12 +226,12 @@ class SectionNavigation extends InteractiveComponent {
             const button = item.querySelector(this.options.navButtonSelector);
             const sectionId = item.dataset.section;
             
-            console.log(`🔧 DEBUG: Item ${index}:`, {
-                sectionId,
-                hasButton: !!button,
-                buttonElement: button,
-                itemElement: item
-            });
+            // console.log(`🔧 DEBUG: Item ${index}:`, {
+            //     sectionId,
+            //     hasButton: !!button,
+            //     buttonElement: button,
+            //     itemElement: item
+            // });
             
             if (button) {
                 // 🚨 ГЛУБОКАЯ ДИАГНОСТИКА: CSS и позиционирование
@@ -239,35 +239,35 @@ class SectionNavigation extends InteractiveComponent {
                 
                 // 🚨 ИСПРАВЛЕНИЕ: Привязываем события НАПРЯМУЮ к кнопке, а не к родителю
                 this.addEventHandler(button, 'click', (e) => {
-                    console.log('🎯 DIRECT BUTTON CLICK!', {
-                        target: e.target,
-                        currentTarget: e.currentTarget,
-                        sectionId,
-                        targetTagName: e.target.tagName,
-                        targetClasses: e.target.className,
-                        timestamp: Date.now()
-                    });
+                    // console.log('🎯 DIRECT BUTTON CLICK!', {
+                    //     target: e.target,
+                    //     currentTarget: e.currentTarget,
+                    //     sectionId,
+                    //     targetTagName: e.target.tagName,
+                    //     targetClasses: e.target.className,
+                    //     timestamp: Date.now()
+                    // });
                     
                     // Предотвращаем всплытие события
                     e.stopPropagation();
                     
-                    console.log('🎯 VALID BUTTON CLICK DETECTED!', {
-                        sectionId,
-                        clickedButton: button,
-                        timestamp: Date.now()
-                    });
+                    // console.log('🎯 VALID BUTTON CLICK DETECTED!', {
+                    //     sectionId,
+                    //     clickedButton: button,
+                    //     timestamp: Date.now()
+                    // });
                     
                     // Выполняем навигацию
                     this.scrollToSection(sectionId);
                 });
                 
-                console.log(`✅ Event handler attached for section: ${sectionId}`);
+                // console.log(`✅ Event handler attached for section: ${sectionId}`);
             } else {
                 console.warn(`❌ Button not found for section: ${sectionId}`);
             }
         });
         
-        console.log('🔧 DEBUG: bindNavigationClicks completed');
+        // console.log('🔧 DEBUG: bindNavigationClicks completed');
     }
     
     // 🚨 ГЛУБОКАЯ ДИАГНОСТИКА: Document-level click tracking
@@ -276,30 +276,30 @@ class SectionNavigation extends InteractiveComponent {
             // Проверяем клики по навигации
             const navClick = e.target.closest('.section-navigation');
             if (navClick) {
-                console.log('🌍 DOCUMENT CLICK on navigation:', {
-                    target: e.target,
-                    targetTag: e.target.tagName,
-                    targetClasses: e.target.className,
-                    navElement: navClick,
-                    timestamp: Date.now()
-                });
+                // console.log('🌍 DOCUMENT CLICK on navigation:', {
+                //     target: e.target,
+                //     targetTag: e.target.tagName,
+                //     targetClasses: e.target.className,
+                //     navElement: navClick,
+                //     timestamp: Date.now()
+                // });
                 
                 // Проверяем конкретно клики по кнопкам
                 const buttonClick = e.target.closest('.section-nav-button');
                 if (buttonClick) {
                     const navItem = buttonClick.closest('.section-nav-item');
                     const sectionId = navItem ? navItem.dataset.section : 'unknown';
-                    console.log('🌍 DOCUMENT CLICK on button:', {
-                        sectionId,
-                        button: buttonClick,
-                        navItem,
-                        timestamp: Date.now()
-                    });
+                    // console.log('🌍 DOCUMENT CLICK on button:', {
+                    //     sectionId,
+                    //     button: buttonClick,
+                    //     navItem,
+                    //     timestamp: Date.now()
+                    // });
                 }
             }
         }, true); // Capture phase для раннего отслеживания
         
-        console.log('🌍 Document-level click tracking setup');
+        // console.log('🌍 Document-level click tracking setup');
     }
     
     // 🚨 ГЛУБОКАЯ ДИАГНОСТИКА: CSS и позиционирование
@@ -309,28 +309,28 @@ class SectionNavigation extends InteractiveComponent {
         const buttonRect = button.getBoundingClientRect();
         const itemRect = item.getBoundingClientRect();
         
-        console.log(`🔍 CSS DIAGNOSIS for ${sectionId} (${index}):`, {
-            button: {
-                pointerEvents: buttonStyles.pointerEvents,
-                zIndex: buttonStyles.zIndex,
-                position: buttonStyles.position,
-                display: buttonStyles.display,
-                visibility: buttonStyles.visibility,
-                opacity: buttonStyles.opacity,
-                cursor: buttonStyles.cursor,
-                rect: buttonRect
-            },
-            item: {
-                pointerEvents: itemStyles.pointerEvents,
-                zIndex: itemStyles.zIndex,
-                position: itemStyles.position,
-                display: itemStyles.display,
-                visibility: itemStyles.visibility,
-                opacity: itemStyles.opacity,
-                rect: itemRect
-            },
-            overlapping: this.checkForOverlapping(buttonRect)
-        });
+        // console.log(`🔍 CSS DIAGNOSIS for ${sectionId} (${index}):`, {
+        //     button: {
+        //         pointerEvents: buttonStyles.pointerEvents,
+        //         zIndex: buttonStyles.zIndex,
+        //         position: buttonStyles.position,
+        //         display: buttonStyles.display,
+        //         visibility: buttonStyles.visibility,
+        //         opacity: buttonStyles.opacity,
+        //         cursor: buttonStyles.cursor,
+        //         rect: buttonRect
+        //     },
+        //     item: {
+        //         pointerEvents: itemStyles.pointerEvents,
+        //         zIndex: itemStyles.zIndex,
+        //         position: itemStyles.position,
+        //         display: itemStyles.display,
+        //         visibility: itemStyles.visibility,
+        //         opacity: itemStyles.opacity,
+        //         rect: itemRect
+        //     },
+        //     overlapping: this.checkForOverlapping(buttonRect)
+        // });
         
         // Проверяем критические проблемы
         if (buttonStyles.pointerEvents === 'none') {
@@ -532,7 +532,7 @@ class SectionNavigation extends InteractiveComponent {
     // =============================================================================
     
     scrollToSection(sectionId) {
-        console.log('🚀 scrollToSection called with:', sectionId);
+        // console.log('🚀 scrollToSection called with:', sectionId);
         
         const section = this.elements.sections.find(s => s.id === sectionId);
         if (!section) {
@@ -542,11 +542,11 @@ class SectionNavigation extends InteractiveComponent {
             return;
         }
         
-        console.log('✅ Section found:', {
-            id: section.id,
-            title: section.title,
-            element: section.element
-        });
+        // console.log('✅ Section found:', {
+        //     id: section.id,
+        //     title: section.title,
+        //     element: section.element
+        // });
         
         this.log('debug', `Navigating to section: ${section.title} (${sectionId})`);
         
@@ -558,7 +558,7 @@ class SectionNavigation extends InteractiveComponent {
         
         // Устанавливаем флаг программного скролла
         this.state.isScrolling = true;
-        console.log('🔄 Set isScrolling = true');
+        // console.log('🔄 Set isScrolling = true');
         
         // Очищаем предыдущий таймаут
         if (this.scrollTimeout) {
@@ -566,7 +566,7 @@ class SectionNavigation extends InteractiveComponent {
         }
         
         // Выполняем скролл
-        console.log('📍 Calling performScroll...');
+        // console.log('📍 Calling performScroll...');
         this.performScroll(section);
         
         // Немедленно обновляем активную секцию
@@ -580,30 +580,30 @@ class SectionNavigation extends InteractiveComponent {
             sectionTitle: section.title
         });
         
-        console.log('✅ scrollToSection completed');
+        // console.log('✅ scrollToSection completed');
     }
     
     performScroll(section) {
-        console.log('🎯 performScroll called with section:', section.id);
-        console.log('🔧 Lenis available:', this.state.lenisAvailable);
-        console.log('🔧 Lenis integration enabled:', this.options.lenisIntegration);
+        // console.log('🎯 performScroll called with section:', section.id);
+        // console.log('🔧 Lenis available:', this.state.lenisAvailable);
+        // console.log('🔧 Lenis integration enabled:', this.options.lenisIntegration);
         
         if (this.state.lenisAvailable && this.options.lenisIntegration) {
-            console.log('📱 Using Lenis for scroll');
-            console.log('🔧 Lenis instance:', window.app.lenis);
-            console.log('🔧 Target element:', section.element);
+            // console.log('📱 Using Lenis for scroll');
+            // console.log('🔧 Lenis instance:', window.app.lenis);
+            // console.log('🔧 Target element:', section.element);
             
             try {
                 // Используем Lenis для плавного скролла - правильный API
                 window.app.lenis.scrollTo(section.element);
-                console.log('✅ Lenis scrollTo called successfully');
+                // console.log('✅ Lenis scrollTo called successfully');
             } catch (error) {
                 console.error('❌ Lenis scrollTo failed:', error);
             }
             
             // Сбрасываем флаг через задержку (Lenis не всегда имеет callback)
             this.scrollTimeout = setTimeout(() => {
-                console.log('⏰ Lenis scroll timeout - resetting isScrolling flag');
+                // console.log('⏰ Lenis scroll timeout - resetting isScrolling flag');
                 this.state.isScrolling = false;
                 this.emit('navigationCompleted', { 
                     targetSection: section.id,
@@ -611,8 +611,8 @@ class SectionNavigation extends InteractiveComponent {
                 });
             }, 1500); // Достаточно времени для завершения скролла
         } else {
-            console.log('🔄 Using native scroll (fallback)');
-            console.log('🔧 Target element:', section.element);
+            // console.log('🔄 Using native scroll (fallback)');
+            // console.log('🔧 Target element:', section.element);
             
             try {
                 // Fallback к нативному плавному скроллу
@@ -620,14 +620,14 @@ class SectionNavigation extends InteractiveComponent {
                     behavior: 'smooth',
                     block: 'start'
                 });
-                console.log('✅ Native scrollIntoView called successfully');
+                // console.log('✅ Native scrollIntoView called successfully');
             } catch (error) {
                 console.error('❌ Native scrollIntoView failed:', error);
             }
             
             // Сбрасываем флаг через задержку (нативный скролл не имеет callback)
             this.scrollTimeout = setTimeout(() => {
-                console.log('⏰ Native scroll timeout - resetting isScrolling flag');
+                // console.log('⏰ Native scroll timeout - resetting isScrolling flag');
                 this.state.isScrolling = false;
                 this.emit('navigationCompleted', { 
                     targetSection: section.id,
@@ -636,7 +636,7 @@ class SectionNavigation extends InteractiveComponent {
             }, this.options.scrollDuration * 1000 + 500);
         }
         
-        console.log('✅ performScroll completed');
+        // console.log('✅ performScroll completed');
     }
     
     // =============================================================================

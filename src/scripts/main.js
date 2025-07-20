@@ -2,6 +2,22 @@
 // LLG Design System - Main JavaScript
 // =============================================================================
 
+// 🚨 PRODUCTION: Отключаем все логи для производительности
+const originalConsole = {
+  log: console.log,
+  warn: console.warn,
+  error: console.error,
+  info: console.info,
+  debug: console.debug
+};
+
+// Заглушка для отключения логов (раскомментируйте для отладки)
+console.log = () => {};
+console.warn = () => {};
+console.info = () => {};
+console.debug = () => {};
+// Оставляем только console.error для критических ошибок
+
 // =============================================================================
 // Utilities
 // =============================================================================
@@ -338,7 +354,7 @@ class LLGApp {
   }
   
     start() {
-        console.log('🚀 LLG Design System initialized');
+        // console.log('🚀 LLG Design System initialized');
         
         // Initialize header FIRST (before preloader)
         this.initHeader();
@@ -387,8 +403,9 @@ class LLGApp {
         // Initialize Hero Stars Scroll Effect (after all other components)
         this.initHeroStarsScrollEffect();
         
-        // Initialize performance monitoring
-        this.performanceMonitor = new PerformanceMonitor();
+        // Initialize performance monitoring (DISABLED for production)
+        // Для включения в development раскомментируйте строку ниже:
+        // this.performanceMonitor = new PerformanceMonitor();
         
         // Setup global event listeners
         this.setupGlobalEvents();
@@ -1144,6 +1161,302 @@ const app = new LLGApp();
 
 // Make app globally available for Lenis integration
 window.app = app;
+
+// =============================================================================
+// Developer Tools - Console Commands
+// =============================================================================
+
+// 🛠️ Команды для разработчиков в консоли
+window.dev = {
+  // Включить мониторинг производительности
+  enablePerformanceMonitoring() {
+    // Сначала включаем логи, чтобы видеть сообщения
+    this.enableLogs();
+    
+    if (!window.app.performanceMonitor) {
+      console.log('🚀 Включаем мониторинг производительности...');
+      window.app.performanceMonitor = new PerformanceMonitor();
+      console.log('✅ PerformanceMonitor включен');
+      console.log('📊 Мониторинг Core Web Vitals активен');
+      console.log('');
+      console.log('🔍 Теперь вы увидите в консоли:');
+      console.log('   - LCP: время загрузки основного контента');
+      console.log('   - FID: время отклика на первое взаимодействие');
+      console.log('   - CLS: стабильность макета');
+      console.log('');
+      console.log('💡 Попробуйте прокрутить страницу или кликнуть что-то');
+    } else {
+      console.log('⚠️ PerformanceMonitor уже включен');
+    }
+  },
+  
+  // Отключить мониторинг производительности
+  disablePerformanceMonitoring() {
+    if (window.app.performanceMonitor) {
+      console.log('🛑 Отключаем мониторинг производительности...');
+      // Здесь можно добавить cleanup если нужно
+      window.app.performanceMonitor = null;
+      console.log('✅ PerformanceMonitor отключен');
+    } else {
+      console.log('⚠️ PerformanceMonitor уже отключен');
+    }
+  },
+  
+  // Включить расширенный мониторинг GSAP
+  enableGSAPMonitoring() {
+    if (window.PerformanceConfig) {
+      console.log('🚀 Включаем расширенный GSAP мониторинг...');
+      window.PerformanceConfig.enableMonitoring = true;
+      
+      // Включаем FPS мониторинг
+      if (typeof window.PerformanceConfig.setupFPSLimit === 'function') {
+        window.PerformanceConfig.setupFPSLimit();
+      }
+      
+      // Включаем мониторинг производительности
+      if (typeof window.PerformanceConfig.setupPerformanceMonitoring === 'function') {
+        window.PerformanceConfig.setupPerformanceMonitoring();
+      }
+      
+      console.log('✅ GSAP мониторинг включен');
+      console.log('📊 FPS и Memory мониторинг активен');
+    } else {
+      console.log('❌ PerformanceConfig не найден');
+    }
+  },
+  
+  // Отключить расширенный мониторинг GSAP
+  disableGSAPMonitoring() {
+    if (window.PerformanceConfig) {
+      console.log('🛑 Отключаем расширенный GSAP мониторинг...');
+      window.PerformanceConfig.enableMonitoring = false;
+      
+      // Очищаем интервалы если есть
+      if (window.PerformanceConfig.fpsMonitorInterval) {
+        clearInterval(window.PerformanceConfig.fpsMonitorInterval);
+      }
+      if (window.PerformanceConfig.memoryMonitorInterval) {
+        clearInterval(window.PerformanceConfig.memoryMonitorInterval);
+      }
+      
+      console.log('✅ GSAP мониторинг отключен');
+    } else {
+      console.log('❌ PerformanceConfig не найден');
+    }
+  },
+  
+  // Включить все логи
+  enableLogs() {
+    console.log('🚀 Включаем все логи...');
+    console.log = originalConsole.log;
+    console.warn = originalConsole.warn;
+    console.info = originalConsole.info;
+    console.debug = originalConsole.debug;
+    console.log('✅ Все логи включены');
+  },
+  
+  // Отключить все логи
+  disableLogs() {
+    console.log('🛑 Отключаем все логи...');
+    console.log = () => {};
+    console.warn = () => {};
+    console.info = () => {};
+    console.debug = () => {};
+    // console.error остается активным
+  },
+  
+  // Показать текущие метрики производительности
+  showMetrics() {
+    console.log('📊 Текущие метрики производительности:');
+    console.log('');
+    
+    // Показать GSAP метрики если доступны
+    if (window.PerformanceConfig && typeof window.PerformanceConfig.getMetrics === 'function') {
+      const metrics = window.PerformanceConfig.getMetrics();
+      console.log('🎮 GSAP Metrics:');
+      console.log(`   Average FPS: ${metrics.averageFPS ? metrics.averageFPS.toFixed(1) : 'N/A'}`);
+      console.log(`   Min FPS: ${metrics.minFPS ? metrics.minFPS.toFixed(1) : 'N/A'}`);
+      console.log(`   Max FPS: ${metrics.maxFPS ? metrics.maxFPS.toFixed(1) : 'N/A'}`);
+      console.log(`   Samples: ${metrics.samplesCount || 0}`);
+      console.log('');
+    }
+    
+    // Показать память
+    if (performance.memory) {
+      const used = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(2);
+      const total = (performance.memory.totalJSHeapSize / 1024 / 1024).toFixed(2);
+      const limit = (performance.memory.jsHeapSizeLimit / 1024 / 1024).toFixed(2);
+      const usagePercent = ((performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit) * 100).toFixed(1);
+      
+      console.log('💾 Memory Usage:');
+      console.log(`   Used: ${used} MB (${usagePercent}%)`);
+      console.log(`   Total: ${total} MB`);
+      console.log(`   Limit: ${limit} MB`);
+      console.log('');
+    }
+    
+    // Показать текущий FPS
+    console.log('🎯 Measuring current FPS...');
+    let frameCount = 0;
+    let lastTime = performance.now();
+    
+    const measureFPS = () => {
+      frameCount++;
+      const currentTime = performance.now();
+      
+      if (currentTime - lastTime >= 1000) {
+        console.log(`📈 Current FPS: ${frameCount}`);
+        
+        // Оценка производительности
+        if (frameCount >= 55) {
+          console.log('🟢 Отличная производительность!');
+        } else if (frameCount >= 30) {
+          console.log('🟡 Хорошая производительность');
+        } else {
+          console.log('🔴 Низкая производительность - возможны проблемы');
+        }
+        return;
+      }
+      
+      requestAnimationFrame(measureFPS);
+    };
+    
+    requestAnimationFrame(measureFPS);
+  },
+  
+  // Показать живые метрики (обновляются каждые 2 секунды)
+  showLiveMetrics() {
+    // Включаем логи для live мониторинга
+    const wasLogsEnabled = console.log === originalConsole.log;
+    if (!wasLogsEnabled) {
+      console.log = originalConsole.log;
+    }
+    
+    console.log('🔴 LIVE: Запуск мониторинга в реальном времени...');
+    console.log('💡 Для остановки введите: dev.stopLiveMetrics()');
+    console.log('');
+    
+    let updateCount = 0;
+    
+    this.liveMetricsInterval = setInterval(() => {
+      updateCount++;
+      console.clear();
+      console.log(`🔴 LIVE METRICS (обновление #${updateCount})`);
+      console.log('═'.repeat(50));
+      
+      // FPS в реальном времени
+      let frameCount = 0;
+      let startTime = performance.now();
+      
+      const measureLiveFPS = () => {
+        frameCount++;
+        const currentTime = performance.now();
+        
+        if (currentTime - startTime >= 1000) {
+          console.log(`📈 FPS: ${frameCount} ${frameCount >= 55 ? '🟢' : frameCount >= 30 ? '🟡' : '🔴'}`);
+          
+          // Memory
+          if (performance.memory) {
+            const used = (performance.memory.usedJSHeapSize / 1024 / 1024).toFixed(1);
+            const usagePercent = ((performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit) * 100).toFixed(1);
+            console.log(`💾 Memory: ${used} MB (${usagePercent}%)`);
+          }
+          
+          // GSAP метрики
+          if (window.PerformanceConfig && window.PerformanceConfig.enableMonitoring) {
+            console.log('🎮 GSAP мониторинг: АКТИВЕН');
+          } else {
+            console.log('🎮 GSAP мониторинг: отключен');
+          }
+          
+          // Performance Monitor
+          if (window.app.performanceMonitor) {
+            console.log('📊 Core Web Vitals: АКТИВЕН');
+          } else {
+            console.log('📊 Core Web Vitals: отключен');
+          }
+          
+          console.log('');
+          console.log('💡 dev.stopLiveMetrics() - остановить мониторинг');
+          return;
+        }
+        
+        requestAnimationFrame(measureLiveFPS);
+      };
+      
+      requestAnimationFrame(measureLiveFPS);
+      
+    }, 7000);
+  },
+  
+  // Остановить живые метрики
+  stopLiveMetrics() {
+    // Включаем логи для показа сообщения
+    const wasLogsEnabled = console.log === originalConsole.log;
+    if (!wasLogsEnabled) {
+      console.log = originalConsole.log;
+    }
+    
+    if (this.liveMetricsInterval) {
+      clearInterval(this.liveMetricsInterval);
+      this.liveMetricsInterval = null;
+      console.log('🛑 Мониторинг в реальном времени остановлен');
+    } else {
+      console.log('⚠️ Мониторинг в реальном времени не запущен');
+    }
+    
+    // Возвращаем логи в исходное состояние если они были отключены
+    if (!wasLogsEnabled) {
+      console.log = () => {};
+    }
+  },
+  
+  // Показать справку по командам
+  help() {
+    // Правильная проверка состояния логов
+    const wasLogsEnabled = console.log === originalConsole.log;
+    
+    // Временно включаем логи для показа справки
+    if (!wasLogsEnabled) {
+      console.log = originalConsole.log;
+    }
+    
+    console.log(`
+🛠️ Developer Tools - Доступные команды:
+
+📊 Мониторинг производительности:
+  dev.enablePerformanceMonitoring()  - Включить Core Web Vitals мониторинг
+  dev.disablePerformanceMonitoring() - Отключить Core Web Vitals мониторинг
+  dev.enableGSAPMonitoring()         - Включить GSAP FPS/Memory мониторинг
+  dev.disableGSAPMonitoring()        - Отключить GSAP мониторинг
+  dev.showMetrics()                  - Показать текущие метрики
+  dev.showLiveMetrics()              - 🔴 LIVE мониторинг в реальном времени
+  dev.stopLiveMetrics()              - Остановить live мониторинг
+
+📝 Логирование:
+  dev.enableLogs()                   - Включить все логи
+  dev.disableLogs()                  - Отключить все логи
+
+ℹ️ Справка:
+  dev.help()                         - Показать эту справку
+
+🚀 Быстрый старт:
+  dev.enablePerformanceMonitoring()  - Включает логи + Core Web Vitals
+  dev.showLiveMetrics()              - Живые метрики каждые 7 секунд
+  dev.showMetrics()                  - Разовый замер производительности
+
+💡 Логи сейчас: ${wasLogsEnabled ? 'ВКЛЮЧЕНЫ' : 'отключены'}
+    `);
+    
+    // Возвращаем логи в исходное состояние если они были отключены
+    if (!wasLogsEnabled) {
+      console.log = () => {};
+    }
+  }
+};
+
+// Показать справку при загрузке (только если консоль открыта)
+console.log('🛠️ Developer Tools доступны! Введите dev.help() для справки');
 
 // Export for module usage
 if (typeof module !== 'undefined' && module.exports) {
