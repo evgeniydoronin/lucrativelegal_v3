@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spline Rocket Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section:nth-child(odd) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .section:nth-child(even) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .section h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .section p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        
+        /* Импортируем стили ракеты */
+        .spline-rocket-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1000;
+            background: transparent;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+        }
+        
+        .spline-rocket-animation.loaded {
+            opacity: 1;
+        }
+        
+        .spline-rocket-animation .spline-canvas {
+            width: 100% !important;
+            height: 100% !important;
+            background: transparent !important;
+            outline: none;
+            border: none;
+        }
+        
+        /* Отключаем на мобильных */
+        @media (max-width: 1024px) {
+            .spline-rocket-animation {
+                display: none !important;
+            }
+        }
+        
+        @media (prefers-reduced-motion: reduce) {
+            .spline-rocket-animation {
+                display: none !important;
+            }
+        }
+        
+        /* Debug info */
+        .debug-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 2000;
+            min-width: 200px;
+        }
+        
+        .debug-info h3 {
+            margin-bottom: 10px;
+            color: #00ff00;
+        }
+        
+        .debug-info div {
+            margin-bottom: 5px;
+        }
+        
+        .status-ok { color: #00ff00; }
+        .status-error { color: #ff0000; }
+        .status-warning { color: #ffaa00; }
+    </style>
+</head>
+<body>
+    <!-- Debug Info -->
+    <div class="debug-info">
+        <h3>🚀 Rocket Debug</h3>
+        <div>Status: <span id="rocket-status" class="status-warning">Loading...</span></div>
+        <div>Progress: <span id="scroll-progress">0%</span></div>
+        <div>Position: <span id="rocket-position">-</span></div>
+        <div>Mobile: <span id="is-mobile">-</span></div>
+        <div>Reduced Motion: <span id="reduced-motion">-</span></div>
+    </div>
+
+    <!-- Test Sections -->
+    <section class="section">
+        <div>
+            <h2>🚀 Spline Rocket Test</h2>
+            <p>Scroll down to see the rocket fly!</p>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div>
+            <h2>Section 2</h2>
+            <p>The rocket should be flying diagonally</p>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div>
+            <h2>Section 3</h2>
+            <p>Rocket continues its zigzag path</p>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div>
+            <h2>Section 4</h2>
+            <p>More rocket animation</p>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div>
+            <h2>Section 5</h2>
+            <p>Keep scrolling to see the full trajectory</p>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div>
+            <h2>Section 6</h2>
+            <p>Almost at the end</p>
+        </div>
+    </section>
+    
+    <section class="section">
+        <div>
+            <h2>Final Section</h2>
+            <p>Rocket should exit the screen</p>
+        </div>
+    </section>
+
+    <!-- GSAP Library -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+
+    <!-- Lenis for Smooth Scrolling -->
+    <script src="https://unpkg.com/lenis@1.3.5/dist/lenis.min.js"></script>
+
+    <!-- Spline Runtime будет загружен динамически компонентом -->
+    <script>
+        console.log('🚀 Using local Spline Runtime - no CDN loading needed');
+    </script>
+
+    <!-- Our Components -->
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedInteractiveComponent.js"></script>
+    <script src="src/scripts/components/spline-rocket-scroll.js"></script>
+
+    <script>
+        // Enable console logs for testing
+        console.log('🚀 Starting Spline Rocket Test');
+        
+        // Initialize Lenis
+        const lenis = new Lenis({
+            lerp: 0.1,
+            wheelMultiplier: 0.8,
+            touchMultiplier: 0.8,
+            smoothWheel: true,
+            autoRaf: false
+        });
+        
+        // GSAP ticker integration
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+        
+        // ScrollTrigger integration
+        lenis.on('scroll', ScrollTrigger.update);
+        
+        // Debug elements
+        const statusEl = document.getElementById('rocket-status');
+        const progressEl = document.getElementById('scroll-progress');
+        const positionEl = document.getElementById('rocket-position');
+        const mobileEl = document.getElementById('is-mobile');
+        const reducedMotionEl = document.getElementById('reduced-motion');
+        
+        // Update debug info
+        mobileEl.textContent = window.innerWidth <= 768 ? 'Yes' : 'No';
+        reducedMotionEl.textContent = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'Yes' : 'No';
+        
+        // Wait for Spline runtime to load
+        setTimeout(() => {
+            try {
+                // Create rocket container
+                const rocketContainer = document.createElement('div');
+                rocketContainer.className = 'spline-rocket-animation';
+                rocketContainer.id = 'spline-rocket-container';
+                document.body.appendChild(rocketContainer);
+                
+                // Initialize rocket with forced enable for testing
+                const splineRocket = new SplineRocketScroll(rocketContainer);
+                
+                // ПРИНУДИТЕЛЬНО включаем анимацию для тестирования
+                splineRocket.options.enableOnMobile = true;
+                splineRocket.options.respectReducedMotion = false;
+                splineRocket.shouldAnimate = true;
+                
+                console.log('🔧 Test mode: Animation forced enabled');
+                
+                // Listen to events
+                splineRocket.on('splineLoaded', (data) => {
+                    console.log('🚀 Spline loaded:', data);
+                    statusEl.textContent = 'Loaded';
+                    statusEl.className = 'status-ok';
+                    rocketContainer.classList.add('loaded');
+                });
+                
+                splineRocket.on('rocketReady', () => {
+                    console.log('🚀 Rocket ready');
+                    statusEl.textContent = 'Ready';
+                    statusEl.className = 'status-ok';
+                });
+                
+                splineRocket.on('error', (data) => {
+                    console.error('❌ Rocket error:', data);
+                    statusEl.textContent = 'Error';
+                    statusEl.className = 'status-error';
+                });
+                
+                // Update scroll progress
+                lenis.on('scroll', (e) => {
+                    const progress = Math.min(1, Math.max(0, window.scrollY / (document.body.scrollHeight - window.innerHeight)));
+                    progressEl.textContent = Math.round(progress * 100) + '%';
+                    
+                    // Get rocket state if available
+                    if (splineRocket && splineRocket.getState) {
+                        const state = splineRocket.getState();
+                        if (state.currentProgress !== undefined) {
+                            positionEl.textContent = `${Math.round(state.currentProgress * 100)}%`;
+                        }
+                    }
+                });
+                
+                // Make globally available for debugging
+                window.splineRocket = splineRocket;
+                window.lenis = lenis;
+                
+                console.log('✅ Test setup complete');
+                
+            } catch (error) {
+                console.error('❌ Test setup failed:', error);
+                statusEl.textContent = 'Failed';
+                statusEl.className = 'status-error';
+            }
+        }, 2000); // Wait 2 seconds for all scripts to load
+        
+        // Keyboard shortcuts for testing
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'r' && e.ctrlKey) {
+                // Ctrl+R: Reset rocket
+                e.preventDefault();
+                if (window.splineRocket && window.splineRocket.reset) {
+                    window.splineRocket.reset();
+                    console.log('🔄 Rocket reset');
+                }
+            } else if (e.key === 'p' && e.ctrlKey) {
+                // Ctrl+P: Pause/Resume rocket
+                e.preventDefault();
+                if (window.splineRocket) {
+                    const state = window.splineRocket.getState();
+                    if (state.shouldAnimate) {
+                        window.splineRocket.pauseAnimation();
+                        console.log('⏸️ Rocket paused');
+                    } else {
+                        window.splineRocket.resumeAnimation();
+                        console.log('▶️ Rocket resumed');
+                    }
+                }
+            }
+        });
+        
+        console.log('💡 Keyboard shortcuts:');
+        console.log('   Ctrl+R: Reset rocket');
+        console.log('   Ctrl+P: Pause/Resume rocket');
+    </script>
+</body>
+</html>

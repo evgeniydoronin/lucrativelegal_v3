@@ -1,0 +1,204 @@
+// =============================================================================
+// Spline Rocket Scroll Animation Styles
+// =============================================================================
+
+.spline-rocket-animation {
+  // Позиционирование поверх всего контента
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  
+  // Отключаем взаимодействие с мышью чтобы не блокировать сайт
+  pointer-events: none;
+  
+  // Высокий z-index чтобы ракета была поверх всего
+  z-index: 1000;
+  
+  // Прозрачный фон
+  background: transparent;
+  
+  // Canvas для Spline
+  .spline-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    background: transparent !important;
+    
+    // Убираем outline который может появиться
+    outline: none;
+    border: none;
+    
+    // Сглаживание для лучшего качества
+    image-rendering: auto;
+    image-rendering: crisp-edges;
+    image-rendering: -webkit-optimize-contrast;
+  }
+  
+  // Плавное появление при загрузке
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  
+  &.loaded {
+    opacity: 1;
+  }
+  
+  // Состояние паузы
+  &.paused {
+    .spline-canvas {
+      filter: grayscale(0.3);
+    }
+  }
+}
+
+// =============================================================================
+// Адаптивность и производительность
+// =============================================================================
+
+// Отключаем на планшетах и мобильных для производительности
+@media (max-width: 1024px) {
+  .spline-rocket-animation {
+    display: none !important;
+  }
+}
+
+// Отключаем при низкой производительности
+@media (max-width: 768px) {
+  .spline-rocket-animation {
+    display: none !important;
+  }
+}
+
+// Отключаем при prefers-reduced-motion
+@media (prefers-reduced-motion: reduce) {
+  .spline-rocket-animation {
+    display: none !important;
+  }
+}
+
+// Отключаем на устройствах с низким разрешением
+@media (max-resolution: 150dpi) {
+  .spline-rocket-animation {
+    .spline-canvas {
+      image-rendering: pixelated;
+    }
+  }
+}
+
+// =============================================================================
+// Состояния загрузки
+// =============================================================================
+
+.spline-rocket-animation {
+  // Индикатор загрузки (опционально)
+  &.loading {
+    &::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 20px;
+      height: 20px;
+      margin: -10px 0 0 -10px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-top: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      animation: spline-rocket-loading 1s linear infinite;
+      z-index: 1001;
+    }
+  }
+  
+  // Состояние ошибки
+  &.error {
+    display: none !important;
+  }
+}
+
+// Анимация загрузки
+@keyframes spline-rocket-loading {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+// =============================================================================
+// Отладочные стили (только для development)
+// =============================================================================
+
+// Раскомментируйте для отладки траектории
+// .spline-rocket-animation.debug {
+//   &::after {
+//     content: '';
+//     position: absolute;
+//     top: 0;
+//     left: 0;
+//     width: 100%;
+//     height: 100%;
+//     background: 
+//       radial-gradient(circle at -400px 300px, red 5px, transparent 5px),
+//       radial-gradient(circle at 300px 150px, red 5px, transparent 5px),
+//       radial-gradient(circle at -250px 0px, red 5px, transparent 5px),
+//       radial-gradient(circle at 350px -150px, red 5px, transparent 5px),
+//       radial-gradient(circle at -200px -300px, red 5px, transparent 5px),
+//       radial-gradient(circle at 400px -450px, red 5px, transparent 5px),
+//       radial-gradient(circle at -150px -600px, red 5px, transparent 5px),
+//       radial-gradient(circle at 300px -800px, red 5px, transparent 5px);
+//     pointer-events: none;
+//     z-index: 999;
+//   }
+// }
+
+// =============================================================================
+// Оптимизация производительности
+// =============================================================================
+
+.spline-rocket-animation {
+  // Включаем аппаратное ускорение
+  transform: translateZ(0);
+  will-change: transform;
+  
+  .spline-canvas {
+    // Оптимизация рендеринга
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    perspective: 1000px;
+    
+    // Отключаем сглаживание текста для canvas
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+// Для высокопроизводительных устройств
+@media (min-width: 1920px) and (min-height: 1080px) {
+  .spline-rocket-animation {
+    .spline-canvas {
+      // Можно включить более высокое качество
+      image-rendering: auto;
+    }
+  }
+}
+
+// =============================================================================
+// Темная тема (если используется)
+// =============================================================================
+
+@media (prefers-color-scheme: dark) {
+  .spline-rocket-animation {
+    // Можно добавить специфичные стили для темной темы
+    // если ракета должна выглядеть по-разному
+  }
+}
+
+// =============================================================================
+// Печать (отключаем при печати)
+// =============================================================================
+
+@media print {
+  .spline-rocket-animation {
+    display: none !important;
+  }
+}

@@ -403,6 +403,9 @@ class LLGApp {
         // Initialize Hero Stars Scroll Effect (after all other components)
         this.initHeroStarsScrollEffect();
         
+        // Initialize Spline Rocket (after all other components and Lenis)
+        this.initSplineRocket();
+        
         // Initialize performance monitoring (DISABLED for production)
         // Для включения в development раскомментируйте строку ниже:
         // this.performanceMonitor = new PerformanceMonitor();
@@ -1172,61 +1175,124 @@ class LLGApp {
     console.log('✅ FutureMarketing initialized with new architecture');
   }
   
-  initHeroStarsScrollEffect() {
-    // Check if HeroStarsScroll class is available
-    if (typeof HeroStarsScroll === 'undefined') {
-      console.warn('⚠️ HeroStarsScroll component not found');
-      return;
+    initHeroStarsScrollEffect() {
+        // Check if HeroStarsScroll class is available
+        if (typeof HeroStarsScroll === 'undefined') {
+            console.warn('⚠️ HeroStarsScroll component not found');
+            return;
+        }
+        
+        // Check if already initialized to prevent duplicates
+        if (this.heroStarsScrollEffect) {
+            console.warn('⚠️ HeroStarsScroll already initialized');
+            return;
+        }
+        
+        // Find DOM element for hero-stars-scroll (required by BaseComponent)
+        const heroElement = document.querySelector('#hero');
+        if (!heroElement) {
+            console.warn('⚠️ Hero element not found for HeroStarsScroll');
+            return;
+        }
+        
+        // Check if hero stars animation exists
+        const heroStarsElement = document.querySelector('.hero-stars-animation');
+        if (!heroStarsElement) {
+            console.warn('⚠️ Hero stars animation element not found');
+            return;
+        }
+        
+        // Initialize with DOM element (required by BaseComponent)
+        this.heroStarsScrollEffect = new HeroStarsScroll(heroElement, {
+            debug: true,
+            enableDebug: true
+        });
+        
+        // Listen to hero-stars-scroll events (new architecture)
+        this.heroStarsScrollEffect.on('colorsUpdated', (data) => {
+            console.log('🌟 HeroStarsScroll colors updated:', data);
+        });
+        
+        this.heroStarsScrollEffect.on('scroll', (data) => {
+            // console.log('🌟 HeroStarsScroll scroll:', data.progress);
+        });
+        
+        this.heroStarsScrollEffect.on('scrollEnd', (data) => {
+            console.log('🌟 HeroStarsScroll scroll ended:', data);
+        });
+        
+        this.heroStarsScrollEffect.on('debugEnabled', () => {
+            console.log('🐛 HeroStarsScroll debug mode enabled');
+        });
+        
+        // Make globally available
+        window.heroStarsScrollAPI = this.heroStarsScrollEffect;
+        
+        console.log('✅ HeroStarsScroll initialized with new BaseComponent architecture');
     }
     
-    // Check if already initialized to prevent duplicates
-    if (this.heroStarsScrollEffect) {
-      console.warn('⚠️ HeroStarsScroll already initialized');
-      return;
+    initSplineRocket() {
+        // Check if SplineRocketScroll class is available
+        if (typeof SplineRocketScroll === 'undefined') {
+            console.warn('⚠️ SplineRocketScroll component not found');
+            return;
+        }
+        
+        // Check if already initialized to prevent duplicates
+        if (this.splineRocket) {
+            console.warn('⚠️ SplineRocket already initialized');
+            return;
+        }
+        
+        // Create container for rocket animation
+        const rocketContainer = document.createElement('div');
+        rocketContainer.className = 'spline-rocket-animation';
+        rocketContainer.id = 'spline-rocket-container';
+        document.body.appendChild(rocketContainer);
+        
+        // Initialize with DOM element (required by AnimatedInteractiveComponent)
+        this.splineRocket = new SplineRocketScroll(rocketContainer);
+        
+        // Listen to spline rocket events (new architecture)
+        this.splineRocket.on('splineLoaded', (data) => {
+            console.log('🚀 Spline rocket loaded successfully:', data);
+            // Add loaded class for CSS animations
+            rocketContainer.classList.add('loaded');
+        });
+        
+        this.splineRocket.on('rocketReady', () => {
+            console.log('🚀 Spline rocket is ready for animation');
+        });
+        
+        this.splineRocket.on('rocketShown', () => {
+            console.log('🚀 Spline rocket shown');
+        });
+        
+        this.splineRocket.on('rocketHidden', () => {
+            console.log('🚀 Spline rocket hidden');
+        });
+        
+        this.splineRocket.on('animationPaused', () => {
+            console.log('⏸️ Spline rocket animation paused');
+            rocketContainer.classList.add('paused');
+        });
+        
+        this.splineRocket.on('animationResumed', () => {
+            console.log('▶️ Spline rocket animation resumed');
+            rocketContainer.classList.remove('paused');
+        });
+        
+        this.splineRocket.on('error', (data) => {
+            console.error('❌ Spline rocket error:', data);
+            rocketContainer.classList.add('error');
+        });
+        
+        // Make globally available for debugging
+        window.splineRocketAPI = this.splineRocket;
+        window.app.splineRocket = this.splineRocket;
+        
+        console.log('✅ SplineRocket initialized with new architecture');
     }
-    
-    // Find DOM element for hero-stars-scroll (required by BaseComponent)
-    const heroElement = document.querySelector('#hero');
-    if (!heroElement) {
-      console.warn('⚠️ Hero element not found for HeroStarsScroll');
-      return;
-    }
-    
-    // Check if hero stars animation exists
-    const heroStarsElement = document.querySelector('.hero-stars-animation');
-    if (!heroStarsElement) {
-      console.warn('⚠️ Hero stars animation element not found');
-      return;
-    }
-    
-    // Initialize with DOM element (required by BaseComponent)
-    this.heroStarsScrollEffect = new HeroStarsScroll(heroElement, {
-      debug: true,
-      enableDebug: true
-    });
-    
-    // Listen to hero-stars-scroll events (new architecture)
-    this.heroStarsScrollEffect.on('colorsUpdated', (data) => {
-      console.log('🌟 HeroStarsScroll colors updated:', data);
-    });
-    
-    this.heroStarsScrollEffect.on('scroll', (data) => {
-      // console.log('🌟 HeroStarsScroll scroll:', data.progress);
-    });
-    
-    this.heroStarsScrollEffect.on('scrollEnd', (data) => {
-      console.log('🌟 HeroStarsScroll scroll ended:', data);
-    });
-    
-    this.heroStarsScrollEffect.on('debugEnabled', () => {
-      console.log('🐛 HeroStarsScroll debug mode enabled');
-    });
-    
-    // Make globally available
-    window.heroStarsScrollAPI = this.heroStarsScrollEffect;
-    
-    console.log('✅ HeroStarsScroll initialized with new BaseComponent architecture');
-  }
   
   
   setupGlobalEvents() {
