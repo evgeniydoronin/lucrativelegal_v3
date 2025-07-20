@@ -51,8 +51,10 @@ class AnimatedInteractiveComponent extends BaseComponent {
      * Инициализация функций интерактивности
      */
     initInteractiveFeatures() {
-        // Коллекции для управления событиями
-        this.eventHandlers = new Map();
+        // 🚨 ИСПРАВЛЕНИЕ: НЕ создаем дублирующую eventHandlers Map!
+        // BaseComponent уже имеет this.eventHandlers
+        
+        // Коллекции для управления throttling/debouncing
         this.throttledFunctions = new Map();
         this.debouncedFunctions = new Map();
         
@@ -218,47 +220,25 @@ class AnimatedInteractiveComponent extends BaseComponent {
     // =============================================================================
     
     addEventHandler(element, event, handler, options = {}) {
+        // 🚨 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Используем базовую систему событий!
         if (!element || !event || !handler) {
             this.log('warn', 'Invalid parameters for addEventHandler');
             return false;
         }
         
-        const key = this.generateEventKey(element, event, handler);
-        
-        if (this.eventHandlers.has(key)) {
-            this.removeEventHandler(element, event, handler);
-        }
-        
+        // Настройки по умолчанию для AnimatedInteractiveComponent
         const eventOptions = {
             passive: this.options.passive,
             ...options
         };
         
-        element.addEventListener(event, handler, eventOptions);
-        
-        this.eventHandlers.set(key, {
-            element,
-            event,
-            handler,
-            options: eventOptions
-        });
-        
-        this.log('debug', `Event handler added: ${event} on ${element.tagName || 'element'}`);
-        return true;
+        // Вызываем базовый метод вместо собственной логики
+        return super.addEventHandler(element, event, handler, eventOptions);
     }
     
     removeEventHandler(element, event, handler) {
-        const key = this.generateEventKey(element, event, handler);
-        const stored = this.eventHandlers.get(key);
-        
-        if (stored) {
-            stored.element.removeEventListener(stored.event, stored.handler, stored.options);
-            this.eventHandlers.delete(key);
-            this.log('debug', `Event handler removed: ${event}`);
-            return true;
-        }
-        
-        return false;
+        // 🚨 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Используем базовую систему событий!
+        return super.removeEventHandler(element, event, handler);
     }
     
     generateEventKey(element, event, handler) {
@@ -481,12 +461,9 @@ class AnimatedInteractiveComponent extends BaseComponent {
     }
     
     unbindEvents() {
-        this.log('debug', 'Cleaning up event handlers...');
+        this.log('debug', 'Cleaning up AnimatedInteractiveComponent resources...');
         
-        // Очистка всех обработчиков событий
-        this.eventHandlers.forEach(({ element, event, handler, options }) => {
-            element.removeEventListener(event, handler, options);
-        });
+        // 🚨 ИСПРАВЛЕНИЕ: НЕ очищаем eventHandlers - это делает BaseComponent!
         
         // Очистка throttled функций
         this.throttledFunctions.forEach((func, key) => {
@@ -498,12 +475,13 @@ class AnimatedInteractiveComponent extends BaseComponent {
             if (func.cancel) func.cancel();
         });
         
-        // Очистка коллекций
-        this.eventHandlers.clear();
+        // Очистка только наших коллекций (eventHandlers очищается в BaseComponent)
         this.throttledFunctions.clear();
         this.debouncedFunctions.clear();
         
-        this.log('success', 'Event handlers cleanup completed');
+        this.log('success', 'AnimatedInteractiveComponent cleanup completed');
+        
+        // Вызываем базовую очистку которая обработает eventHandlers
         super.unbindEvents();
     }
     

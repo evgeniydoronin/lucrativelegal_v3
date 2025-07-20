@@ -26,7 +26,7 @@ class Services extends AnimatedInteractiveComponent {
             disappearanceDuration: 0.25,
             // Настройки модального окна
             modalEnabled: true,
-            modalLenisEnabled: true,
+            modalLenisEnabled: false, // Отключаем Lenis в модальных окнах
             // Настройки компонента
             debug: false
         };
@@ -67,8 +67,13 @@ class Services extends AnimatedInteractiveComponent {
         
         // Поиск модальных элементов
         this.modal = document.getElementById('service-modal');
-        this.modalCloseBtn = this.modal?.querySelector('.service-modal__close');
-        this.modalContent = this.modal?.querySelector('.service-modal__content');
+        
+        if (this.modal) {
+            this.modalCloseBtn = this.modal.querySelector('.service-modal__close');
+            this.modalContent = this.modal.querySelector('.service-modal__content');
+        } else {
+            console.warn('⚠️ Service modal not found in DOM');
+        }
         
         // Валидация обязательных элементов
         if (!this.pinSpacer) {
@@ -181,13 +186,16 @@ class Services extends AnimatedInteractiveComponent {
         }
         
         // Устанавливаем начальное состояние карточек
-        this.cards.forEach((card) => {
+        this.cards.forEach((card, index) => {
             const image = card.querySelector('.js-card-image');
             const description = card.querySelector('.js-card-description');
             const scrollTitle = card.querySelector('.js-scroll-title');
             
-            // Скрываем все карточки изначально
-            gsap.set(card, { opacity: 0, visibility: 'hidden' });
+            // Оставляем карточки кликабельными - используем только opacity
+            gsap.set(card, { 
+                opacity: index === 0 ? 1 : 0  // Показываем первую карточку
+            });
+            
             gsap.set(image, { opacity: 0, y: 50 });
             gsap.set(description, { opacity: 0, x: 50 });
             
@@ -569,8 +577,13 @@ class Services extends AnimatedInteractiveComponent {
         
         // Запускаем RAF для Lenis
         const modalRaf = (time) => {
-            this.modalLenis.raf(time);
-            if (this.modal.open) {
+            // Проверяем что modalLenis существует перед вызовом raf
+            if (this.modalLenis) {
+                this.modalLenis.raf(time);
+            }
+            
+            // Продолжаем RAF только если модальное окно открыто И Lenis существует
+            if (this.modal.open && this.modalLenis) {
                 requestAnimationFrame(modalRaf);
             }
         };
@@ -739,7 +752,7 @@ function initServicesNew() {
         const services = new Services(servicesElement, {
             debug: true, // Включаем отладку для демонстрации
             modalEnabled: true,
-            modalLenisEnabled: true
+            modalLenisEnabled: false // Отключаем Lenis в модальных окнах
         });
         
         // Добавляем глобальные слушатели событий для демонстрации
