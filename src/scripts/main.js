@@ -779,8 +779,8 @@ class LLGApp {
   }
   
   initPortfolio() {
-    // Check if initPortfolio function is available
-    if (typeof window.initPortfolio === 'undefined') {
+    // Check if Portfolio class is available
+    if (typeof Portfolio === 'undefined') {
       console.warn('⚠️ Portfolio component not found');
       return;
     }
@@ -791,17 +791,37 @@ class LLGApp {
       return;
     }
     
-    // Check if portfolio section exists
-    const portfolioSection = document.getElementById('portfolio');
-    if (!portfolioSection) {
-      console.warn('⚠️ Portfolio section not found');
+    // Find DOM element for portfolio (required by BaseComponent)
+    const portfolioElement = document.querySelector('#portfolio');
+    if (!portfolioElement) {
+      console.warn('⚠️ Portfolio element not found');
       return;
     }
     
-    // Initialize portfolio
-    this.portfolio = window.initPortfolio();
+    // Initialize with DOM element (required by AnimatedInteractiveComponent)
+    this.portfolio = new Portfolio(portfolioElement, {
+      debug: true,
+      mouseTrackingEnabled: true,
+      hoverAnimationEnabled: true
+    });
     
-    console.log('✅ Portfolio initialized');
+    // Listen to portfolio events (new architecture)
+    this.portfolio.on('itemClicked', (data) => {
+      console.log('🎨 Portfolio item clicked:', data);
+    });
+    
+    this.portfolio.on('gridAnimated', (data) => {
+      console.log('🎬 Portfolio grid animated:', data);
+    });
+    
+    this.portfolio.on('portfolioResized', (data) => {
+      console.log('📏 Portfolio resized:', data);
+    });
+    
+    // Make globally available
+    window.portfolioAPI = this.portfolio;
+    
+    console.log('✅ Portfolio initialized with new architecture');
   }
   
   initWordAnimator() {
