@@ -26,9 +26,8 @@ class InteractiveComponent extends BaseComponent {
     beforeInit() {
         super.beforeInit();
         
-        // ✅ ПРАВИЛЬНО - инициализация коллекций в beforeInit()
-        // Это гарантирует что коллекции готовы ДО вызова bindEvents()
-        this.eventHandlers = new Map();
+        // 🚨 ИСПРАВЛЕНИЕ: Убираем дублирование eventHandlers (уже есть в BaseComponent)
+        // Инициализируем только специфичные для InteractiveComponent коллекции
         this.throttledFunctions = new Map();
         this.debouncedFunctions = new Map();
         
@@ -57,6 +56,7 @@ class InteractiveComponent extends BaseComponent {
     
     /**
      * Добавление обработчика события с автоматической очисткой
+     * 🚨 ИСПРАВЛЕНИЕ: Используем базовую систему вместо перезаписи
      */
     addEventHandler(element, event, handler, options = {}) {
         // Валидация параметров
@@ -65,50 +65,24 @@ class InteractiveComponent extends BaseComponent {
             return false;
         }
         
-        // Создаем уникальный ключ
-        const key = this.generateEventKey(element, event, handler);
-        
-        // Удаляем существующий обработчик если есть
-        if (this.eventHandlers.has(key)) {
-            this.removeEventHandler(element, event, handler);
-        }
-        
-        // Настройки по умолчанию
+        // 🚨 КРИТИЧЕСКОЕ ИСПРАВЛЕНИЕ: Используем базовую систему событий
+        // Настройки по умолчанию для InteractiveComponent
         const eventOptions = {
             passive: this.options.passive,
             ...options
         };
         
-        // Добавляем обработчик
-        element.addEventListener(event, handler, eventOptions);
-        
-        // Сохраняем для очистки
-        this.eventHandlers.set(key, {
-            element,
-            event,
-            handler,
-            options: eventOptions
-        });
-        
-        this.log('debug', `Event handler added: ${event} on ${element.tagName || 'element'}`);
-        return true;
+        // Вызываем базовый метод вместо перезаписи
+        return super.addEventHandler(element, event, handler, eventOptions);
     }
     
     /**
      * Удаление конкретного обработчика события
+     * 🚨 ИСПРАВЛЕНИЕ: Используем базовую систему вместо перезаписи
      */
     removeEventHandler(element, event, handler) {
-        const key = this.generateEventKey(element, event, handler);
-        const stored = this.eventHandlers.get(key);
-        
-        if (stored) {
-            stored.element.removeEventListener(stored.event, stored.handler, stored.options);
-            this.eventHandlers.delete(key);
-            this.log('debug', `Event handler removed: ${event}`);
-            return true;
-        }
-        
-        return false;
+        // Вызываем базовый метод вместо собственной логики
+        return super.removeEventHandler(element, event, handler);
     }
     
     /**
@@ -360,12 +334,7 @@ class InteractiveComponent extends BaseComponent {
     // =============================================================================
     
     unbindEvents() {
-        this.log('debug', 'Cleaning up event handlers...');
-        
-        // Очистка всех обработчиков событий
-        this.eventHandlers.forEach(({ element, event, handler, options }) => {
-            element.removeEventListener(event, handler, options);
-        });
+        this.log('debug', 'Cleaning up InteractiveComponent resources...');
         
         // Очистка throttled функций
         this.throttledFunctions.forEach((func, key) => {
@@ -377,14 +346,13 @@ class InteractiveComponent extends BaseComponent {
             if (func.cancel) func.cancel();
         });
         
-        // Очистка коллекций
-        this.eventHandlers.clear();
+        // Очистка коллекций (eventHandlers очищается в BaseComponent)
         this.throttledFunctions.clear();
         this.debouncedFunctions.clear();
         
-        this.log('success', 'Event handlers cleanup completed');
+        this.log('success', 'InteractiveComponent cleanup completed');
         
-        // Вызываем базовую очистку
+        // 🚨 ИСПРАВЛЕНИЕ: Вызываем базовую очистку которая обработает eventHandlers
         super.unbindEvents();
     }
     

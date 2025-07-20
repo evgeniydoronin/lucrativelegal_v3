@@ -190,7 +190,8 @@
 
 // Анимация появления элементов навигации с задержкой
 .section-nav-item {
-    opacity: 0;
+    // 🚨 ИСПРАВЛЕНИЕ: Убираем opacity: 0 чтобы кнопки были кликабельны сразу
+    // opacity: 0;
     animation: sectionNavItemFadeIn 0.4s ease-out both;
     
     // Задержки для каждого элемента (каскадный эффект)
@@ -209,7 +210,8 @@
 
 @keyframes sectionNavItemFadeIn {
     from {
-        opacity: 0;
+        // 🚨 ИСПРАВЛЕНИЕ: Начинаем с opacity: 1 чтобы кнопки были кликабельны
+        opacity: 1;
         transform: scale(0.8) translateX(10px);
     }
     to {
