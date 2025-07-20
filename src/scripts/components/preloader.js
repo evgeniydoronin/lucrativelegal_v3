@@ -1,129 +1,245 @@
+// =============================================================================
+// Preloader Component - Refactored Version
+// =============================================================================
+
 /**
  * Preloader Component
- * Manages the loading animation with percentage counter and rocket takeoff
- * Adapted for LLG v3 architecture
+ * Управляет анимацией загрузки с процентным счетчиком и взлетом ракеты
+ * 
+ * Использует:
+ * - BaseComponent для базовой архитектуры (без GSAP зависимостей)
+ * - Прямые requestAnimationFrame для плавных анимаций
+ * - CSS анимации для ракеты и занавеса
+ * - Правильный lifecycle и cleanup
  */
 
-class Preloader {
-    constructor() {
-        this.preloader = document.getElementById('preloader');
-        this.percentage = document.getElementById('preloader-percentage');
-        this.command = document.getElementById('preloader-command');
-        this.slices = document.getElementById('preloader-slices');
-        this.rocket = document.getElementById('preloader-rocket');
-        
-        this.currentPercentage = 10;
-        this.targetPercentage = 10;
-        this.isComplete = false;
-        this.isLoading = false;
-        this.pageLoaded = false;
-        this.animationId = null;
-        
-        // Commands array
-        this.commands = [
-            'LAUNCHING YOUR ROI'
-        ];
-        this.currentCommand = '';
-        
-        this.init();
+class Preloader extends BaseComponent {
+    // =============================================================================
+    // Переопределяемые свойства
+    // =============================================================================
+    
+    get defaultOptions() {
+        return {
+            ...super.defaultOptions,
+            // Анимации
+            countdownDuration: 2000,
+            completionDuration: 500,
+            rocketTakeoffDuration: 2000,
+            slicesAnimationDuration: 800,
+            
+            // Настройки загрузки
+            initialPercentage: 10,
+            targetPercentage: 1,
+            finalPercentage: 0,
+            
+            // Команды
+            commands: ['LAUNCHING YOUR ROI'],
+            
+            // Таймауты
+            loadingCheckDelay: 2200,
+            exitAnimationDelay: 800,
+            rocketDelay: 800,
+            
+            // Debug
+            debug: false
+        };
     }
     
-    init() {
-        // console.log('🔄 Initializing preloader...');
+    // =============================================================================
+    // Lifecycle Methods (BaseComponent)
+    // =============================================================================
+    
+    beforeInit() {
+        super.beforeInit();
         
-        if (!this.preloader) {
-            // console.warn('⚠️ Preloader element not found');
-            return;
+        // Состояние компонента
+        this.state = {
+            currentPercentage: this.options.initialPercentage,
+            targetPercentage: this.options.initialPercentage,
+            isComplete: false,
+            isLoading: false,
+            pageLoaded: false,
+            currentCommand: '',
+            animationPhase: 'initial' // 'initial', 'countdown', 'completion', 'exit', 'rocket', 'slices', 'hidden'
+        };
+        
+        // Элементы (будут найдены в setupElements)
+        this.elements = {
+            preloader: null,
+            percentage: null,
+            command: null,
+            slices: null,
+            rocket: null
+        };
+        
+        // Анимации
+        this.animationId = null;
+        this.fallbackTimer = null;
+        
+        this.log('debug', 'Preloader beforeInit - конфигурация готова');
+        return true;
+    }
+    
+    setupElements() {
+        // Используем переданный элемент из BaseComponent
+        this.elements.preloader = this.element;
+        
+        // Используем прямой поиск по ID (как в оригинальном коде)
+        this.elements.percentage = document.getElementById('preloader-percentage');
+        this.elements.command = document.getElementById('preloader-command');
+        this.elements.slices = document.getElementById('preloader-slices');
+        this.elements.rocket = document.getElementById('preloader-rocket');
+        
+        // Валидация критических элементов
+        if (!this.elements.preloader) {
+            this.log('error', 'Preloader element not found');
+            return false;
         }
         
-        // Show preloader
+        this.log('info', 'Preloader elements found', {
+            hasPercentage: !!this.elements.percentage,
+            hasCommand: !!this.elements.command,
+            hasSlices: !!this.elements.slices,
+            hasRocket: !!this.elements.rocket
+        });
+        
+        return true;
+    }
+    
+    bindEvents() {
+        // Слушаем событие загрузки страницы
+        if (document.readyState === 'complete') {
+            // Страница уже загружена
+            setTimeout(() => this.handlePageLoad(), 0);
+        } else {
+            // Используем нативный addEventListener вместо this.addEventHandler
+            window.addEventListener('load', this.handlePageLoad.bind(this));
+        }
+        
+        this.log('debug', 'Preloader events bound');
+    }
+    
+    setupAnimations() {
+        // Preloader не использует GSAP - только requestAnimationFrame
+        // Это простой компонент с кастомными анимациями
+        this.log('info', 'Preloader animations setup completed (using requestAnimationFrame)');
+    }
+    
+    afterInit() {
+        // Показываем preloader и начинаем загрузку
         this.show();
-        
-        // Set initial display
         this.updatePercentageDisplay();
-        
-        // Start loading simulation
         this.startLoading();
         
-        // Listen for page load event
-        if (document.readyState === 'complete') {
-            this.onPageLoad();
-        } else {
-            window.addEventListener('load', () => this.onPageLoad());
-        }
-        
-        // console.log('✅ Preloader initialized');
+        this.log('info', 'Preloader component fully initialized', {
+            initialPercentage: this.state.currentPercentage,
+            pageLoaded: document.readyState === 'complete'
+        });
     }
     
+    // =============================================================================
+    // Event Handlers
+    // =============================================================================
+    
+    handlePageLoad() {
+        this.log('debug', 'Page fully loaded');
+        this.state.pageLoaded = true;
+        
+        // Если анимация загрузки еще не завершена, ждем
+        if (!this.state.isLoading) {
+            this.completeLoading();
+        }
+        
+        this.emit('pageLoaded');
+    }
+    
+    // =============================================================================
+    // Preloader Control
+    // =============================================================================
+    
     show() {
-        if (this.preloader) {
-            this.preloader.classList.remove('hidden');
+        if (this.elements.preloader) {
+            this.elements.preloader.classList.remove('hidden');
             document.body.style.overflow = 'hidden';
+            this.state.animationPhase = 'initial';
+            this.emit('shown');
+            this.log('debug', 'Preloader shown');
         }
     }
     
     hide() {
-        if (this.preloader) {
-            this.preloader.classList.add('hidden');
+        if (this.elements.preloader) {
+            this.elements.preloader.classList.add('hidden');
             document.body.style.overflow = '';
+            this.state.animationPhase = 'hidden';
             
-            // Clear resources and cancel fallback timer
-            this.destroy();
+            // Очищаем ресурсы
+            this.cleanup();
             
-            // Remove preloader from DOM after 1 second
+            // Удаляем из DOM через секунду
             setTimeout(() => {
-                if (this.preloader && this.preloader.parentNode) {
-                    this.preloader.parentNode.removeChild(this.preloader);
+                if (this.elements.preloader && this.elements.preloader.parentNode) {
+                    this.elements.preloader.parentNode.removeChild(this.elements.preloader);
                 }
             }, 1000);
+            
+            this.emit('hidden');
+            this.log('debug', 'Preloader hidden');
         }
     }
     
+    forceHide() {
+        this.log('warn', 'Force hiding preloader');
+        this.hide();
+        this.emit('forceHidden');
+    }
+    
+    // =============================================================================
+    // Loading Animation
+    // =============================================================================
+    
     startLoading() {
-        if (this.isLoading) {
-            // console.log('⚠️ Animation already running, skipping');
+        if (this.state.isLoading) {
+            this.log('warn', 'Animation already running, skipping');
             return;
         }
         
-        this.isLoading = true;
-        // console.log('🎬 Starting countdown from 10 to 1');
+        this.state.isLoading = true;
+        this.state.animationPhase = 'countdown';
         
-        // Smooth animation from 10 to 1 over 2 seconds
-        this.animateToPercentage(1, 2000);
+        this.log('debug', `Starting countdown from ${this.options.initialPercentage} to ${this.options.targetPercentage}`);
         
-        // After 2.2 seconds check if page is loaded
+        // Плавная анимация от 10 до 1 за 2 секунды
+        this.animateToPercentage(this.options.targetPercentage, this.options.countdownDuration);
+        
+        // Через 2.2 секунды проверяем загрузку страницы
         setTimeout(() => {
-            this.isLoading = false;
-            if (this.pageLoaded) {
+            this.state.isLoading = false;
+            if (this.state.pageLoaded) {
                 this.completeLoading();
             }
-        }, 2200);
-    }
-    
-    onPageLoad() {
-        // console.log('📄 Page fully loaded');
-        this.pageLoaded = true;
+        }, this.options.loadingCheckDelay);
         
-        // If loading animation is still running, wait for it to complete
-        if (!this.isLoading) {
-            this.completeLoading();
-        }
+        this.emit('loadingStarted');
     }
     
     completeLoading() {
-        // console.log('🎯 Completing countdown to 0');
+        this.log('debug', `Completing countdown to ${this.options.finalPercentage}`);
+        this.state.animationPhase = 'completion';
         
-        // Complete countdown to 0
-        this.animateToPercentage(0, 500);
+        // Завершаем отсчет до 0
+        this.animateToPercentage(this.options.finalPercentage, this.options.completionDuration);
         
         setTimeout(() => {
             this.startExitAnimation();
-        }, 800);
+        }, this.options.exitAnimationDelay);
+        
+        this.emit('loadingCompleted');
     }
     
     animateToPercentage(target, duration) {
-        this.targetPercentage = target;
-        const startPercentage = this.currentPercentage;
+        this.state.targetPercentage = target;
+        const startPercentage = this.state.currentPercentage;
         const difference = target - startPercentage;
         const startTime = performance.now();
         
@@ -131,17 +247,18 @@ class Preloader {
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             
-            // Use easing function for smoothness
+            // Используем easing функцию для плавности
             const easeProgress = this.easeOutCubic(progress);
             
-            this.currentPercentage = startPercentage + (difference * easeProgress);
+            this.state.currentPercentage = startPercentage + (difference * easeProgress);
             this.updatePercentageDisplay();
             
             if (progress < 1) {
                 this.animationId = requestAnimationFrame(animate);
             } else {
-                this.currentPercentage = target;
+                this.state.currentPercentage = target;
                 this.updatePercentageDisplay();
+                this.animationId = null;
             }
         };
         
@@ -149,147 +266,293 @@ class Preloader {
     }
     
     updatePercentageDisplay() {
-        if (this.percentage) {
-            const displayPercentage = Math.round(this.currentPercentage);
-            this.percentage.textContent = `${displayPercentage}`;
+        if (this.elements.percentage) {
+            const displayPercentage = Math.round(this.state.currentPercentage);
+            this.elements.percentage.textContent = `${displayPercentage}`;
             
-            // Update command based on counter ranges
+            // Обновляем команду
             this.updateCommand(displayPercentage);
         }
     }
     
     updateCommand(percentage) {
-        // Always show the single command throughout the countdown
-        const newCommand = this.commands[0];
+        // Всегда показываем единственную команду
+        const newCommand = this.options.commands[0];
         
-        // Only update if command changed
-        if (newCommand !== this.currentCommand) {
-            this.currentCommand = newCommand;
+        // Обновляем только если команда изменилась
+        if (newCommand !== this.state.currentCommand) {
+            this.state.currentCommand = newCommand;
             this.showCommand(newCommand);
         }
     }
     
     showCommand(commandText) {
-        if (this.command && commandText) {
-            // Update text and show with fade effect
-            this.command.innerHTML = commandText;
-            this.command.classList.remove('visible');
+        if (this.elements.command && commandText) {
+            // Обновляем текст и показываем с fade эффектом
+            this.elements.command.innerHTML = commandText;
+            this.elements.command.classList.remove('visible');
             
-            // Small delay to ensure smooth transition
+            // Небольшая задержка для плавного перехода
             setTimeout(() => {
-                this.command.classList.add('visible');
+                this.elements.command.classList.add('visible');
             }, 50);
         }
     }
     
+    // =============================================================================
+    // Exit Animation
+    // =============================================================================
+    
     startExitAnimation() {
-        // console.log('🎬 Starting preloader exit animation');
+        this.log('debug', 'Starting preloader exit animation');
+        this.state.animationPhase = 'exit';
         
-        // Cancel fallback timer immediately when normal completion starts
-        if (window.fallbackTimer) {
-            clearTimeout(window.fallbackTimer);
-            window.fallbackTimer = null;
-            // console.log('✅ Fallback timer cancelled on exit animation start');
-        }
+        // НЕ отменяем fallback таймер здесь! Он будет создан в startRocketTakeoff()
+        this.log('debug', 'Exit animation started, fallback timer will be set in rocket takeoff');
         
-        // Hide main content
+        // Скрываем основной контент
         setTimeout(() => {
-            if (this.percentage) this.percentage.style.opacity = '0';
-            if (this.command) this.command.style.opacity = '0';
+            if (this.elements.percentage) this.elements.percentage.style.opacity = '0';
+            if (this.elements.command) this.elements.command.style.opacity = '0';
         }, 500);
         
-        // Start rocket takeoff animation
+        // Запускаем анимацию ракеты
         setTimeout(() => {
             this.startRocketTakeoff();
-        }, 800);
+        }, this.options.rocketDelay);
+        
+        this.emit('exitAnimationStarted');
     }
     
     startRocketTakeoff() {
-        // console.log('🚀 Starting rocket takeoff animation');
+        this.log('debug', 'Starting rocket takeoff animation');
+        this.state.animationPhase = 'rocket';
         
-        if (this.rocket) {
-            // Add takeoff animation class
-            this.rocket.classList.add('takeoff');
+        if (this.elements.rocket) {
+            // Добавляем класс анимации взлета
+            this.elements.rocket.classList.add('takeoff');
             
-            // Listen for animation end
+            // Слушаем окончание анимации
             const handleAnimationEnd = () => {
-                // console.log('🚀 Rocket has taken off, starting slices animation');
-                this.rocket.removeEventListener('animationend', handleAnimationEnd);
+                this.log('debug', 'Rocket has taken off, starting slices animation');
+                this.elements.rocket.removeEventListener('animationend', handleAnimationEnd);
                 this.startSlicesAnimation();
             };
             
-            this.rocket.addEventListener('animationend', handleAnimationEnd);
+            // Используем нативный addEventListener вместо this.addEventHandler
+            this.elements.rocket.addEventListener('animationend', handleAnimationEnd);
             
-            // Fallback in case animationend event doesn't fire
-            setTimeout(() => {
-                if (this.rocket && this.rocket.classList.contains('takeoff')) {
-                    // console.log('🚀 Fallback: starting slices animation after rocket takeoff');
-                    this.rocket.removeEventListener('animationend', handleAnimationEnd);
+            // Fallback на случай если событие не сработает (КРИТИЧЕСКИ ВАЖНО!)
+            this.fallbackTimer = setTimeout(() => {
+                if (this.elements.rocket && this.elements.rocket.classList.contains('takeoff')) {
+                    this.log('debug', 'Fallback: starting slices animation after rocket takeoff timeout');
+                    this.elements.rocket.removeEventListener('animationend', handleAnimationEnd);
                     this.startSlicesAnimation();
                 }
-            }, 2500); // 2s animation + 500ms buffer
+            }, 2500); // Как в оригинальном коде: 2s анимация + 500ms буфер
+            
+            this.log('debug', 'Fallback timer set for rocket takeoff', {
+                duration: '2500ms',
+                timerId: this.fallbackTimer
+            });
         } else {
-            // If rocket not found, hide preloader normally
-            // console.warn('⚠️ Rocket element not found, hiding preloader');
+            // Если ракета не найдена, скрываем preloader
+            this.log('warn', 'Rocket element not found, hiding preloader');
             this.hide();
         }
+        
+        this.emit('rocketTakeoffStarted');
     }
     
     startSlicesAnimation() {
-        // console.log('🎬 Starting curtain separation animation');
+        this.log('debug', 'Starting curtain separation animation');
+        this.state.animationPhase = 'slices';
         
-        // Start curtain separation animation (they are already visible)
-        if (this.slices) {
-            this.slices.classList.add('animate');
+        // Отменяем fallback timer если он еще активен
+        if (this.fallbackTimer) {
+            clearTimeout(this.fallbackTimer);
+            this.fallbackTimer = null;
+            this.log('debug', 'Fallback timer cancelled - slices animation started');
+        }
+        
+        // Детальная диагностика slices элемента
+        this.log('debug', 'Slices element check:', {
+            slicesExists: !!this.elements.slices,
+            slicesInDOM: this.elements.slices ? document.contains(this.elements.slices) : false,
+            slicesVisible: this.elements.slices ? getComputedStyle(this.elements.slices).display !== 'none' : false,
+            slicesClasses: this.elements.slices ? this.elements.slices.className : 'N/A'
+        });
+        
+        // Запускаем анимацию разделения занавеса
+        if (this.elements.slices) {
+            this.log('debug', 'Adding animate class to slices');
+            this.elements.slices.classList.add('animate');
             
-            // Hide preloader after curtain animation completes
+            // Проверяем что класс добавился
             setTimeout(() => {
+                const hasAnimateClass = this.elements.slices.classList.contains('animate');
+                this.log('debug', 'Slices animate class applied:', hasAnimateClass);
+            }, 50);
+            
+            // Скрываем preloader после завершения анимации занавеса
+            setTimeout(() => {
+                this.log('debug', 'Slices animation duration completed, hiding preloader');
                 this.hide();
-            }, 800); // Curtain animation duration
+            }, this.options.slicesAnimationDuration);
         } else {
-            // If slices not found, hide preloader
+            // Если slices не найдены, скрываем preloader
+            this.log('warn', 'Slices element not found, hiding preloader immediately');
             this.hide();
         }
+        
+        this.emit('slicesAnimationStarted');
     }
     
-    // Easing function for smooth animation
+    // =============================================================================
+    // Utility Methods
+    // =============================================================================
+    
     easeOutCubic(t) {
         return 1 - Math.pow(1 - t, 3);
     }
     
-    // Method for force hiding (in case of errors)
-    forceHide() {
-        // console.log('🚫 Force hiding preloader');
-        this.hide();
-    }
-    
-    // Resource cleanup
-    destroy() {
+    cleanup() {
+        // Отменяем анимацию
         if (this.animationId) {
             cancelAnimationFrame(this.animationId);
+            this.animationId = null;
         }
         
-        // Cancel fallback timer
-        if (window.fallbackTimer) {
-            clearTimeout(window.fallbackTimer);
-            window.fallbackTimer = null;
-            // console.log('✅ Fallback timer cancelled');
+        // Отменяем fallback таймер
+        if (this.fallbackTimer) {
+            clearTimeout(this.fallbackTimer);
+            this.fallbackTimer = null;
+            this.log('debug', 'Fallback timer cancelled');
         }
         
-        window.removeEventListener('load', this.onPageLoad);
-        
-        if (this.preloader && this.preloader.parentNode) {
-            this.preloader.parentNode.removeChild(this.preloader);
-        }
-        
+        // Восстанавливаем overflow
         document.body.style.overflow = '';
+    }
+    
+    // =============================================================================
+    // Public API Methods
+    // =============================================================================
+    
+    /**
+     * Получить текущее состояние preloader
+     */
+    getState() {
+        // Защитная проверка - this.state может быть undefined до инициализации
+        if (!this.state) {
+            return {
+                isInitialized: false,
+                isDestroyed: false,
+                id: this.id || 'unknown',
+                currentPercentage: 0,
+                targetPercentage: 0,
+                isComplete: false,
+                isLoading: false,
+                pageLoaded: false,
+                animationPhase: 'not-initialized',
+                currentCommand: ''
+            };
+        }
+        
+        return {
+            isInitialized: this.isInitialized,
+            isDestroyed: this.isDestroyed,
+            id: this.id,
+            currentPercentage: Math.round(this.state.currentPercentage),
+            targetPercentage: this.state.targetPercentage,
+            isComplete: this.state.isComplete,
+            isLoading: this.state.isLoading,
+            pageLoaded: this.state.pageLoaded,
+            animationPhase: this.state.animationPhase,
+            currentCommand: this.state.currentCommand
+        };
+    }
+    
+    /**
+     * Получить текущую фазу анимации
+     */
+    getAnimationPhase() {
+        return this.state ? this.state.animationPhase : 'not-initialized';
+    }
+    
+    /**
+     * Проверить завершена ли загрузка
+     */
+    isLoadingComplete() {
+        return this.state ? this.state.isComplete : false;
+    }
+    
+    /**
+     * Принудительно завершить загрузку
+     */
+    forceComplete() {
+        if (!this.state) {
+            this.log('warn', 'Cannot force complete - component not initialized');
+            return;
+        }
+        
+        if (this.state.animationPhase === 'countdown' || this.state.animationPhase === 'initial') {
+            this.state.pageLoaded = true;
+            this.state.isLoading = false;
+            this.completeLoading();
+            this.emit('forceCompleted');
+            this.log('debug', 'Loading force completed');
+        }
+    }
+    
+    // =============================================================================
+    // Cleanup (BaseComponent)
+    // =============================================================================
+    
+    destroy() {
+        // Очищаем анимации и таймеры
+        this.cleanup();
+        
+        // Удаляем preloader из DOM если он еще там
+        if (this.elements.preloader && this.elements.preloader.parentNode) {
+            this.elements.preloader.parentNode.removeChild(this.elements.preloader);
+        }
+        
+        // Очищаем состояние
+        this.state = {
+            currentPercentage: 0,
+            targetPercentage: 0,
+            isComplete: false,
+            isLoading: false,
+            pageLoaded: false,
+            currentCommand: '',
+            animationPhase: 'destroyed'
+        };
+        
+        // Очищаем элементы
+        this.elements = {
+            preloader: null,
+            percentage: null,
+            command: null,
+            slices: null,
+            rocket: null
+        };
+        
+        // Вызвать родительский destroy
+        super.destroy();
+        
+        this.log('info', 'Preloader component destroyed');
     }
 }
 
-// Export for use in other modules
+// =============================================================================
+// Глобальная доступность
+// =============================================================================
+
+if (typeof window !== 'undefined') {
+    window.Preloader = Preloader;
+}
+
+// Экспорт для модульной системы
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = Preloader;
 }
-
-// Make available globally for direct usage
-window.Preloader = Preloader;
