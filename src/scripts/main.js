@@ -504,18 +504,32 @@ class LLGApp {
     // Initialize with DOM element (required by BaseComponent)
     this.preloader = new Preloader(preloaderElement);
     
-    // Add fallback timer for safety
+    // Listen to preloader events (new architecture)
+    this.preloader.on('hidden', () => {
+      console.log('🎉 Preloader completed and hidden');
+      // Cancel any existing fallback timer
+      if (window.fallbackTimer) {
+        clearTimeout(window.fallbackTimer);
+        window.fallbackTimer = null;
+      }
+    });
+    
+    this.preloader.on('forceHidden', () => {
+      console.log('⚠️ Preloader was force hidden');
+    });
+    
+    // Emergency fallback timer ONLY (much longer timeout)
     window.fallbackTimer = setTimeout(() => {
       if (this.preloader && document.getElementById('preloader')) {
-        console.log('⏰ Fallback: force hiding preloader after 5 seconds');
+        console.log('🚨 Emergency fallback: force hiding preloader after 10 seconds');
         this.preloader.forceHide();
       }
-    }, 5000);
+    }, 10000); // Увеличено до 10 секунд для emergency случаев
     
     // Make globally available
     window.preloader = this.preloader;
     
-    console.log('✅ Preloader initialized');
+    console.log('✅ Preloader initialized with new architecture');
   }
   
   initHeroCube() {
