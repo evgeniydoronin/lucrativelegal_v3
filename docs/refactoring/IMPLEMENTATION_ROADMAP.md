@@ -225,7 +225,7 @@ git checkout -b refactoring/integrate-header
 
 **ГРУППА 2 - Компоненты с GSAP зависимостями:**
 5. ✅ `word-animator.js` → `word-animator-new.js` **ЗАВЕРШЕН**
-6. `footer.js` → `footer-new.js`
+6. ✅ `footer.js` → `footer-new.js` **ЗАВЕРШЕН**
 
 **ГРУППА 3 - Сложные компоненты с множественными зависимостями:**
 7. `hero-cube.js` → `hero-cube-new.js`
@@ -317,7 +317,7 @@ git checkout -b refactoring/integrate-header
 | scroll-to-top | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 30 мин |
 | section-navigation | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 45 мин |
 | word-animator | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 45 мин |
-| footer | ⏳ | - | - | - | - |
+| footer | ✅ **ЗАВЕРШЕН** | 60 FPS | Стабильно | 0 | 45 мин |
 | hero-cube | ⏳ | - | - | - | - |
 | services | ⏳ | - | - | - | - |
 | future-marketing | ⏳ | - | - | - | - |
