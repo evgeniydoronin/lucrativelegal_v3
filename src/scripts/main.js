@@ -476,18 +476,44 @@ class LLGApp {
   }
   
   initCursorPlayButton() {
-    // Check if CursorPlayButton is available
+    // Check if CursorPlayButton class is available
     if (typeof CursorPlayButton === 'undefined') {
-      console.warn('⚠️ CursorPlayButton not found');
+      console.warn('⚠️ CursorPlayButton component not found');
       return;
     }
     
-    this.cursorPlayButton = new CursorPlayButton();
+    // Check if already initialized to prevent duplicates
+    if (this.cursorPlayButton) {
+      console.warn('⚠️ CursorPlayButton already initialized');
+      return;
+    }
+    
+    // Initialize with document.body as element (required by BaseComponent)
+    this.cursorPlayButton = new CursorPlayButton(document.body, {
+      debug: true
+    });
+    
+    // Listen to cursor play button events (new architecture)
+    this.cursorPlayButton.on('activated', (data) => {
+      console.log('🎯 CursorPlayButton activated:', data);
+    });
+    
+    this.cursorPlayButton.on('deactivated', (data) => {
+      console.log('🎯 CursorPlayButton deactivated:', data);
+    });
+    
+    this.cursorPlayButton.on('playTriggered', (data) => {
+      console.log('▶️ CursorPlayButton play triggered:', data);
+    });
+    
+    this.cursorPlayButton.on('mobileStateChanged', (data) => {
+      console.log('📱 CursorPlayButton mobile state changed:', data);
+    });
     
     // Make globally available
     window.cursorPlayButton = this.cursorPlayButton;
     
-    console.log('✅ CursorPlayButton initialized');
+    console.log('✅ CursorPlayButton initialized with new architecture');
   }
   
   initPreloader() {
@@ -1024,15 +1050,22 @@ class LLGApp {
   }
   
   initHeroStarsScrollEffect() {
-    // Check if initHeroStarsScrollEffect function is available
-    if (typeof window.initHeroStarsScrollEffect === 'undefined') {
-      console.warn('⚠️ Hero Stars Scroll Effect component not found');
+    // Check if HeroStarsScroll class is available
+    if (typeof HeroStarsScroll === 'undefined') {
+      console.warn('⚠️ HeroStarsScroll component not found');
       return;
     }
     
     // Check if already initialized to prevent duplicates
     if (this.heroStarsScrollEffect) {
-      console.warn('⚠️ Hero Stars Scroll Effect already initialized');
+      console.warn('⚠️ HeroStarsScroll already initialized');
+      return;
+    }
+    
+    // Find DOM element for hero-stars-scroll (required by BaseComponent)
+    const heroElement = document.querySelector('#hero');
+    if (!heroElement) {
+      console.warn('⚠️ Hero element not found for HeroStarsScroll');
       return;
     }
     
@@ -1043,13 +1076,33 @@ class LLGApp {
       return;
     }
     
-    // Initialize hero stars scroll effect
-    this.heroStarsScrollEffect = window.initHeroStarsScrollEffect();
+    // Initialize with DOM element (required by BaseComponent)
+    this.heroStarsScrollEffect = new HeroStarsScroll(heroElement, {
+      debug: true,
+      enableDebug: true
+    });
+    
+    // Listen to hero-stars-scroll events (new architecture)
+    this.heroStarsScrollEffect.on('colorsUpdated', (data) => {
+      console.log('🌟 HeroStarsScroll colors updated:', data);
+    });
+    
+    this.heroStarsScrollEffect.on('scroll', (data) => {
+      // console.log('🌟 HeroStarsScroll scroll:', data.progress);
+    });
+    
+    this.heroStarsScrollEffect.on('scrollEnd', (data) => {
+      console.log('🌟 HeroStarsScroll scroll ended:', data);
+    });
+    
+    this.heroStarsScrollEffect.on('debugEnabled', () => {
+      console.log('🐛 HeroStarsScroll debug mode enabled');
+    });
     
     // Make globally available
-    window.heroStarsScrollEffect = this.heroStarsScrollEffect;
+    window.heroStarsScrollAPI = this.heroStarsScrollEffect;
     
-    console.log('✅ Hero Stars Scroll Effect initialized');
+    console.log('✅ HeroStarsScroll initialized with new BaseComponent architecture');
   }
   
   
