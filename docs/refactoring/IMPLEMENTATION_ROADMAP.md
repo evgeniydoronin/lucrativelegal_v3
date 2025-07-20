@@ -235,7 +235,7 @@ git checkout -b refactoring/integrate-header
 11. ✅ `portfolio.js` → `portfolio-new.js` **ЗАВЕРШЕН**
 
 **ГРУППА 4 - Финальные компоненты:**
-12. `cursor-play-button.js` → `cursor-play-button-new.js`
+12. ✅ `cursor-play-button.js` → `cursor-play-button-new.js` **ЗАВЕРШЕН + исправлена проблема рывков**
 13. `hero-stars-scroll.js` → `hero-stars-scroll-new.js`
 
 #### **🔧 ПРОЦЕСС ИНТЕГРАЦИИ ДЛЯ КАЖДОГО КОМПОНЕНТА:**
