@@ -591,16 +591,61 @@ class LLGApp {
   }
   
   initServicesSlider() {
-    // Check if initServicesSlider function is available
-    if (typeof window.initServicesSlider === 'undefined') {
-      console.warn('⚠️ Services Slider not found');
+    // Check if Services class is available
+    if (typeof Services === 'undefined') {
+      console.warn('⚠️ Services component not found');
       return;
     }
     
-    // Initialize services slider
-    window.initServicesSlider();
+    // Check if already initialized to prevent duplicates
+    if (this.services) {
+      console.warn('⚠️ Services already initialized');
+      return;
+    }
     
-    console.log('✅ Services Slider initialized');
+    // Find DOM element for services (required by BaseComponent)
+    const servicesElement = document.querySelector('.llg-services-section');
+    if (!servicesElement) {
+      console.warn('⚠️ Services element not found');
+      return;
+    }
+    
+    // Initialize with DOM element (required by AnimatedInteractiveComponent)
+    this.services = new Services(servicesElement, {
+      debug: true,
+      modalEnabled: true,
+      modalLenisEnabled: true
+    });
+    
+    // Listen to services events (new architecture)
+    this.services.on('cardClicked', (data) => {
+      console.log('🎴 Services card clicked:', data);
+    });
+    
+    this.services.on('modalShown', (data) => {
+      console.log('📱 Services modal shown:', data);
+    });
+    
+    this.services.on('modalHidden', () => {
+      console.log('📱 Services modal hidden');
+    });
+    
+    this.services.on('scrollEntered', () => {
+      console.log('📜 Services scroll section entered');
+    });
+    
+    this.services.on('scrollUpdated', (data) => {
+      // console.log('📜 Services scroll updated:', data.progress);
+    });
+    
+    this.services.on('resized', () => {
+      console.log('📏 Services component resized');
+    });
+    
+    // Make globally available
+    window.servicesAPI = this.services;
+    
+    console.log('✅ Services initialized with new architecture');
   }
   
   initCaseStudiesHorizontalScroll() {

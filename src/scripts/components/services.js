@@ -1,482 +1,774 @@
 // =============================================================================
-// Services Component - LLG v3 (Based on HugeInc Effect from v2.0)
+// Services Component - Refactored with AnimatedInteractiveComponent
 // =============================================================================
 
-// HugeInc Effect - Services Cards Scrolling
-window.initServicesSlider = function() {
-    'use strict';
-    
-    // console.log('🔧 DEBUG: initServicesSlider() called');
+/**
+ * Services component with card scrolling effect and modal functionality
+ * Demonstrates proper use of AnimatedInteractiveComponent architecture
+ */
 
-    // Check for necessary libraries
-    function checkDependencies() {
-        // console.log('🔧 DEBUG: Checking dependencies...');
+class Services extends AnimatedInteractiveComponent {
+    // =============================================================================
+    // Переопределяемые свойства
+    // =============================================================================
+    
+    get defaultOptions() {
+        return {
+            ...super.defaultOptions,
+            // Настройки анимаций
+            animationDuration: 0.8,
+            animationEase: 'power2.out',
+            scrubValue: 2,
+            anticipatePin: 1,
+            // Настройки карточек
+            cardHeightMultiplier: 150, // vh per card
+            appearanceDuration: 0.35,
+            disappearanceDuration: 0.25,
+            // Настройки модального окна
+            modalEnabled: true,
+            modalLenisEnabled: true,
+            // Настройки компонента
+            debug: false
+        };
+    }
+    
+    // =============================================================================
+    // Lifecycle методы
+    // =============================================================================
+    
+    beforeInit() {
+        super.beforeInit();
         
-        if (typeof gsap === 'undefined') {
-            console.error('❌ Services Slider: GSAP is not loaded.');
-            return false;
-        } else {
-            // console.log('✅ GSAP is loaded:', gsap.version);
+        // Конфигурация здесь (НЕ в constructor!)
+        this.config = {
+            refreshPriority: 1,
+            animationDuration: this.options.animationDuration,
+            // Другие настройки
+        };
+        
+        // Инициализируем свойства
+        this.mainTimeline = null;
+        this.modalLenis = null;
+        this.resizeTimeout = null;
+        this.servicesData = null;
+        
+        this.log('debug', 'Services beforeInit - конфигурация готова');
+    }
+    
+    setupElements() {
+        super.setupElements();
+        
+        // Поиск основных элементов
+        this.section = this.element;
+        this.pinSpacer = this.$('.pin-spacer');
+        this.cardsViewer = this.$('.js-cards-viewer');
+        this.cards = this.$$('.js-card');
+        this.clientNumberEl = this.$('.js-client-number');
+        
+        // Поиск модальных элементов
+        this.modal = document.getElementById('service-modal');
+        this.modalCloseBtn = this.modal?.querySelector('.service-modal__close');
+        this.modalContent = this.modal?.querySelector('.service-modal__content');
+        
+        // Валидация обязательных элементов
+        if (!this.pinSpacer) {
+            throw new Error('Pin spacer (.pin-spacer) not found');
         }
         
-        if (typeof ScrollTrigger === 'undefined') {
-            console.error('❌ Services Slider: ScrollTrigger is not loaded.');
-            return false;
-        } else {
-            // console.log('✅ ScrollTrigger is loaded');
+        if (!this.cardsViewer) {
+            throw new Error('Cards viewer (.js-cards-viewer) not found');
         }
         
-        if (typeof Lenis === 'undefined') {
-            console.warn('⚠️ Services Slider: Lenis is not loaded. Smooth scroll will be disabled.');
-        } else {
-            // console.log('✅ Lenis is loaded');
+        if (this.cards.length === 0) {
+            throw new Error('No service cards (.js-card) found');
         }
+        
+        this.log('info', `Found ${this.cards.length} service cards`);
+        
+        // Загружаем данные сервисов
+        this.loadServicesData();
         
         return true;
     }
-
-    // Main function to initialize the cards effect
-    function initCardsEffect() {
-        // console.log('🔧 DEBUG: initCardsEffect() called');
+    
+    bindEvents() {
+        super.bindEvents();
         
-        const section = document.querySelector('.llg-services-section');
-        // console.log('🔧 DEBUG: section found:', !!section, section);
-        if (!section) {
-            console.error('❌ Section .llg-services-section not found!');
-            return;
-        }
-
-        const pinSpacer = section.querySelector('.pin-spacer');
-        const cardsViewer = section.querySelector('.js-cards-viewer');
-        const cards = section.querySelectorAll('.js-card');
-        const clientNumberEl = section.querySelector('.js-client-number');
-
-        // console.log('🔧 DEBUG: Elements found:');
-        // console.log('  - pinSpacer:', !!pinSpacer, pinSpacer);
-        // console.log('  - cardsViewer:', !!cardsViewer, cardsViewer);
-        // console.log('  - cards:', cards.length, cards);
-        // console.log('  - clientNumberEl:', !!clientNumberEl, clientNumberEl);
-
-        if (!pinSpacer || !cardsViewer || cards.length === 0) {
-            console.error('❌ Services Slider: Required elements for the effect are not found.');
-            console.error('Missing elements:', {
-                pinSpacer: !pinSpacer,
-                cardsViewer: !cardsViewer,
-                cards: cards.length === 0
+        // Обработчики для карточек
+        this.cards.forEach((card, index) => {
+            this.addEventHandler(card, 'click', (event) => {
+                this.handleCardClick(card, index, event);
             });
-            return;
-        }
-
-        // Set pin-spacer height based on cards and take fixed header into account
-        const spacerHeight = cards.length * 150; // 150vh per card как в оригинале v2.0
-        const header = document.querySelector('.header');
-        const headerHeight = header ? header.offsetHeight : 0;
-
-        // console.log('🔧 DEBUG: Height calculations:');
-        // console.log('  - cards.length:', cards.length);
-        // console.log('  - spacerHeight:', spacerHeight + 'vh');
-        // console.log('  - header found:', !!header);
-        // console.log('  - headerHeight:', headerHeight + 'px');
-
-        // Extra headerHeight so последняя карточка полностью прокручивается
-        const finalHeight = `calc(${spacerHeight}vh + ${headerHeight}px)`;
-        pinSpacer.style.height = finalHeight;
-        // console.log('🔧 DEBUG: pinSpacer height set to:', finalHeight);
-
-        // Move sticky viewer below fixed header
-        if (headerHeight) {
-            const viewerTop = `${headerHeight}px`;
-            const viewerHeight = `calc(100vh - ${headerHeight}px)`;
-            cardsViewer.style.top = viewerTop;
-            cardsViewer.style.height = viewerHeight;
-            // console.log('🔧 DEBUG: cardsViewer positioned:');
-            // console.log('  - top:', viewerTop);
-            // console.log('  - height:', viewerHeight);
-        } else {
-            // console.log('🔧 DEBUG: No header found, using default positioning');
-        }
-
-        // console.log('🔧 DEBUG: Creating ScrollTrigger timeline...');
-        
-        const mainTimeline = gsap.timeline({
-            scrollTrigger: {
-                trigger: pinSpacer,
-                start: 'top top',
-                end: 'bottom bottom',
-                scrub: 2,
-                pin: cardsViewer,
-                anticipatePin: 1,
-                onUpdate: (self) => {
-                    // console.log('🔧 DEBUG: ScrollTrigger progress:', self.progress);
-                    updateCardCounter(self.progress, cards.length);
-                    
-                    // Debug positioning and styling
-                    // const viewerRect = cardsViewer.getBoundingClientRect();
-                    // const viewerStyles = window.getComputedStyle(cardsViewer);
-                    // console.log('🔧 DEBUG: cardsViewer position:', {
-                    //     top: viewerRect.top,
-                    //     left: viewerRect.left,
-                    //     width: viewerRect.width,
-                    //     height: viewerRect.height,
-                    //     background: viewerStyles.backgroundColor,
-                    //     position: viewerStyles.position,
-                    //     zIndex: viewerStyles.zIndex
-                    // });
-                },
-                onEnter: () => {
-                    // console.log('🔧 DEBUG: ScrollTrigger entered - pinning started');
-                    // Ensure black background is maintained
-                    cardsViewer.style.backgroundColor = '#000000';
-                },
-                onLeave: () => {}, // console.log('🔧 DEBUG: ScrollTrigger left'),
-                onEnterBack: () => {}, // console.log('🔧 DEBUG: ScrollTrigger entered back'),
-                onLeaveBack: () => {}, // console.log('🔧 DEBUG: ScrollTrigger left back'),
-            }
         });
         
-        // console.log('🔧 DEBUG: Timeline created:', mainTimeline);
-
-        // Initialize all cards with hidden state
-        cards.forEach((card, index) => {
+        // Обработчики модального окна если включено
+        if (this.options.modalEnabled && this.modal) {
+            this.setupModalEvents();
+        }
+        
+        // Обработчик resize с debounce
+        this.addDebouncedEventHandler(window, 'resize', () => {
+            this.handleResize();
+        }, 250);
+        
+        // Обработчик load для refresh
+        this.addEventHandler(window, 'load', () => {
+            this.refreshScrollTrigger();
+        });
+    }
+    
+    setupAnimations() {
+        // Получаем AnimationService
+        this.animationService = window.AnimationService?.getInstance();
+        
+        if (!this.animationService) {
+            console.warn('⚠️ AnimationService not available, using fallback');
+            this.setupAnimationsFallback();
+            return;
+        }
+        
+        // Используем AnimationService для создания анимаций
+        this.createScrollingEffect();
+        this.log('info', 'Services animations setup completed');
+    }
+    
+    afterInit() {
+        super.afterInit();
+        
+        // Устанавливаем начальное состояние
+        this.setupInitialState();
+        
+        // Логируем статистику если включен debug
+        if (this.options.debug) {
+            this.logComponentStats();
+        }
+        
+        this.log('info', 'Services component fully initialized');
+    }
+    
+    // =============================================================================
+    // Методы настройки
+    // =============================================================================
+    
+    loadServicesData() {
+        const servicesDataScript = document.getElementById('llg-services-data');
+        if (!servicesDataScript) {
+            this.log('warn', 'Services data script not found');
+            return;
+        }
+        
+        try {
+            this.servicesData = JSON.parse(servicesDataScript.textContent);
+            this.log('info', 'Services data loaded successfully');
+        } catch (error) {
+            this.log('error', 'Error parsing services data:', error);
+        }
+    }
+    
+    setupInitialState() {
+        // Вычисляем высоту spacer
+        const spacerHeight = this.cards.length * this.options.cardHeightMultiplier;
+        const header = document.querySelector('.header');
+        const headerHeight = header ? header.offsetHeight : 0;
+        
+        const finalHeight = `calc(${spacerHeight}vh + ${headerHeight}px)`;
+        this.pinSpacer.style.height = finalHeight;
+        
+        // Позиционируем viewer под header
+        if (headerHeight) {
+            this.cardsViewer.style.top = `${headerHeight}px`;
+            this.cardsViewer.style.height = `calc(100vh - ${headerHeight}px)`;
+        }
+        
+        // Устанавливаем начальное состояние карточек
+        this.cards.forEach((card) => {
             const image = card.querySelector('.js-card-image');
             const description = card.querySelector('.js-card-description');
             const scrollTitle = card.querySelector('.js-scroll-title');
-
-            // console.log(`🔧 DEBUG: Processing card ${index + 1}:`, {
-            //     card: !!card,
-            //     image: !!image,
-            //     description: !!description,
-            //     scrollTitle: !!scrollTitle
-            // });
-
-            // Set initial hidden state for ALL cards (including first one)
+            
+            // Скрываем все карточки изначально
             gsap.set(card, { opacity: 0, visibility: 'hidden' });
-            gsap.set([image], { opacity: 0, y: 50 });
+            gsap.set(image, { opacity: 0, y: 50 });
             gsap.set(description, { opacity: 0, x: 50 });
+            
             if (scrollTitle) {
                 gsap.set(scrollTitle, { opacity: 0, y: '75vh' });
             }
-
-            const startTime = index / cards.length;
-            const endTime = (index + 1) / cards.length;
-            const duration = 1 / cards.length;
-
-            const appearanceDuration = duration * 0.35;
-            const disappearanceDuration = duration * 0.25;
-
-            // Card appearance
-            mainTimeline.to(card, {
-                opacity: 1,
-                visibility: 'visible',
-                duration: appearanceDuration * 0.3,
-                ease: 'power2.out'
-            }, startTime);
-
-            // Elements animation
-            mainTimeline.to(image, {
-                opacity: 1,
-                y: 0,
-                x: 0,
-                transform: "translate(-50%, -50%)", // Явно восстановить CSS transform
-                duration: appearanceDuration * 0.4,
-                ease: 'power2.out'
-            }, startTime + appearanceDuration * 0.1);
-
-            mainTimeline.to(description, {
-                opacity: 1,
-                x: 0,
-                duration: appearanceDuration * 0.5,
-                ease: 'power2.out'
-            }, startTime + appearanceDuration * 0.1);
-
-            // Scrolling title animation
-            if (scrollTitle) {
-                mainTimeline.fromTo(scrollTitle, {
-                    opacity: 1,
-                    y: '75vh'
-                }, {
-                    y: '-75vh',
-                    duration: duration,
-                    ease: 'none'
-                }, startTime);
-                mainTimeline.set(scrollTitle, { opacity: 1 }, startTime);
-                if (index < cards.length - 1) {
-                    mainTimeline.set(scrollTitle, { opacity: 0 }, endTime);
-                }
-            }
-
-            // Card disappearance
-            if (index < cards.length - 1) {
-                const disappearanceStart = endTime - disappearanceDuration;
-                mainTimeline.to([description], {
-                    opacity: 0,
-                    x: -50,
-                    duration: disappearanceDuration * 0.5,
-                    ease: 'power2.out'
-                }, disappearanceStart);
-
-                mainTimeline.to([image], {
-                    opacity: 0,
-                    y: 50,
-                    duration: disappearanceDuration * 0.4,
-                    ease: 'power2.out'
-                }, disappearanceStart + disappearanceDuration * 0.2);
-
-                mainTimeline.to(card, {
-                    opacity: 0,
-                    visibility: 'hidden',
-                    duration: disappearanceDuration * 0.3,
-                    ease: 'power2.out'
-                }, disappearanceStart + disappearanceDuration * 0.7);
-            }
         });
-
-        function updateCardCounter(progress, totalCards) {
-            if (!clientNumberEl) return;
-            const currentCard = Math.floor(progress * totalCards) + 1;
-            const clampedCard = Math.min(currentCard, totalCards);
-            const totalPadded = totalCards.toString().padStart(2, '0');
-            clientNumberEl.innerHTML = `<span class="js-client-number-units">${clampedCard.toString().padStart(2, '0')}</span>/${totalPadded}`;
+        
+        this.log('debug', 'Initial state configured');
+    }
+    
+    setupModalEvents() {
+        // Закрытие модального окна
+        if (this.modalCloseBtn) {
+            this.addEventHandler(this.modalCloseBtn, 'click', () => {
+                this.hideModal();
+            });
         }
         
-        console.log('✅ Services Slider initialized.');
+        // ESC для закрытия
+        this.addEventHandler(this.modal, 'cancel', (e) => {
+            e.preventDefault();
+            this.hideModal();
+        });
         
-        // Initialize modal functionality
-        initServiceModal();
+        // Клик по backdrop
+        this.addEventHandler(this.modal, 'click', (e) => {
+            if (e.target === this.modal) {
+                this.hideModal();
+            }
+        });
+        
+        this.log('debug', 'Modal events configured');
     }
-
-    // Service Modal functionality
-    function initServiceModal() {
-        const cards = document.querySelectorAll('.js-card');
-        const modal = document.getElementById('service-modal');
-        const closeBtn = modal?.querySelector('.service-modal__close');
-        const modalTitle = modal?.querySelector('#service-modal-title');
-        const modalSubtitle = modal?.querySelector('#service-modal-subtitle');
-        const modalDescription = modal?.querySelector('#service-modal-description');
-        const modalVideo = modal?.querySelector('#service-modal-video');
-        const modalImage = modal?.querySelector('#service-modal-image');
-        const modalCategory = modal?.querySelector('#service-modal-category');
-
-        if (!modal) {
-            console.warn('Service modal element not found');
+    
+    // =============================================================================
+    // Методы анимаций
+    // =============================================================================
+    
+    createScrollingEffect() {
+        // Создаем главный timeline через AnimationService
+        this.mainTimeline = this.animationService.scrollTriggerManager.createMasterTimeline({
+            trigger: this.pinSpacer,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: this.options.scrubValue,
+            pin: this.cardsViewer,
+            anticipatePin: this.options.anticipatePin,
+            onUpdate: (self) => {
+                this.updateCardCounter(self.progress);
+                this.handleScrollUpdate(self);
+            },
+            onEnter: () => {
+                this.cardsViewer.style.backgroundColor = '#000000';
+                this.emit('scrollEntered');
+            }
+        });
+        
+        // Добавляем анимации для каждой карточки
+        this.cards.forEach((card, index) => {
+            this.createCardAnimation(card, index);
+        });
+        
+        // Регистрируем timeline в AnimationService
+        this.addAnimation(this.mainTimeline, 'main_scroll_timeline');
+        
+        this.log('info', 'Scrolling effect created');
+    }
+    
+    createCardAnimation(card, index) {
+        const image = card.querySelector('.js-card-image');
+        const description = card.querySelector('.js-card-description');
+        const scrollTitle = card.querySelector('.js-scroll-title');
+        
+        const totalCards = this.cards.length;
+        const startTime = index / totalCards;
+        const endTime = (index + 1) / totalCards;
+        const duration = 1 / totalCards;
+        
+        const appearanceDuration = duration * this.options.appearanceDuration;
+        const disappearanceDuration = duration * this.options.disappearanceDuration;
+        
+        // Появление карточки
+        this.mainTimeline.to(card, {
+            opacity: 1,
+            visibility: 'visible',
+            duration: appearanceDuration * 0.3,
+            ease: this.options.animationEase
+        }, startTime);
+        
+        // Анимация элементов
+        this.mainTimeline.to(image, {
+            opacity: 1,
+            y: 0,
+            x: 0,
+            transform: "translate(-50%, -50%)",
+            duration: appearanceDuration * 0.4,
+            ease: this.options.animationEase
+        }, startTime + appearanceDuration * 0.1);
+        
+        this.mainTimeline.to(description, {
+            opacity: 1,
+            x: 0,
+            duration: appearanceDuration * 0.5,
+            ease: this.options.animationEase
+        }, startTime + appearanceDuration * 0.1);
+        
+        // Анимация скроллящегося заголовка
+        if (scrollTitle) {
+            this.mainTimeline.fromTo(scrollTitle, {
+                opacity: 1,
+                y: '75vh'
+            }, {
+                y: '-75vh',
+                duration: duration,
+                ease: 'none'
+            }, startTime);
+            
+            this.mainTimeline.set(scrollTitle, { opacity: 1 }, startTime);
+            
+            if (index < totalCards - 1) {
+                this.mainTimeline.set(scrollTitle, { opacity: 0 }, endTime);
+            }
+        }
+        
+        // Исчезновение карточки (кроме последней)
+        if (index < totalCards - 1) {
+            const disappearanceStart = endTime - disappearanceDuration;
+            
+            this.mainTimeline.to(description, {
+                opacity: 0,
+                x: -50,
+                duration: disappearanceDuration * 0.5,
+                ease: this.options.animationEase
+            }, disappearanceStart);
+            
+            this.mainTimeline.to(image, {
+                opacity: 0,
+                y: 50,
+                duration: disappearanceDuration * 0.4,
+                ease: this.options.animationEase
+            }, disappearanceStart + disappearanceDuration * 0.2);
+            
+            this.mainTimeline.to(card, {
+                opacity: 0,
+                visibility: 'hidden',
+                duration: disappearanceDuration * 0.3,
+                ease: this.options.animationEase
+            }, disappearanceStart + disappearanceDuration * 0.7);
+        }
+    }
+    
+    setupAnimationsFallback() {
+        // Fallback без AnimationService
+        this.mainTimeline = gsap.timeline({
+            scrollTrigger: {
+                trigger: this.pinSpacer,
+                start: 'top top',
+                end: 'bottom bottom',
+                scrub: this.options.scrubValue,
+                pin: this.cardsViewer,
+                anticipatePin: this.options.anticipatePin,
+                onUpdate: (self) => {
+                    this.updateCardCounter(self.progress);
+                },
+                onEnter: () => {
+                    this.cardsViewer.style.backgroundColor = '#000000';
+                }
+            }
+        });
+        
+        // Создаем анимации карточек
+        this.cards.forEach((card, index) => {
+            this.createCardAnimation(card, index);
+        });
+        
+        this.log('info', 'Fallback animations created');
+    }
+    
+    // =============================================================================
+    // Обработчики событий
+    // =============================================================================
+    
+    handleCardClick(card, index, event) {
+        this.log('info', `Service card clicked: ${index}`);
+        
+        if (!this.options.modalEnabled || !this.modal) {
+            this.log('warn', 'Modal not available');
             return;
         }
-
-        // Add click listeners to service cards
-        cards.forEach(card => {
-            card.addEventListener('click', () => {
-                const serviceId = card.dataset.serviceId;
-                
-                // Get service data from JSON
-                const servicesDataScript = document.getElementById('llg-services-data');
-                if (!servicesDataScript) {
-                    console.error('Services data not found');
-                    return;
-                }
-                
-                let servicesData;
-                try {
-                    servicesData = JSON.parse(servicesDataScript.textContent);
-                } catch (e) {
-                    console.error('Error parsing services data:', e);
-                    return;
-                }
-                
-                const serviceData = servicesData[serviceId];
-                if (!serviceData) {
-                    console.error('Service data not found for:', serviceId);
-                    return;
-                }
-
-                // Populate modal content
-                if (modalTitle) modalTitle.textContent = serviceData.title;
-                if (modalSubtitle) modalSubtitle.textContent = serviceData.subtitle;
-                if (modalCategory) modalCategory.textContent = serviceData.category;
-                
-                // Set description
-                const modalDescriptionEl = modal?.querySelector('#service-modal-description');
-                if (modalDescriptionEl) {
-                    modalDescriptionEl.textContent = serviceData.description;
-                }
-                
-                // Set benefits
-                const modalBenefits = modal?.querySelector('#service-modal-benefits');
-                if (modalBenefits && serviceData.benefits) {
-                    modalBenefits.innerHTML = serviceData.benefits
-                        .map(benefit => `<li>${benefit}</li>`)
-                        .join('');
-                }
-                
-                // Set approach
-                const modalApproach = modal?.querySelector('#service-modal-approach');
-                if (modalApproach) {
-                    modalApproach.innerHTML = `<p>${serviceData.approach}</p>`;
-                }
-                
-                // Set results
-                const modalResults = modal?.querySelector('#service-modal-results');
-                if (modalResults) {
-                    modalResults.innerHTML = `<p>${serviceData.results}</p>`;
-                }
-                
-                // Set image source and theme
-                const imageWrapper = modal?.querySelector('.service-modal__image-wrapper');
-                const leftColumn = modal?.querySelector('.service-modal__left');
-                
-                if (modalImage && serviceData.image) {
-                    modalImage.src = serviceData.image;
-                    modalImage.alt = serviceData.title;
-                }
-                
-                // Apply theme to both left column and image wrapper for background
-                if (imageWrapper) {
-                    imageWrapper.setAttribute('data-theme', serviceId);
-                }
-                if (leftColumn) {
-                    leftColumn.setAttribute('data-theme', serviceId);
-                }
-                
-                // Set video source
-                if (modalVideo && serviceData.video) {
-                    const videoSource = modalVideo.querySelector('source');
-                    if (videoSource) {
-                        videoSource.src = serviceData.video;
-                        modalVideo.load(); // Reload video with new source
-                    }
-                }
-                
-                // Set YouTube video
-                const youtubeFrame = modal?.querySelector('#service-modal-youtube');
-                if (youtubeFrame && serviceData.youtube) {
-                    youtubeFrame.src = `https://www.youtube.com/embed/${serviceData.youtube}`;
-                }
-
-                // Show modal using native dialog API
-                showModal();
-            });
-        });
-
-        // Close modal handlers
-        if (closeBtn) {
-            closeBtn.addEventListener('click', hideModal);
+        
+        const serviceId = card.dataset.serviceId;
+        if (!serviceId) {
+            this.log('warn', 'Service ID not found on card');
+            return;
         }
-
-        // ESC key to close modal (handled automatically by dialog element)
-        modal.addEventListener('cancel', (e) => {
-            e.preventDefault(); // Prevent default ESC behavior
-            hideModal();
+        
+        this.showModal(serviceId);
+        
+        // Эмитируем событие
+        this.emit('cardClicked', {
+            card,
+            index,
+            serviceId,
+            event
         });
-
-        // Close on backdrop click
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                hideModal();
-            }
+    }
+    
+    handleScrollUpdate(self) {
+        // Дополнительная логика при скролле
+        this.emit('scrollUpdated', {
+            progress: self.progress,
+            direction: self.direction
         });
-
-        function showModal() {
-            // Reset scroll position for content
-            const modalContent = modal?.querySelector('.service-modal__content');
-            if (modalContent) {
-                modalContent.scrollTop = 0;
-            }
-            
-            // Initialize Lenis for modal content if available
-            if (typeof Lenis !== 'undefined' && modalContent) {
-                // Create Lenis instance for modal content
-                const modalLenis = new Lenis({
-                    wrapper: modalContent,
-                    content: modalContent,
-                    lerp: 0.1,
-                    duration: 1.2,
-                    orientation: 'vertical',
-                    gestureOrientation: 'vertical',
-                    smoothWheel: true,
-                    wheelMultiplier: 1,
-                    touchMultiplier: 2,
-                    infinite: false,
-                });
-                
-                // Store modal Lenis instance for cleanup
-                modal._modalLenis = modalLenis;
-                
-                // Start modal Lenis
-                function modalRaf(time) {
-                    modalLenis.raf(time);
-                    if (modal.open) {
-                        requestAnimationFrame(modalRaf);
-                    }
+    }
+    
+    handleResize() {
+        this.log('debug', 'Handling resize');
+        
+        // Пересчитываем размеры
+        this.setupInitialState();
+        
+        // Обновляем ScrollTrigger
+        this.refreshScrollTrigger();
+        
+        this.emit('resized');
+    }
+    
+    // =============================================================================
+    // Методы модального окна
+    // =============================================================================
+    
+    showModal(serviceId) {
+        if (!this.servicesData || !this.servicesData[serviceId]) {
+            this.log('error', `Service data not found for: ${serviceId}`);
+            return;
+        }
+        
+        const serviceData = this.servicesData[serviceId];
+        
+        // Заполняем контент модального окна
+        this.populateModalContent(serviceData, serviceId);
+        
+        // Сбрасываем позицию скролла
+        if (this.modalContent) {
+            this.modalContent.scrollTop = 0;
+        }
+        
+        // Инициализируем Lenis для модального окна
+        if (this.options.modalLenisEnabled && typeof Lenis !== 'undefined') {
+            this.initModalLenis();
+        }
+        
+        // Блокируем скролл body
+        document.body.style.overflow = 'hidden';
+        
+        // Показываем модальное окно
+        this.modal.showModal();
+        
+        this.emit('modalShown', { serviceId, serviceData });
+        this.log('info', `Modal shown for service: ${serviceId}`);
+    }
+    
+    hideModal() {
+        // Очищаем Lenis
+        if (this.modalLenis) {
+            this.modalLenis.destroy();
+            this.modalLenis = null;
+        }
+        
+        // Восстанавливаем скролл body
+        document.body.style.overflow = '';
+        
+        // Закрываем модальное окно
+        this.modal.close();
+        
+        // Останавливаем видео
+        this.stopModalMedia();
+        
+        this.emit('modalHidden');
+        this.log('info', 'Modal hidden');
+    }
+    
+    populateModalContent(serviceData, serviceId) {
+        // Заполняем текстовый контент
+        const elements = {
+            '#service-modal-title': serviceData.title,
+            '#service-modal-subtitle': serviceData.subtitle,
+            '#service-modal-category': serviceData.category,
+            '#service-modal-description': serviceData.description,
+            '#service-modal-approach': `<p>${serviceData.approach}</p>`,
+            '#service-modal-results': `<p>${serviceData.results}</p>`
+        };
+        
+        Object.entries(elements).forEach(([selector, content]) => {
+            const element = this.modal.querySelector(selector);
+            if (element && content) {
+                if (selector.includes('approach') || selector.includes('results')) {
+                    element.innerHTML = content;
+                } else {
+                    element.textContent = content;
                 }
+            }
+        });
+        
+        // Заполняем benefits
+        const modalBenefits = this.modal.querySelector('#service-modal-benefits');
+        if (modalBenefits && serviceData.benefits) {
+            modalBenefits.innerHTML = serviceData.benefits
+                .map(benefit => `<li>${benefit}</li>`)
+                .join('');
+        }
+        
+        // Устанавливаем изображение
+        const modalImage = this.modal.querySelector('#service-modal-image');
+        if (modalImage && serviceData.image) {
+            modalImage.src = serviceData.image;
+            modalImage.alt = serviceData.title;
+        }
+        
+        // Применяем тему
+        const themeElements = this.modal.querySelectorAll('[data-theme]');
+        themeElements.forEach(element => {
+            element.setAttribute('data-theme', serviceId);
+        });
+        
+        // Устанавливаем видео
+        this.setupModalMedia(serviceData);
+    }
+    
+    setupModalMedia(serviceData) {
+        // Локальное видео
+        const modalVideo = this.modal.querySelector('#service-modal-video');
+        if (modalVideo && serviceData.video) {
+            const videoSource = modalVideo.querySelector('source');
+            if (videoSource) {
+                videoSource.src = serviceData.video;
+                modalVideo.load();
+            }
+        }
+        
+        // YouTube видео
+        const youtubeFrame = this.modal.querySelector('#service-modal-youtube');
+        if (youtubeFrame && serviceData.youtube) {
+            youtubeFrame.src = `https://www.youtube.com/embed/${serviceData.youtube}`;
+        }
+    }
+    
+    stopModalMedia() {
+        // Останавливаем локальное видео
+        const modalVideo = this.modal.querySelector('#service-modal-video');
+        if (modalVideo) {
+            modalVideo.pause();
+            modalVideo.currentTime = 0;
+        }
+        
+        // Останавливаем YouTube видео
+        const youtubeFrame = this.modal.querySelector('#service-modal-youtube');
+        if (youtubeFrame) {
+            youtubeFrame.src = '';
+        }
+    }
+    
+    initModalLenis() {
+        if (!this.modalContent) return;
+        
+        this.modalLenis = new Lenis({
+            wrapper: this.modalContent,
+            content: this.modalContent,
+            lerp: 0.1,
+            duration: 1.2,
+            orientation: 'vertical',
+            gestureOrientation: 'vertical',
+            smoothWheel: true,
+            wheelMultiplier: 1,
+            touchMultiplier: 2,
+            infinite: false,
+        });
+        
+        // Запускаем RAF для Lenis
+        const modalRaf = (time) => {
+            this.modalLenis.raf(time);
+            if (this.modal.open) {
                 requestAnimationFrame(modalRaf);
-                
-                console.log('✅ Modal Lenis initialized');
             }
-            
-            // Block body scroll when modal opens
-            document.body.style.overflow = 'hidden';
-            modal.showModal();
+        };
+        requestAnimationFrame(modalRaf);
+        
+        this.log('debug', 'Modal Lenis initialized');
+    }
+    
+    // =============================================================================
+    // Утилитарные методы
+    // =============================================================================
+    
+    updateCardCounter(progress) {
+        if (!this.clientNumberEl) return;
+        
+        const totalCards = this.cards.length;
+        const currentCard = Math.floor(progress * totalCards) + 1;
+        const clampedCard = Math.min(currentCard, totalCards);
+        const totalPadded = totalCards.toString().padStart(2, '0');
+        
+        this.clientNumberEl.innerHTML = 
+            `<span class="js-client-number-units">${clampedCard.toString().padStart(2, '0')}</span>/${totalPadded}`;
+    }
+    
+    refreshScrollTrigger() {
+        if (this.animationService?.scrollTriggerManager) {
+            this.animationService.scrollTriggerManager.refresh();
+        } else {
+            ScrollTrigger.refresh();
         }
-
-        function hideModal() {
-            // Cleanup modal Lenis instance
-            if (modal._modalLenis) {
-                modal._modalLenis.destroy();
-                modal._modalLenis = null;
-                console.log('✅ Modal Lenis destroyed');
-            }
-            
-            // Restore body scroll when modal closes
+    }
+    
+    logComponentStats() {
+        const stats = {
+            cards: this.cards.length,
+            hasModal: !!this.modal,
+            hasServicesData: !!this.servicesData,
+            animationService: !!this.animationService
+        };
+        
+        this.log('info', 'Component stats:', stats);
+    }
+    
+    // =============================================================================
+    // Публичные методы API
+    // =============================================================================
+    
+    /**
+     * Получить информацию о карточке сервиса
+     */
+    getCardInfo(index) {
+        if (index < 0 || index >= this.cards.length) {
+            return null;
+        }
+        
+        const card = this.cards[index];
+        const serviceId = card.dataset.serviceId;
+        
+        return {
+            index,
+            element: card,
+            serviceId,
+            data: this.servicesData?.[serviceId] || null,
+            bounds: card.getBoundingClientRect()
+        };
+    }
+    
+    /**
+     * Программно открыть модальное окно для сервиса
+     */
+    openServiceModal(serviceId) {
+        if (!this.options.modalEnabled) {
+            this.log('warn', 'Modal is disabled');
+            return false;
+        }
+        
+        this.showModal(serviceId);
+        return true;
+    }
+    
+    /**
+     * Закрыть модальное окно
+     */
+    closeServiceModal() {
+        if (this.modal && this.modal.open) {
+            this.hideModal();
+            return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Получить текущий прогресс скролла
+     */
+    getScrollProgress() {
+        if (this.mainTimeline) {
+            return this.mainTimeline.progress();
+        }
+        return 0;
+    }
+    
+    // НЕ вызываем super.getState() - его нет!
+    getState() {
+        return {
+            isInitialized: this.isInitialized,
+            isDestroyed: this.isDestroyed,
+            id: this.id,
+            cardsCount: this.cards.length,
+            hasModal: !!this.modal,
+            modalOpen: this.modal?.open || false,
+            hasTimeline: !!this.mainTimeline,
+            scrollProgress: this.getScrollProgress(),
+            hasServicesData: !!this.servicesData
+        };
+    }
+    
+    destroy() {
+        // Очищаем modal Lenis
+        if (this.modalLenis) {
+            this.modalLenis.destroy();
+            this.modalLenis = null;
+        }
+        
+        // Очищаем timeline
+        if (this.mainTimeline) {
+            this.mainTimeline.kill();
+            this.mainTimeline = null;
+        }
+        
+        // Очищаем timeout
+        if (this.resizeTimeout) {
+            clearTimeout(this.resizeTimeout);
+            this.resizeTimeout = null;
+        }
+        
+        // Восстанавливаем body scroll если модальное окно открыто
+        if (this.modal?.open) {
             document.body.style.overflow = '';
-            modal.close();
-            
-            // Reset scroll position when closing
-            const modalContent = modal?.querySelector('.service-modal__content');
-            if (modalContent) {
-                modalContent.scrollTop = 0;
-            }
-            
-            // Pause video when modal closes
-            if (modalVideo) {
-                modalVideo.pause();
-                modalVideo.currentTime = 0;
-            }
-            
-            // Stop YouTube video when modal closes
-            const youtubeFrame = modal?.querySelector('#service-modal-youtube');
-            if (youtubeFrame) {
-                youtubeFrame.src = ''; // Stops the video
-            }
+            this.modal.close();
         }
-
-        console.log('✅ Service Modal initialized.');
+        
+        // Очищаем данные
+        this.servicesData = null;
+        
+        // ОБЯЗАТЕЛЬНО вызываем super.destroy()
+        super.destroy();
+        
+        this.log('info', '🗑️ Services component destroyed');
     }
-
-    // Debounced resize handler
-    function handleResize() {
-        ScrollTrigger.refresh();
-    }
-
-    // Main initialization logic
-    if (!checkDependencies()) return;
-
-    gsap.registerPlugin(ScrollTrigger);
-    initCardsEffect();
-
-    // Re-calculate after all assets (images/fonts) are loaded
-    window.addEventListener('load', () => {
-        ScrollTrigger.refresh();
-    });
-
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(handleResize, 250);
-    });
 }
 
-// Function is now called from main.js, no DOMContentLoaded needed here
+// =============================================================================
+// Автоматическая инициализация
+// =============================================================================
 
-// Export for module systems
+// Функция для автоматической инициализации
+function initServicesNew() {
+    const servicesElement = document.querySelector('.llg-services-section');
+    
+    if (!servicesElement) {
+        console.warn('Services element not found');
+        return null;
+    }
+    
+    try {
+        const services = new Services(servicesElement, {
+            debug: true, // Включаем отладку для демонстрации
+            modalEnabled: true,
+            modalLenisEnabled: true
+        });
+        
+        // Добавляем глобальные слушатели событий для демонстрации
+        services.on('cardClicked', (event) => {
+            console.log('Service card clicked:', event.detail);
+        });
+        
+        services.on('modalShown', (event) => {
+            console.log('Service modal shown:', event.detail.serviceId);
+        });
+        
+        services.on('scrollUpdated', (event) => {
+            // console.log('Services scroll updated:', event.detail.progress);
+        });
+        
+        return services;
+    } catch (error) {
+        console.error('Failed to initialize Services:', error);
+        return null;
+    }
+}
+
+// Экспорт для глобального использования
+if (typeof window !== 'undefined') {
+    window.Services = Services;
+    window.initServicesNew = initServicesNew;
+}
+
+// Экспорт для модульной системы
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { initServicesSlider };
+    module.exports = { Services, initServicesNew };
 }
