@@ -1,344 +1,536 @@
 // =============================================================================
-// Future Marketing Cards - Horizontal Scroll - LLG v3
+// Future Marketing Cards - Refactored Version
 // =============================================================================
 
-// Глобальная функция инициализации (обязательно!)
-window.initFutureMarketingCards = function() {
-    'use strict';
-    
-    console.log('🔧 DEBUG: initFutureMarketingCards() called');
+/**
+ * Future Marketing Cards Component
+ * Горизонтальный скролл карточек с прогресс индикатором
+ * 
+ * Использует:
+ * - AnimatedInteractiveComponent для базовой архитектуры
+ * - AnimationService для управления ScrollTrigger
+ * - Правильный lifecycle и cleanup
+ */
 
-    // Проверка зависимостей
-    function checkDependencies() {
-        console.log('🔧 DEBUG: Checking dependencies...');
+class FutureMarketing extends AnimatedInteractiveComponent {
+    // =============================================================================
+    // Переопределяемые свойства
+    // =============================================================================
+    
+    get defaultOptions() {
+        return {
+            ...super.defaultOptions,
+            // Конфигурация компонента
+            totalCards: 7,
+            cardWidths: {
+                mobile: 368,
+                tablet: 460,
+                desktop: 575
+            },
+            gaps: {
+                mobile: 48,
+                desktop: 64
+            },
+            paddings: {
+                mobile: 0.25, // 25vw
+                desktop: 0.5   // 50vw
+            },
+            paddingTops: {
+                mobile: 60,
+                tablet: 70,
+                desktop: 80
+            },
+            
+            // Анимация
+            scrub: 1,
+            anticipatePin: 1,
+            
+            // Debug
+            debug: false,
+            
+            // События
+            onCardChange: null,
+            onProgressUpdate: null
+        };
+    }
+    
+    // =============================================================================
+    // Lifecycle Methods (BaseComponent)
+    // =============================================================================
+    
+    beforeInit() {
+        super.beforeInit();
         
-        if (typeof gsap === 'undefined') {
-            console.error('❌ Future Marketing Cards: GSAP is not loaded.');
+        // Инициализируем свойства (НЕ в constructor!)
+        this.state = {
+            currentCard: 0,
+            totalCards: this.options.totalCards,
+            trackWidth: 0,
+            viewportWidth: 0,
+            isScrolling: false,
+            progress: 0
+        };
+        
+        // Элементы
+        this.elements = {
+            spacer: null,
+            viewer: null,
+            track: null,
+            cards: [],
+            progressIndicator: null
+        };
+        
+        // Анимации (отдельные свойства, НЕ переопределяем this.animations!)
+        this.mainTimeline = null;
+        
+        this.log('debug', 'Future Marketing beforeInit - конфигурация готова');
+        return true;
+    }
+    
+    setupElements() {
+        // Найти основные элементы
+        this.elements.spacer = this.element.querySelector('.future-cards-spacer');
+        this.elements.viewer = this.element.querySelector('.future-cards-viewer');
+        this.elements.track = this.element.querySelector('.future-cards-track');
+        this.elements.cards = Array.from(this.element.querySelectorAll('.future-card'));
+        
+        // Валидация элементов
+        const requiredElements = ['spacer', 'viewer', 'track'];
+        const missingElements = requiredElements.filter(key => !this.elements[key]);
+        
+        if (missingElements.length > 0) {
+            this.log('error', `Missing required elements: ${missingElements.join(', ')}`);
             return false;
-        } else {
-            console.log('✅ GSAP is loaded:', gsap.version);
         }
         
-        if (typeof ScrollTrigger === 'undefined') {
-            console.error('❌ Future Marketing Cards: ScrollTrigger is not loaded.');
+        if (this.elements.cards.length === 0) {
+            this.log('error', 'No cards found');
             return false;
-        } else {
-            console.log('✅ ScrollTrigger is loaded');
         }
         
-        if (typeof Lenis === 'undefined') {
-            console.warn('⚠️ Future Marketing Cards: Lenis is not loaded. Smooth scroll will be disabled.');
-        } else {
-            console.log('✅ Lenis is loaded');
+        // Обновить состояние
+        this.state.totalCards = this.elements.cards.length;
+        
+        this.log('info', `Found ${this.state.totalCards} cards`);
+        return true;
+    }
+    
+    bindEvents() {
+        // Используем BaseComponent систему событий
+        this.addEventHandler(window, 'load', () => {
+            this.handleWindowLoad();
+        });
+        
+        // Debounced resize через BaseComponent
+        this.addEventHandler(window, 'resize', this.debounce(() => {
+            this.handleResize();
+        }, 250));
+        
+        this.log('debug', 'Events bound');
+    }
+    
+    setupAnimations() {
+        // Получаем AnimationService
+        this.animationService = window.AnimationService?.getInstance();
+        
+        if (!this.animationService) {
+            this.log('error', 'AnimationService not available');
+            return false;
         }
+        
+        // Рассчитать размеры
+        this.calculateDimensions();
+        
+        // Создать главную анимацию через AnimationService
+        this.mainTimeline = this.animationService.scrollTriggerManager.createMasterTimeline({
+            id: `${this.id}_main_timeline`,
+            trigger: this.elements.spacer,
+            start: 'top top',
+            end: 'bottom bottom',
+            scrub: this.options.scrub,
+            pin: this.elements.viewer,
+            anticipatePin: this.options.anticipatePin,
+            onUpdate: (self) => {
+                this.handleScrollUpdate(self.progress);
+            },
+            onEnter: () => {
+                this.handleScrollEnter();
+            },
+            onLeave: () => {
+                this.handleScrollLeave();
+            },
+            onEnterBack: () => {
+                this.handleScrollEnterBack();
+            },
+            onLeaveBack: () => {
+                this.handleScrollLeaveBack();
+            }
+        });
+        
+        if (!this.mainTimeline) {
+            this.log('error', 'Failed to create main timeline');
+            return false;
+        }
+        
+        // Добавить анимацию горизонтального движения
+        const moveDistance = -(this.state.trackWidth - this.state.viewportWidth);
+        
+        this.mainTimeline.to(this.elements.track, {
+            x: moveDistance,
+            ease: 'none',
+            duration: 1
+        });
+        
+        // Регистрировать анимацию в компоненте (как в Services - НЕ вызываем addAnimation)
+        // this.addAnimation(this.mainTimeline, 'main_scroll_timeline');
+        
+        this.log('info', 'Horizontal scroll animation created', {
+            moveDistance,
+            trackWidth: this.state.trackWidth,
+            viewportWidth: this.state.viewportWidth
+        });
         
         return true;
     }
-
-    // Основной класс компонента
-    class FutureMarketingCards {
-        constructor(element) {
-            this.element = element;
-            this.spacer = null;
-            this.viewer = null;
-            this.track = null;
-            this.cards = [];
-            this.currentCard = 0;
-            this.totalCards = 7;
-            this.timeline = null;
-            this.trackWidth = 0;
-            this.viewportWidth = 0;
-            
-            console.log('🔧 DEBUG: FutureMarketingCards constructor called with element:', element);
-            
-            this.init();
-        }
+    
+    afterInit() {
+        // Создать прогресс индикатор
+        this.createProgressIndicator();
         
-        init() {
-            console.log('🔧 DEBUG: FutureMarketingCards init() called');
-            
-            if (!this.findElements()) {
-                console.error('❌ Required elements not found');
-                return;
-            }
-            
-            this.setupDimensions();
-            this.setupScrollTrigger();
-            this.setupProgressIndicator();
-            
-            console.log('✅ Future Marketing Cards initialized');
-        }
+        // Установить начальное состояние
+        this.updateProgressIndicator(0);
         
-        findElements() {
-            this.spacer = this.element.querySelector('.future-cards-spacer');
-            this.viewer = this.element.querySelector('.future-cards-viewer');
-            this.track = this.element.querySelector('.future-cards-track');
-            this.cards = Array.from(this.element.querySelectorAll('.future-card'));
-            
-            console.log('🔧 DEBUG: Elements found:');
-            console.log('  - spacer:', !!this.spacer);
-            console.log('  - viewer:', !!this.viewer);
-            console.log('  - track:', !!this.track);
-            console.log('  - cards:', this.cards.length);
-            
-            if (!this.spacer || !this.viewer || !this.track || this.cards.length === 0) {
-                console.error('❌ Missing required elements:', {
-                    spacer: !this.spacer,
-                    viewer: !this.viewer,
-                    track: !this.track,
-                    cards: this.cards.length === 0
-                });
-                return false;
-            }
-            
-            this.totalCards = this.cards.length;
-            return true;
-        }
+        this.log('info', 'Future Marketing component fully initialized', {
+            cards: this.state.totalCards,
+            trackWidth: this.state.trackWidth,
+            viewportWidth: this.state.viewportWidth
+        });
+    }
+    
+    // =============================================================================
+    // Размеры и расчеты
+    // =============================================================================
+    
+    calculateDimensions() {
+        // Получить размеры viewport
+        this.state.viewportWidth = window.innerWidth;
         
-        setupDimensions() {
-            console.log('🔧 DEBUG: Setting up dimensions...');
-            
-            // Получить размеры viewport
-            this.viewportWidth = window.innerWidth;
-            
-            // Рассчитать общую ширину track
-            const cardWidth = this.getCardWidth();
-            const gap = this.getGapWidth();
-            const padding = this.getPaddingWidth();
-            
-            // Общая ширина = padding + (карточки * ширина) + (промежутки * (количество - 1)) + padding
-            this.trackWidth = padding + (this.totalCards * cardWidth) + (gap * (this.totalCards - 1)) + padding;
-            
-            console.log('🔧 DEBUG: Dimensions calculated:');
-            console.log('  - viewportWidth:', this.viewportWidth);
-            console.log('  - cardWidth:', cardWidth);
-            console.log('  - gap:', gap);
-            console.log('  - padding:', padding);
-            console.log('  - trackWidth:', this.trackWidth);
-            
-            // Установить высоту spacer для ScrollTrigger
-            // Расстояние прокрутки = ширина track - ширина viewport
-            const scrollDistance = this.trackWidth - this.viewportWidth;
-            const spacerHeight = Math.max(scrollDistance * 0.5, 300); // Минимум 300vh
-            
-            const header = document.querySelector('.header');
-            const headerHeight = header ? header.offsetHeight : 0;
-            
-            const finalHeight = `calc(${spacerHeight}px + ${headerHeight}px)`;
-            this.spacer.style.height = finalHeight;
-            
-            console.log('🔧 DEBUG: Spacer height set to:', finalHeight);
-            
-            // Позиционировать viewer с учетом header
-            if (headerHeight) {
-                const viewerTop = `${headerHeight}px`;
-                const viewerHeight = `calc(100vh - ${headerHeight}px)`;
-                this.viewer.style.top = viewerTop;
-                this.viewer.style.height = viewerHeight;
-                
-                console.log('🔧 DEBUG: Viewer positioned:');
-                console.log('  - top:', viewerTop);
-                console.log('  - height:', viewerHeight);
-            }
-            
-            // Установить минимальную высоту с учетом padding-top для картинок
-            const paddingTop = this.getPaddingTop();
-            const minHeight = `calc(100vh + ${paddingTop}px)`;
-            this.spacer.style.minHeight = minHeight;
-            
-            console.log('🔧 DEBUG: Spacer min-height set to:', minHeight);
-        }
+        // Рассчитать размеры карточек
+        const cardWidth = this.getCardWidth();
+        const gap = this.getGapWidth();
+        const padding = this.getPaddingWidth();
         
-        getCardWidth() {
-            // Ширина карточки в зависимости от размера экрана (увеличено на 15%)
-            if (window.innerWidth <= 768) return 368; // mobile (320px * 1.15)
-            if (window.innerWidth <= 1024) return 460; // tablet (400px * 1.15)
-            return 575; // desktop (500px * 1.15)
-        }
+        // Общая ширина track
+        this.state.trackWidth = padding + 
+            (this.state.totalCards * cardWidth) + 
+            (gap * (this.state.totalCards - 1)) + 
+            padding;
         
-        getGapWidth() {
-            // Промежуток между карточками
-            if (window.innerWidth <= 768) return 48; // $space-12 = 3rem = 48px
-            return 64; // $space-16 = 4rem = 64px
-        }
+        // Установить высоту spacer
+        this.setupSpacerHeight();
         
-        getPaddingWidth() {
-            // Padding для центрирования первой и последней карточки
-            if (window.innerWidth <= 768) return window.innerWidth * 0.25; // 25vw
-            return window.innerWidth * 0.5; // 50vw
-        }
+        // Позиционировать viewer
+        this.setupViewerPosition();
         
-        getPaddingTop() {
-            // Padding-top для картинок, которые выходят за пределы карточек
-            if (window.innerWidth <= 768) return 60; // mobile
-            if (window.innerWidth <= 1024) return 70; // tablet
-            return 80; // desktop
-        }
+        this.log('debug', 'Dimensions calculated', {
+            viewportWidth: this.state.viewportWidth,
+            cardWidth,
+            gap,
+            padding,
+            trackWidth: this.state.trackWidth
+        });
+    }
+    
+    getCardWidth() {
+        const { mobile, tablet, desktop } = this.options.cardWidths;
         
-        setupScrollTrigger() {
-            console.log('🔧 DEBUG: Setting up ScrollTrigger...');
+        if (this.state.viewportWidth <= 768) return mobile;
+        if (this.state.viewportWidth <= 1024) return tablet;
+        return desktop;
+    }
+    
+    getGapWidth() {
+        const { mobile, desktop } = this.options.gaps;
+        return this.state.viewportWidth <= 768 ? mobile : desktop;
+    }
+    
+    getPaddingWidth() {
+        const { mobile, desktop } = this.options.paddings;
+        const ratio = this.state.viewportWidth <= 768 ? mobile : desktop;
+        return this.state.viewportWidth * ratio;
+    }
+    
+    getPaddingTop() {
+        const { mobile, tablet, desktop } = this.options.paddingTops;
+        
+        if (this.state.viewportWidth <= 768) return mobile;
+        if (this.state.viewportWidth <= 1024) return tablet;
+        return desktop;
+    }
+    
+    setupSpacerHeight() {
+        const scrollDistance = this.state.trackWidth - this.state.viewportWidth;
+        const spacerHeight = Math.max(scrollDistance * 0.5, 300);
+        
+        const header = document.querySelector('.header');
+        const headerHeight = header ? header.offsetHeight : 0;
+        
+        const finalHeight = `calc(${spacerHeight}px + ${headerHeight}px)`;
+        const minHeight = `calc(100vh + ${this.getPaddingTop()}px)`;
+        
+        this.elements.spacer.style.height = finalHeight;
+        this.elements.spacer.style.minHeight = minHeight;
+        
+        this.log('debug', 'Spacer height set', { finalHeight, minHeight });
+    }
+    
+    setupViewerPosition() {
+        const header = document.querySelector('.header');
+        const headerHeight = header ? header.offsetHeight : 0;
+        
+        if (headerHeight) {
+            const viewerTop = `${headerHeight}px`;
+            const viewerHeight = `calc(100vh - ${headerHeight}px)`;
             
-            // Рассчитать расстояние движения
-            const moveDistance = -(this.trackWidth - this.viewportWidth);
+            this.elements.viewer.style.top = viewerTop;
+            this.elements.viewer.style.height = viewerHeight;
             
-            console.log('🔧 DEBUG: Move distance:', moveDistance);
+            this.log('debug', 'Viewer positioned', { viewerTop, viewerHeight });
+        }
+    }
+    
+    // =============================================================================
+    // Прогресс индикатор
+    // =============================================================================
+    
+    createProgressIndicator() {
+        // Проверить существующий индикатор
+        this.elements.progressIndicator = this.elements.viewer.querySelector('.future-cards-progress');
+        
+        if (!this.elements.progressIndicator) {
+            this.elements.progressIndicator = document.createElement('div');
+            this.elements.progressIndicator.className = 'future-cards-progress';
+            this.elements.viewer.appendChild(this.elements.progressIndicator);
             
-            // Создать горизонтальный скролл
-            this.timeline = gsap.timeline({
-                scrollTrigger: {
-                    trigger: this.spacer,
-                    start: 'top top',
-                    end: 'bottom bottom',
-                    scrub: 1, // Более отзывчивый скролл
-                    pin: this.viewer,
-                    anticipatePin: 1,
-                    onUpdate: (self) => {
-                        this.updateProgress(self.progress);
-                    },
-                    onEnter: () => {
-                        console.log('🔧 DEBUG: ScrollTrigger entered - pinning started');
-                    },
-                    onLeave: () => {
-                        console.log('🔧 DEBUG: ScrollTrigger left');
-                    },
-                    onEnterBack: () => {
-                        console.log('🔧 DEBUG: ScrollTrigger entered back');
-                    },
-                    onLeaveBack: () => {
-                        console.log('🔧 DEBUG: ScrollTrigger left back');
-                    }
-                }
+            this.log('debug', 'Progress indicator created');
+        }
+    }
+    
+    updateProgressIndicator(progress) {
+        if (this.elements.progressIndicator) {
+            const progressWidth = Math.max(0, Math.min(100, progress * 100));
+            this.elements.progressIndicator.style.width = `${progressWidth}%`;
+        }
+    }
+    
+    // =============================================================================
+    // Обработчики событий
+    // =============================================================================
+    
+    handleScrollUpdate(progress) {
+        this.state.progress = progress;
+        
+        // Обновить текущую карточку
+        const currentCard = Math.floor(progress * this.state.totalCards) + 1;
+        const clampedCard = Math.min(currentCard, this.state.totalCards);
+        
+        if (this.state.currentCard !== clampedCard) {
+            const oldCard = this.state.currentCard;
+            this.state.currentCard = clampedCard;
+            
+            // Эмитировать событие смены карточки
+            this.emit('cardChanged', {
+                currentCard: this.state.currentCard,
+                previousCard: oldCard,
+                progress
             });
             
-            // Анимация горизонтального движения track
-            this.timeline.to(this.track, {
+            // Вызвать callback если есть
+            if (this.options.onCardChange) {
+                this.options.onCardChange(this.state.currentCard, oldCard, progress);
+            }
+        }
+        
+        // Обновить прогресс индикатор
+        this.updateProgressIndicator(progress);
+        
+        // Эмитировать событие обновления прогресса
+        this.emit('progressUpdated', { progress });
+        
+        // Вызвать callback если есть
+        if (this.options.onProgressUpdate) {
+            this.options.onProgressUpdate(progress);
+        }
+    }
+    
+    handleScrollEnter() {
+        this.state.isScrolling = true;
+        this.emit('scrollEntered');
+        this.log('debug', 'Scroll entered - pinning started');
+    }
+    
+    handleScrollLeave() {
+        this.state.isScrolling = false;
+        this.emit('scrollLeft');
+        this.log('debug', 'Scroll left');
+    }
+    
+    handleScrollEnterBack() {
+        this.state.isScrolling = true;
+        this.emit('scrollEnteredBack');
+        this.log('debug', 'Scroll entered back');
+    }
+    
+    handleScrollLeaveBack() {
+        this.state.isScrolling = false;
+        this.emit('scrollLeftBack');
+        this.log('debug', 'Scroll left back');
+    }
+    
+    handleWindowLoad() {
+        this.refreshScrollTrigger();
+        this.log('debug', 'Window loaded - ScrollTrigger refreshed');
+    }
+    
+    handleResize() {
+        this.log('debug', 'Handling resize');
+        
+        // Пересчитать размеры
+        this.calculateDimensions();
+        
+        // Обновить анимацию
+        if (this.mainTimeline) {
+            const moveDistance = -(this.state.trackWidth - this.state.viewportWidth);
+            
+            // Обновить анимацию движения
+            this.mainTimeline.clear();
+            this.mainTimeline.to(this.elements.track, {
                 x: moveDistance,
                 ease: 'none',
                 duration: 1
             });
-            
-            console.log('✅ ScrollTrigger setup completed');
         }
         
-        updateProgress(progress) {
-            // Обновить счетчик карточек на основе прогресса
-            const currentCard = Math.floor(progress * this.totalCards) + 1;
-            const clampedCard = Math.min(currentCard, this.totalCards);
-            
-            if (this.currentCard !== clampedCard) {
-                this.currentCard = clampedCard;
-            }
-            
-            // Обновить индикатор прогресса
-            this.updateProgressIndicator(progress);
-        }
+        // Обновить ScrollTrigger
+        this.refreshScrollTrigger();
         
+        this.emit('resized', {
+            viewportWidth: this.state.viewportWidth,
+            trackWidth: this.state.trackWidth
+        });
         
-        updateProgressIndicator(progress) {
-            // Обновить индикатор прогресса
-            let progressElement = this.viewer.querySelector('.future-cards-progress');
-            if (!progressElement) {
-                // Создать индикатор прогресса если его нет
-                progressElement = document.createElement('div');
-                progressElement.className = 'future-cards-progress';
-                this.viewer.appendChild(progressElement);
-            }
-            
-            const progressWidth = Math.max(0, Math.min(100, progress * 100));
-            progressElement.style.width = `${progressWidth}%`;
-        }
-        
-        
-        setupProgressIndicator() {
-            // Создать индикатор прогресса
-            this.updateProgressIndicator(0);
-            
-            console.log('✅ Progress indicator setup completed');
-        }
-        
-        handleResize() {
-            // Пересчитать размеры при изменении размера окна
-            console.log('🔧 DEBUG: Handling resize...');
-            
-            this.setupDimensions();
-            
-            // Обновить ScrollTrigger
-            if (this.timeline && this.timeline.scrollTrigger) {
-                this.timeline.scrollTrigger.refresh();
-            }
-            
-            console.log('✅ Resize handled');
-        }
-        
-        destroy() {
-            if (this.timeline) {
-                this.timeline.kill();
-            }
-            
-            // Очистить все анимации
-            gsap.killTweensOf(this.track);
-            
-            // Удалить индикатор прогресса
-            const progressElement = this.viewer?.querySelector('.future-cards-progress');
-            if (progressElement) {
-                progressElement.remove();
-            }
-            
-            console.log('✅ Future Marketing Cards destroyed');
-        }
+        this.log('debug', 'Resize handled');
     }
-
-    // Debounced resize handler
-    function handleResize() {
-        ScrollTrigger.refresh();
-        console.log('🔧 DEBUG: ScrollTrigger refreshed on resize');
-    }
-
-    // Основная логика инициализации
-    if (!checkDependencies()) return;
-
-    gsap.registerPlugin(ScrollTrigger);
-
-    const section = document.querySelector('#future-marketing');
-    console.log('🔧 DEBUG: Section found:', !!section, section);
     
-    if (!section) {
-        console.error('❌ Section #future-marketing not found!');
-        return;
-    }
-
-    // Создать экземпляр компонента
-    const futureMarketingCards = new FutureMarketingCards(section);
-
-    // Re-calculate after all assets (images/fonts) are loaded
-    window.addEventListener('load', () => {
-        ScrollTrigger.refresh();
-        console.log('🔧 DEBUG: ScrollTrigger refreshed on window load');
-    });
-
-    // Debounced resize handler
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            futureMarketingCards.handleResize();
-            handleResize();
-        }, 250);
-    });
-
-    console.log('✅ Future Marketing Cards initialization completed');
+    // =============================================================================
+    // Публичные методы
+    // =============================================================================
     
-    // Вернуть экземпляр для возможного внешнего управления
-    return futureMarketingCards;
+    /**
+     * Получить информацию о текущем состоянии
+     */
+    getState() {
+        return {
+            isInitialized: this.isInitialized,
+            isDestroyed: this.isDestroyed,
+            id: this.id,
+            currentCard: this.state.currentCard,
+            totalCards: this.state.totalCards,
+            progress: this.state.progress,
+            isScrolling: this.state.isScrolling,
+            trackWidth: this.state.trackWidth,
+            viewportWidth: this.state.viewportWidth
+        };
+    }
+    
+    /**
+     * Получить информацию о карточке
+     */
+    getCardInfo(index) {
+        if (index < 0 || index >= this.elements.cards.length) {
+            return null;
+        }
+        
+        const card = this.elements.cards[index];
+        return {
+            index,
+            element: card,
+            isActive: index + 1 === this.state.currentCard,
+            rect: card.getBoundingClientRect()
+        };
+    }
+    
+    /**
+     * Получить прогресс скролла
+     */
+    getScrollProgress() {
+        return this.state.progress;
+    }
+    
+    /**
+     * Обновить ScrollTrigger
+     */
+    refreshScrollTrigger() {
+        if (this.animationService && this.animationService.scrollTriggerManager) {
+            this.animationService.scrollTriggerManager.refresh();
+        }
+    }
+    
+    /**
+     * Программно установить прогресс (для тестирования)
+     */
+    setProgress(progress) {
+        if (this.mainTimeline && this.mainTimeline.progress) {
+            this.mainTimeline.progress(progress);
+        }
+    }
+    
+    // =============================================================================
+    // Cleanup (BaseComponent)
+    // =============================================================================
+    
+    destroy() {
+        // Удалить прогресс индикатор
+        if (this.elements.progressIndicator) {
+            this.elements.progressIndicator.remove();
+            this.elements.progressIndicator = null;
+        }
+        
+        // Очистить состояние
+        this.state = {
+            currentCard: 0,
+            totalCards: 0,
+            trackWidth: 0,
+            viewportWidth: 0,
+            isScrolling: false,
+            progress: 0
+        };
+        
+        // Очистить элементы
+        this.elements = {
+            spacer: null,
+            viewer: null,
+            track: null,
+            cards: [],
+            progressIndicator: null
+        };
+        
+        // Вызвать родительский destroy
+        super.destroy();
+        
+        this.log('info', 'Future Marketing component destroyed');
+    }
 }
 
-// Глобальная доступность класса (опционально)
+// =============================================================================
+// Глобальная доступность
+// =============================================================================
+
 if (typeof window !== 'undefined') {
-    // Класс будет доступен только после инициализации
-    window.FutureMarketingCards = null;
+    window.FutureMarketing = FutureMarketing;
 }
 
-// Export for module systems
+// Экспорт для модульной системы
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { initFutureMarketingCards };
+    module.exports = FutureMarketing;
 }

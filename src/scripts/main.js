@@ -931,32 +931,56 @@ class LLGApp {
   }
   
   initFutureMarketingCards() {
-    // Check if initFutureMarketingCards function is available
-    if (typeof window.initFutureMarketingCards === 'undefined') {
-      console.warn('⚠️ Future Marketing Cards not found');
+    // Check if FutureMarketing class is available
+    if (typeof FutureMarketing === 'undefined') {
+      console.warn('⚠️ FutureMarketing component not found');
       return;
     }
     
     // Check if already initialized to prevent duplicates
-    if (this.futureMarketingCards) {
-      console.warn('⚠️ Future Marketing Cards already initialized');
+    if (this.futureMarketing) {
+      console.warn('⚠️ FutureMarketing already initialized');
       return;
     }
     
-    // Check if section exists
-    const section = document.querySelector('#future-marketing');
-    if (!section) {
-      console.warn('⚠️ Future Marketing section not found');
+    // Find DOM element for future-marketing (required by BaseComponent)
+    const futureMarketingElement = document.querySelector('#future-marketing');
+    if (!futureMarketingElement) {
+      console.warn('⚠️ Future Marketing element not found');
       return;
     }
     
-    // Initialize future marketing cards
-    this.futureMarketingCards = window.initFutureMarketingCards();
+    // Initialize with DOM element (required by AnimatedInteractiveComponent)
+    this.futureMarketing = new FutureMarketing(futureMarketingElement, {
+      debug: true,
+      totalCards: 7
+    });
+    
+    // Listen to future-marketing events (new architecture)
+    this.futureMarketing.on('cardChanged', (data) => {
+      console.log('🎴 Future Marketing card changed:', data);
+    });
+    
+    this.futureMarketing.on('progressUpdated', (data) => {
+      // console.log('📊 Future Marketing progress updated:', data.progress);
+    });
+    
+    this.futureMarketing.on('scrollEntered', () => {
+      console.log('📜 Future Marketing scroll entered');
+    });
+    
+    this.futureMarketing.on('scrollLeft', () => {
+      console.log('📜 Future Marketing scroll left');
+    });
+    
+    this.futureMarketing.on('resized', (data) => {
+      console.log('📏 Future Marketing resized:', data);
+    });
     
     // Make globally available
-    window.futureMarketingCards = this.futureMarketingCards;
+    window.futureMarketingAPI = this.futureMarketing;
     
-    console.log('✅ Future Marketing Cards initialized');
+    console.log('✅ FutureMarketing initialized with new architecture');
   }
   
   initHeroStarsScrollEffect() {
