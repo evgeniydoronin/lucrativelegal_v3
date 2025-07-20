@@ -436,6 +436,9 @@ class LLGApp {
       autoRaf: false,          // Используем GSAP ticker
       overscroll: true,
       infinite: false,
+      
+      // 🚨 КРИТИЧЕСКИ ВАЖНО для section navigation!
+      anchors: true,           // Включить поддержку навигации по секциям
     });
     
     // Integrate Lenis with GSAP ScrollTrigger
@@ -636,29 +639,41 @@ class LLGApp {
   }
   
   initSectionNavigation() {
-    // Check if initSectionNavigation function is available
-    if (typeof window.initSectionNavigation === 'undefined') {
-      console.warn('⚠️ Section Navigation component not found');
+    // Check if SectionNavigation class is available
+    if (typeof SectionNavigation === 'undefined') {
+      console.warn('⚠️ SectionNavigation component not found');
       return;
     }
     
     // Check if already initialized to prevent duplicates
     if (this.sectionNavigation) {
-      console.warn('⚠️ Section Navigation already initialized');
+      console.warn('⚠️ SectionNavigation already initialized');
       return;
     }
     
-    // Check if navigation exists
-    const navigation = document.getElementById('section-navigation');
-    if (!navigation) {
-      console.warn('⚠️ Section Navigation element not found');
+    // Find DOM element for section-navigation (required by BaseComponent)
+    const sectionNavigationElement = document.getElementById('section-navigation');
+    if (!sectionNavigationElement) {
+      console.warn('⚠️ Section navigation element not found');
       return;
     }
     
-    // Initialize section navigation
-    this.sectionNavigation = window.initSectionNavigation();
+    // Initialize with DOM element (required by InteractiveComponent)
+    this.sectionNavigation = new SectionNavigation(sectionNavigationElement);
     
-    console.log('✅ Section Navigation initialized');
+    // Listen to section navigation events (new architecture)
+    this.sectionNavigation.on('sectionChanged', (data) => {
+      console.log('🧭 Section changed:', data);
+    });
+    
+    this.sectionNavigation.on('navigationToggled', (data) => {
+      console.log('📱 Navigation toggled:', data);
+    });
+    
+    // Make globally available
+    window.sectionNavigationAPI = this.sectionNavigation;
+    
+    console.log('✅ SectionNavigation initialized with new architecture');
   }
   
   initPortfolio() {
