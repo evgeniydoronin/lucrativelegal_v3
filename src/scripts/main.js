@@ -649,29 +649,49 @@ class LLGApp {
   }
   
   initCaseStudiesHorizontalScroll() {
-    // Check if initCaseStudiesHorizontalScroll function is available
-    if (typeof window.initCaseStudiesHorizontalScroll === 'undefined') {
-      console.warn('⚠️ Case Studies Horizontal Scroll not found');
+    // Check if CaseStudiesHorizontalScroll class is available
+    if (typeof CaseStudiesHorizontalScroll === 'undefined') {
+      console.warn('⚠️ CaseStudiesHorizontalScroll component not found');
       return;
     }
     
     // Check if already initialized to prevent duplicates
-    if (this.caseStudiesScroll) {
-      console.warn('⚠️ Case Studies Horizontal Scroll already initialized');
+    if (this.caseStudies) {
+      console.warn('⚠️ CaseStudiesHorizontalScroll already initialized');
       return;
     }
     
-    // Check if container exists
-    const container = document.querySelector('.horizontal-scroll-container');
-    if (!container) {
-      console.warn('⚠️ Case Studies container not found');
+    // Find DOM element for case-studies (required by BaseComponent)
+    const caseStudiesElement = document.querySelector('#case-studies');
+    if (!caseStudiesElement) {
+      console.warn('⚠️ Case Studies element not found');
       return;
     }
     
-    // Initialize case studies horizontal scroll
-    this.caseStudiesScroll = window.initCaseStudiesHorizontalScroll();
+    // Initialize with DOM element (required by AnimatedInteractiveComponent)
+    this.caseStudies = new CaseStudiesHorizontalScroll(caseStudiesElement);
     
-    console.log('✅ Case Studies Horizontal Scroll initialized');
+    // Listen to case-studies events (new architecture)
+    this.caseStudies.on('slideChanged', (data) => {
+      console.log('🎢 Case Studies slide changed:', data);
+    });
+    
+    this.caseStudies.on('slideAnimationStart', (data) => {
+      console.log('🎬 Case Studies slide animation started:', data);
+    });
+    
+    this.caseStudies.on('slideAnimationComplete', (data) => {
+      console.log('✨ Case Studies slide animation completed:', data);
+    });
+    
+    this.caseStudies.on('resized', (data) => {
+      console.log('📏 Case Studies resized:', data);
+    });
+    
+    // Make globally available
+    window.caseStudiesAPI = this.caseStudies;
+    
+    console.log('✅ CaseStudiesHorizontalScroll initialized with new architecture');
   }
   
   initScrollToTop() {
