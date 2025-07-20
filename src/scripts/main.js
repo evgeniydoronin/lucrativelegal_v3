@@ -536,21 +536,58 @@ class LLGApp {
   }
   
   initHeroCube() {
-    const heroElement = document.querySelector('#hero');
-    if (heroElement) {
-      this.heroCube = new HeroCube(heroElement);
-      
-      // ✅ УЛУЧШЕННОЕ: Делаем экземпляр доступным глобально для всех компонентов
-      if (this.heroCube) {
-        // Сохраняем в window.app для доступа из других компонентов
-        window.app.heroCube = this.heroCube;
-        
-        // Дополнительно сохраняем прямо в window для упрощения доступа
-        window.heroCube = this.heroCube;
-        
-        console.log('✅ Hero cube экземпляр сохранен в window.app.heroCube и window.heroCube');
-      }
+    // Check if HeroCubeController is available
+    if (typeof HeroCubeController === 'undefined') {
+      console.warn('⚠️ HeroCubeController component not found');
+      return;
     }
+    
+    // Check if already initialized to prevent duplicates
+    if (this.heroCube) {
+      console.warn('⚠️ HeroCube already initialized');
+      return;
+    }
+    
+    // Find DOM element for hero-cube (required by BaseComponent)
+    const heroElement = document.querySelector('#hero');
+    if (!heroElement) {
+      console.warn('⚠️ Hero element not found');
+      return;
+    }
+    
+    // Initialize with DOM element (required by AnimatedInteractiveComponent)
+    this.heroCube = new HeroCubeController(heroElement);
+    
+    // Listen to hero-cube events (new architecture)
+    this.heroCube.on('cubeAnimationStart', (data) => {
+      console.log('🎲 HeroCube animation started:', data);
+    });
+    
+    this.heroCube.on('cubeAnimationComplete', (data) => {
+      console.log('🎲 HeroCube animation completed:', data);
+    });
+    
+    this.heroCube.on('scaleEffectStart', (data) => {
+      console.log('📏 HeroCube scale effect started:', data);
+    });
+    
+    this.heroCube.on('scaleEffectComplete', (data) => {
+      console.log('📏 HeroCube scale effect completed:', data);
+    });
+    
+    this.heroCube.on('videoShown', () => {
+      console.log('🎬 HeroCube video shown');
+    });
+    
+    this.heroCube.on('videoHidden', () => {
+      console.log('🎬 HeroCube video hidden');
+    });
+    
+    // Make globally available for other components
+    window.heroCubeAPI = this.heroCube;
+    window.app.heroCube = this.heroCube;
+    
+    console.log('✅ HeroCube initialized with new microservices architecture');
   }
   
   initServicesSlider() {
