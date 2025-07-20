@@ -703,22 +703,53 @@ class LLGApp {
   }
   
   initWordAnimator() {
-    // Check if initWordAnimator function is available
-    if (typeof window.initWordAnimator === 'undefined') {
-      console.warn('⚠️ Word Animator component not found');
+    // Check if WordAnimator class is available
+    if (typeof WordAnimator === 'undefined') {
+      console.warn('⚠️ WordAnimator component not found');
       return;
     }
     
     // Check if already initialized to prevent duplicates
     if (this.wordAnimator) {
-      console.warn('⚠️ Word Animator already initialized');
+      console.warn('⚠️ WordAnimator already initialized');
       return;
     }
     
-    // Initialize word animator
-    this.wordAnimator = window.initWordAnimator();
+    // Find DOM element for word-animator (required by BaseComponent)
+    const wordAnimatorElement = document.querySelector('.word-animator');
+    if (!wordAnimatorElement) {
+      console.warn('⚠️ WordAnimator element not found, using document.body');
+      // WordAnimator can work with document.body as it searches for elements globally
+    }
     
-    console.log('✅ Word Animator initialized');
+    // Initialize with DOM element (required by AnimatedComponent)
+    this.wordAnimator = new WordAnimator(wordAnimatorElement || document.body);
+    
+    // Listen to word-animator events (new architecture)
+    this.wordAnimator.on('wordsAnimatedIn', (data) => {
+      console.log('🔄 WordAnimator words animated in:', data);
+    });
+    
+    this.wordAnimator.on('wordsAnimatedOut', (data) => {
+      console.log('🔄 WordAnimator words animated out:', data);
+    });
+    
+    this.wordAnimator.on('scrollBlurStarted', (data) => {
+      console.log('🌫️ WordAnimator scroll blur started:', data);
+    });
+    
+    this.wordAnimator.on('scrollBlurCompleted', (data) => {
+      console.log('🌫️ WordAnimator scroll blur completed:', data);
+    });
+    
+    this.wordAnimator.on('elementAdded', (data) => {
+      console.log('➕ WordAnimator element added:', data);
+    });
+    
+    // Make globally available
+    window.wordAnimatorAPI = this.wordAnimator;
+    
+    console.log('✅ WordAnimator initialized with new architecture');
   }
   
   initHeader() {
