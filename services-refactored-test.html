@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Services Refactored - Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .test-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            z-index: 1000;
+            border-bottom: 2px solid #333;
+        }
+        
+        .test-header h1 {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .test-controls button {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .test-controls button:hover {
+            background: #555;
+        }
+        
+        .test-controls button.active {
+            background: #00ff88;
+            color: black;
+        }
+        
+        .status {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* Spacer for fixed header */
+        .header-spacer {
+            height: 120px;
+        }
+        
+        /* Services Styles */
+        .llg-services-section {
+            position: relative;
+            background: #000;
+        }
+        
+        .pin-spacer {
+            /* Height will be set by JavaScript */
+        }
+        
+        .js-cards-viewer {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            height: 100vh;
+            background: #000;
+            overflow: hidden;
+        }
+        
+        .js-card {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .js-card-image {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            border-radius: 20px;
+            object-fit: cover;
+            border: 3px solid #00ff88;
+        }
+        
+        .js-card-description {
+            position: absolute;
+            right: 10%;
+            top: 50%;
+            transform: translateY(-50%);
+            max-width: 400px;
+            padding: 2rem;
+            background: rgba(0, 255, 136, 0.1);
+            border-radius: 15px;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        .js-card-description h3 {
+            color: #00ff88;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .js-card-description p {
+            color: rgba(255, 255, 255, 0.9);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .js-card-description .cta-button {
+            background: #00ff88;
+            color: black;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .js-card-description .cta-button:hover {
+            background: #00cc6a;
+            transform: translateY(-2px);
+        }
+        
+        .js-scroll-title {
+            position: absolute;
+            left: 5%;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 8rem;
+            font-weight: bold;
+            color: rgba(255, 255, 255, 0.1);
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        
+        .services-counter {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #333;
+            font-family: monospace;
+            z-index: 999;
+        }
+        
+        .js-client-number {
+            color: #00ff88;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+        
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-width: 300px;
+            z-index: 999;
+        }
+        
+        .debug-panel h3 {
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+        
+        .debug-panel .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+            color: #ccc;
+        }
+        
+        .debug-panel .metric .value {
+            color: #00ff88;
+        }
+        
+        /* Spacer sections */
+        .spacer-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: #2a2a2a;
+        }
+        
+        /* Modal Styles */
+        #service-modal {
+            border: none;
+            border-radius: 15px;
+            background: #1a1a1a;
+            color: white;
+            max-width: 90vw;
+            max-height: 90vh;
+            padding: 0;
+            overflow: hidden;
+        }
+        
+        #service-modal::backdrop {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+        
+        .service-modal__content {
+            padding: 2rem;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        
+        .service-modal__close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+        
+        .service-modal__close:hover {
+            background: #555;
+        }
+        
+        .service-modal__title {
+            color: #00ff88;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .service-modal__subtitle {
+            color: #ccc;
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .service-modal__description {
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Header -->
+    <div class="test-header">
+        <h1>🛠️ Services Component - Refactored Test</h1>
+        <div class="test-controls">
+            <button onclick="testGetCardInfo(0)">Card Info 1</button>
+            <button onclick="testGetCardInfo(1)">Card Info 2</button>
+            <button onclick="testOpenModal('web-design')">Open Modal</button>
+            <button onclick="testCloseModal()">Close Modal</button>
+            <button onclick="testGetProgress()">Get Progress</button>
+            <button onclick="testDebugScrollTrigger()">Debug ST</button>
+            <button onclick="testDebugElements()">Debug Elements</button>
+            <button onclick="testDebugTimeline()">Debug Timeline</button>
+            <button onclick="testRefresh()">Refresh</button>
+            <button onclick="testDestroy()">Destroy</button>
+            <button onclick="testReinit()">Re-init</button>
+            <span class="status" id="status">Initializing...</span>
+        </div>
+    </div>
+    
+    <div class="header-spacer"></div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debugPanel">
+        <h3>📊 Debug Info</h3>
+        <div class="metric">
+            <span>Component:</span>
+            <span class="value" id="componentStatus">Loading...</span>
+        </div>
+        <div class="metric">
+            <span>Cards Count:</span>
+            <span class="value" id="cardsCount">-</span>
+        </div>
+        <div class="metric">
+            <span>Has Modal:</span>
+            <span class="value" id="hasModal">-</span>
+        </div>
+        <div class="metric">
+            <span>Modal Open:</span>
+            <span class="value" id="modalOpen">-</span>
+        </div>
+        <div class="metric">
+            <span>Has Timeline:</span>
+            <span class="value" id="hasTimeline">-</span>
+        </div>
+        <div class="metric">
+            <span>Scroll Progress:</span>
+            <span class="value" id="scrollProgress">-</span>
+        </div>
+        <div class="metric">
+            <span>Services Data:</span>
+            <span class="value" id="servicesData">-</span>
+        </div>
+        <div class="metric">
+            <span>ScrollTriggers:</span>
+            <span class="value" id="scrollTriggers">-</span>
+        </div>
+    </div>
+    
+    <!-- Spacer Section -->
+    <div class="spacer-section">
+        <div>Scroll down to see Services ⬇️</div>
+    </div>
+    
+    <!-- Services Section -->
+    <section class="llg-services-section">
+        <div class="pin-spacer">
+            <div class="js-cards-viewer">
+                <!-- Service Card 1 -->
+                <div class="js-card" data-service-id="web-design">
+                    <img class="js-card-image" src="https://picsum.photos/300/300?random=1" alt="Web Design">
+                    <div class="js-card-description">
+                        <h3>Web Design</h3>
+                        <p>Professional web design services that combine aesthetics with functionality to create stunning digital experiences.</p>
+                        <button class="cta-button">Learn More</button>
+                    </div>
+                    <div class="js-scroll-title">WEB</div>
+                </div>
+                
+                <!-- Service Card 2 -->
+                <div class="js-card" data-service-id="marketing">
+                    <img class="js-card-image" src="https://picsum.photos/300/300?random=2" alt="Marketing">
+                    <div class="js-card-description">
+                        <h3>Digital Marketing</h3>
+                        <p>Comprehensive digital marketing strategies to boost your online presence and drive meaningful engagement.</p>
+                        <button class="cta-button">Learn More</button>
+                    </div>
+                    <div class="js-scroll-title">MARKETING</div>
+                </div>
+                
+                <!-- Service Card 3 -->
+                <div class="js-card" data-service-id="development">
+                    <img class="js-card-image" src="https://picsum.photos/300/300?random=3" alt="Development">
+                    <div class="js-card-description">
+                        <h3>Development</h3>
+                        <p>Custom development solutions using cutting-edge technologies to bring your vision to life.</p>
+                        <button class="cta-button">Learn More</button>
+                    </div>
+                    <div class="js-scroll-title">DEV</div>
+                </div>
+                
+                <!-- Service Card 4 -->
+                <div class="js-card" data-service-id="consulting">
+                    <img class="js-card-image" src="https://picsum.photos/300/300?random=4" alt="Consulting">
+                    <div class="js-card-description">
+                        <h3>Consulting</h3>
+                        <p>Strategic consulting services to help you make informed decisions and optimize your business processes.</p>
+                        <button class="cta-button">Learn More</button>
+                    </div>
+                    <div class="js-scroll-title">CONSULTING</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Services Counter -->
+        <div class="services-counter">
+            <div class="js-client-number">01/04</div>
+        </div>
+    </section>
+    
+    <!-- Another Spacer Section -->
+    <div class="spacer-section">
+        <div>End of Services ⬆️</div>
+    </div>
+    
+    <!-- Service Modal -->
+    <dialog id="service-modal">
+        <button class="service-modal__close">&times;</button>
+        <div class="service-modal__content">
+            <h2 class="service-modal__title" id="service-modal-title">Service Title</h2>
+            <p class="service-modal__subtitle" id="service-modal-subtitle">Service Subtitle</p>
+            <div class="service-modal__description" id="service-modal-description">
+                Service description will appear here.
+            </div>
+            <div id="service-modal-benefits">
+                <h3>Benefits:</h3>
+                <ul></ul>
+            </div>
+            <div id="service-modal-approach">
+                <h3>Our Approach:</h3>
+            </div>
+            <div id="service-modal-results">
+                <h3>Expected Results:</h3>
+            </div>
+        </div>
+    </dialog>
+    
+    <!-- Services Data -->
+    <script type="application/json" id="llg-services-data">
+    {
+        "web-design": {
+            "title": "Professional Web Design",
+            "subtitle": "Creating stunning digital experiences",
+            "category": "Design",
+            "description": "Our web design services combine aesthetics with functionality to create websites that not only look great but also perform exceptionally well.",
+            "benefits": [
+                "Responsive design for all devices",
+                "SEO-optimized structure",
+                "Fast loading times",
+                "User-friendly interface"
+            ],
+            "approach": "We start with understanding your brand and target audience, then create wireframes and prototypes before developing the final design.",
+            "results": "Expect increased user engagement, better conversion rates, and a professional online presence that sets you apart from competitors.",
+            "image": "https://picsum.photos/400/300?random=1"
+        },
+        "marketing": {
+            "title": "Digital Marketing Excellence",
+            "subtitle": "Boost your online presence",
+            "category": "Marketing",
+            "description": "Comprehensive digital marketing strategies that drive traffic, generate leads, and increase your brand visibility across all digital channels.",
+            "benefits": [
+                "Increased brand awareness",
+                "Higher conversion rates",
+                "Better ROI on marketing spend",
+                "Data-driven insights"
+            ],
+            "approach": "We analyze your market, identify opportunities, create targeted campaigns, and continuously optimize based on performance data.",
+            "results": "Significant increase in qualified leads, improved brand recognition, and measurable growth in your digital presence.",
+            "image": "https://picsum.photos/400/300?random=2"
+        },
+        "development": {
+            "title": "Custom Development Solutions",
+            "subtitle": "Bringing your vision to life",
+            "category": "Development",
+            "description": "From web applications to mobile apps, we create custom solutions using the latest technologies and best practices in software development.",
+            "benefits": [
+                "Scalable architecture",
+                "Modern technology stack",
+                "Secure and reliable code",
+                "Ongoing support and maintenance"
+            ],
+            "approach": "We follow agile development methodologies, ensuring regular communication and iterative improvements throughout the project.",
+            "results": "A robust, scalable solution that grows with your business and provides excellent user experience across all platforms.",
+            "image": "https://picsum.photos/400/300?random=3"
+        },
+        "consulting": {
+            "title": "Strategic Business Consulting",
+            "subtitle": "Expert guidance for growth",
+            "category": "Consulting",
+            "description": "Strategic consulting services to help you navigate complex business challenges and identify opportunities for growth and optimization.",
+            "benefits": [
+                "Expert industry insights",
+                "Objective analysis",
+                "Actionable recommendations",
+                "Implementation support"
+            ],
+            "approach": "We conduct thorough analysis of your business, market, and competition to provide tailored strategies and actionable recommendations.",
+            "results": "Improved operational efficiency, better strategic positioning, and clear roadmap for achieving your business objectives.",
+            "image": "https://picsum.photos/400/300?random=4"
+        }
+    }
+    </script>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    <script src="src/scripts/core/AnimatedInteractiveComponent.js"></script>
+    <script src="src/scripts/services/ScrollTriggerManager.js"></script>
+    <script src="src/scripts/core/AnimationService.js"></script>
+    
+    <!-- Services Component -->
+    <script src="src/scripts/components/services-new.js?v=20250119-2215"></script>
+    
+    <script>
+        // Global variables
+        let servicesComponent = null;
+        let animationService = null;
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Services Test');
+            
+            // Initialize AnimationService
+            if (window.AnimationService) {
+                animationService = window.AnimationService.getInstance();
+                console.log('✅ AnimationService initialized');
+            }
+            
+            // Initialize Services component
+            initServices();
+            
+            // Start debug updates
+            setInterval(updateDebugPanel, 1000);
+            
+            updateStatus('Ready');
+        });
+        
+        function initServices() {
+            try {
+                const element = document.querySelector('.llg-services-section');
+                if (element && window.Services) {
+                    servicesComponent = new Services(element, {
+                        debug: true,
+                        modalEnabled: true,
+                        modalLenisEnabled: false // Disable Lenis for test
+                    });
+                    
+                    // Add event listeners
+                    servicesComponent.on('cardClicked', (event) => {
+                        console.log('🎯 Service card clicked:', event.detail);
+                        updateStatus(`Card ${event.detail.index} clicked`);
+                    });
+                    
+                    servicesComponent.on('modalShown', (event) => {
+                        console.log('🔍 Modal shown:', event.detail.serviceId);
+                        updateStatus(`Modal shown: ${event.detail.serviceId}`);
+                    });
+                    
+                    servicesComponent.on('modalHidden', (event) => {
+                        console.log('❌ Modal hidden');
+                        updateStatus('Modal hidden');
+                    });
+                    
+                    servicesComponent.on('scrollUpdated', (event) => {
+                        // console.log('📜 Scroll updated:', event.detail.progress);
+                    });
+                    
+                    console.log('✅ Services component initialized');
+                    updateStatus('Initialized');
+                } else {
+                    console.error('❌ Failed to initialize Services component');
+                    updateStatus('Failed to initialize');
+                }
+            } catch (error) {
+                console.error('❌ Error initializing Services:', error);
+                updateStatus('Error: ' + error.message);
+            }
+        }
+        
+        function testGetCardInfo(index) {
+            if (servicesComponent && typeof servicesComponent.getCardInfo === 'function') {
+                const info = servicesComponent.getCardInfo(index);
+                console.log('📋 Card info:', info);
+                updateStatus(info ? `Card ${index} info retrieved` : `Card ${index} not found`);
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testOpenModal(serviceId) {
+            if (servicesComponent && typeof servicesComponent.openServiceModal === 'function') {
+                const success = servicesComponent.openServiceModal(serviceId);
+                updateStatus(success ? `Modal opened: ${serviceId}` : 'Failed to open modal');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testCloseModal() {
+            if (servicesComponent && typeof servicesComponent.closeServiceModal === 'function') {
+                const success = servicesComponent.closeServiceModal();
+                updateStatus(success ? 'Modal closed' : 'Modal was not open');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testGetProgress() {
+            if (servicesComponent && typeof servicesComponent.getScrollProgress === 'function') {
+                const progress = servicesComponent.getScrollProgress();
+                console.log('📊 Scroll progress:', progress);
+                updateStatus(`Progress: ${Math.round(progress * 100)}%`);
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testRefresh() {
+            if (servicesComponent && typeof servicesComponent.refreshScrollTrigger === 'function') {
+                servicesComponent.refreshScrollTrigger();
+                updateStatus('ScrollTrigger refreshed');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testDestroy() {
+            if (servicesComponent && typeof servicesComponent.destroy === 'function') {
+                servicesComponent.destroy();
+                servicesComponent = null;
+                updateStatus('Component destroyed');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testReinit() {
+            testDestroy();
+            setTimeout(() => {
+                initServices();
+            }, 100);
+        }
+        
+        // Debug functions
+        function testDebugScrollTrigger() {
+            console.log('=== SCROLLTRIGGER DEBUG ===');
+            console.log('ScrollTriggers count:', ScrollTrigger.getAll().length);
+            ScrollTrigger.getAll().forEach((st, i) => {
+                console.log(`ST ${i}:`, {
+                    trigger: st.trigger,
+                    start: st.start,
+                    end: st.end,
+                    progress: st.progress,
+                    isActive: st.isActive,
+                    pin: st.pin,
+                    scroller: st.scroller
+                });
+            });
+            updateStatus('ScrollTrigger debug logged');
+        }
+        
+        function testDebugElements() {
+            console.log('=== ELEMENTS DEBUG ===');
+            const pinSpacer = document.querySelector('.pin-spacer');
+            const cardsViewer = document.querySelector('.js-cards-viewer');
+            const cards = document.querySelectorAll('.js-card');
+
+            console.log('Pin spacer:', {
+                element: pinSpacer,
+                height: pinSpacer?.style.height,
+                computed: getComputedStyle(pinSpacer).height,
+                rect: pinSpacer?.getBoundingClientRect()
+            });
+
+            console.log('Cards viewer:', {
+                element: cardsViewer,
+                rect: cardsViewer?.getBoundingClientRect(),
+                styles: {
+                    position: getComputedStyle(cardsViewer).position,
+                    top: getComputedStyle(cardsViewer).top,
+                    background: getComputedStyle(cardsViewer).backgroundColor
+                }
+            });
+
+            cards.forEach((card, i) => {
+                console.log(`Card ${i}:`, {
+                    opacity: getComputedStyle(card).opacity,
+                    visibility: getComputedStyle(card).visibility,
+                    transform: getComputedStyle(card).transform,
+                    rect: card.getBoundingClientRect()
+                });
+            });
+            
+            console.log('=== SCROLL DEBUG ===');
+            console.log('Scroll position:', {
+                scrollY: window.scrollY,
+                documentHeight: document.documentElement.scrollHeight,
+                viewportHeight: window.innerHeight,
+                scrollPercent: (window.scrollY / (document.documentElement.scrollHeight - window.innerHeight)) * 100
+            });
+            
+            updateStatus('Elements debug logged');
+        }
+        
+        function testDebugTimeline() {
+            console.log('=== TIMELINE DEBUG ===');
+            if (servicesComponent) {
+                const state = servicesComponent.getState();
+                console.log('Component state:', state);
+                
+                if (servicesComponent.mainTimeline) {
+                    console.log('Timeline:', {
+                        progress: servicesComponent.mainTimeline.progress(),
+                        duration: servicesComponent.mainTimeline.duration(),
+                        paused: servicesComponent.mainTimeline.paused(),
+                        totalProgress: servicesComponent.mainTimeline.totalProgress(),
+                        totalDuration: servicesComponent.mainTimeline.totalDuration(),
+                        isActive: servicesComponent.mainTimeline.isActive()
+                    });
+                    
+                    // Try to manually set progress to see first card
+                    console.log('Setting timeline progress to 0.1 to show first card...');
+                    servicesComponent.mainTimeline.progress(0.1);
+                } else {
+                    console.log('❌ No timeline found');
+                }
+            } else {
+                console.log('❌ No component found');
+            }
+            updateStatus('Timeline debug logged');
+        }
+        
+        function updateStatus(message) {
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.textContent = message;
+            }
+        }
+        
+        function updateDebugPanel() {
+            if (!servicesComponent) {
+                document.getElementById('componentStatus').textContent = 'Inactive';
+                document.getElementById('cardsCount').textContent = '-';
+                document.getElementById('hasModal').textContent = '-';
+                document.getElementById('modalOpen').textContent = '-';
+                document.getElementById('hasTimeline').textContent = '-';
+                document.getElementById('scrollProgress').textContent = '-';
+                document.getElementById('servicesData').textContent = '-';
+                document.getElementById('scrollTriggers').textContent = '-';
+                return;
+            }
+            
+            // Get component state
+            const state = servicesComponent.getState ? servicesComponent.getState() : {};
+            
+            document.getElementById('componentStatus').textContent = 'Active';
+            document.getElementById('cardsCount').textContent = state.cardsCount || '-';
+            document.getElementById('hasModal').textContent = state.hasModal ? 'Yes' : 'No';
+            document.getElementById('modalOpen').textContent = state.modalOpen ? 'Yes' : 'No';
+            document.getElementById('hasTimeline').textContent = state.hasTimeline ? 'Yes' : 'No';
+            document.getElementById('scrollProgress').textContent = 
+                state.scrollProgress ? Math.round(state.scrollProgress * 100) + '%' : '0%';
+            document.getElementById('servicesData').textContent = state.hasServicesData ? 'Yes' : 'No';
+            
+            // Count ScrollTriggers
+            const scrollTriggers = ScrollTrigger.getAll();
+            document.getElementById('scrollTriggers').textContent = scrollTriggers.length;
+        }
+        
+        // Performance monitoring
+        let lastTime = performance.now();
+        let frameCount = 0;
+        
+        function measureFPS() {
+            frameCount++;
+            const currentTime = performance.now();
+            
+            if (currentTime - lastTime >= 1000) {
+                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                console.log(`📊 FPS: ${fps}`);
+                
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            requestAnimationFrame(measureFPS);
+        }
+        
+        // Start FPS monitoring
+        requestAnimationFrame(measureFPS);
+    </script>
+</body>
+</html>

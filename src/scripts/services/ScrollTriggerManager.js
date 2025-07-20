@@ -153,19 +153,33 @@ class ScrollTriggerManager {
         
         const timelineId = config.id || this.generateTriggerId('timeline');
         
-        // Создаем ScrollTrigger для timeline
-        const scrollTrigger = this.create({
-            ...config.scrollTrigger,
-            id: `${timelineId}_trigger`
+        this.service.log('debug', `🔧 Creating Master Timeline: ${timelineId}`, {
+            trigger: config.trigger,
+            start: config.start,
+            end: config.end,
+            scrub: config.scrub,
+            pin: config.pin
         });
         
-        if (!scrollTrigger) {
-            return null;
-        }
-        
-        // Создаем Timeline
+        // ИСПРАВЛЕНИЕ: Создаем Timeline напрямую с ScrollTrigger конфигурацией
+        // Не создаем ScrollTrigger отдельно - это вызывает дублирование!
         const timeline = gsap.timeline({
-            scrollTrigger: scrollTrigger,
+            scrollTrigger: {
+                trigger: config.trigger,
+                start: config.start || "top top",
+                end: config.end || "bottom bottom",
+                scrub: config.scrub || false,
+                pin: config.pin || false,
+                anticipatePin: config.anticipatePin || 0,
+                onUpdate: config.onUpdate || null,
+                onEnter: config.onEnter || null,
+                onLeave: config.onLeave || null,
+                onEnterBack: config.onEnterBack || null,
+                onLeaveBack: config.onLeaveBack || null,
+                refreshPriority: config.refreshPriority || this.getNextPriority(),
+                id: `${timelineId}_st`,
+                markers: config.markers || false
+            },
             defaults: {
                 duration: 0.6,
                 ease: "power2.out",
@@ -174,19 +188,23 @@ class ScrollTriggerManager {
             ...config.timelineConfig
         });
         
+        this.service.log('info', `✅ Master Timeline created: ${timelineId}`, {
+            scrollTrigger: timeline.scrollTrigger ? 'attached' : 'missing',
+            scrub: timeline.scrollTrigger?.vars?.scrub,
+            pin: timeline.scrollTrigger?.vars?.pin
+        });
+        
         // Регистрируем timeline в AnimationService
         this.service.registerTimeline(timelineId, timeline);
         
         // Сохраняем связь
         this.masterTimelines.set(timelineId, {
             timeline,
-            scrollTrigger,
+            scrollTrigger: timeline.scrollTrigger, // Используем встроенный ScrollTrigger
             config,
             createdAt: Date.now(),
             componentId: null
         });
-        
-        this.service.log('info', `Master Timeline created: ${timelineId}`);
         
         return timeline;
     }

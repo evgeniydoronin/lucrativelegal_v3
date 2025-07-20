@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Section Navigation Refactored Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Section Navigation Styles */
+        #section-navigation {
+            position: fixed;
+            right: 30px;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 15px 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .section-nav-item {
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .section-nav-button {
+            display: block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #ccc;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .section-nav-button:hover {
+            background: #007bff;
+            transform: scale(1.2);
+        }
+        
+        .section-nav-button.clicked {
+            animation: clickPulse 0.3s ease;
+        }
+        
+        @keyframes clickPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1.2); }
+        }
+        
+        .section-nav-item.active .section-nav-button {
+            background: #007bff;
+            transform: scale(1.3);
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+        }
+        
+        .section-nav-item::after {
+            content: attr(data-title);
+            position: absolute;
+            right: 25px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .section-nav-item:hover::after {
+            opacity: 1;
+        }
+        
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 100px 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        #hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        #about {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        #services {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+        
+        #portfolio {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+            color: white;
+        }
+        
+        #contact {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+        
+        .section h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+        }
+        
+        .section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+        
+        .section p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Test Controls */
+        .test-controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            max-width: 300px;
+        }
+        
+        .test-controls h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .test-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background: #0056b3;
+        }
+        
+        .test-button.secondary {
+            background: #6c757d;
+        }
+        
+        .test-button.secondary:hover {
+            background: #545b62;
+        }
+        
+        .status-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+            border-left: 4px solid #007bff;
+        }
+        
+        /* Debug Console */
+        .debug-console {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-y: auto;
+            z-index: 1002;
+            display: none;
+        }
+        
+        .debug-console.visible {
+            display: block;
+        }
+        
+        .debug-console .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+        }
+        
+        .debug-console .log-entry.error {
+            color: #ff4444;
+        }
+        
+        .debug-console .log-entry.warn {
+            color: #ffaa00;
+        }
+        
+        .debug-console .log-entry.info {
+            color: #44aaff;
+        }
+        
+        .debug-console .log-entry.success {
+            color: #44ff44;
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Controls -->
+    <div class="test-controls">
+        <h3>🧭 Section Navigation Test</h3>
+        
+        <button class="test-button" onclick="testSectionNavigation.goToSection('hero')">
+            🏠 Go to Hero
+        </button>
+        <button class="test-button" onclick="testSectionNavigation.goToSection('about')">
+            👤 Go to About
+        </button>
+        <button class="test-button" onclick="testSectionNavigation.goToSection('services')">
+            🛠️ Go to Services
+        </button>
+        <button class="test-button" onclick="testSectionNavigation.goToSection('portfolio')">
+            💼 Go to Portfolio
+        </button>
+        <button class="test-button" onclick="testSectionNavigation.goToSection('contact')">
+            📞 Go to Contact
+        </button>
+        
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+        
+        <button class="test-button secondary" onclick="testSectionNavigation.getState()">
+            📊 Get State
+        </button>
+        <button class="test-button secondary" onclick="testSectionNavigation.getSections()">
+            📋 Get Sections
+        </button>
+        <button class="test-button secondary" onclick="testSectionNavigation.getCurrentSection()">
+            📍 Current Section
+        </button>
+        <button class="test-button secondary" onclick="testSectionNavigation.toggleDebug()">
+            🐛 Toggle Debug Console
+        </button>
+        
+        <div class="status-display" id="status-display">
+            <strong>Status:</strong> Initializing...
+        </div>
+    </div>
+    
+    <!-- Section Navigation -->
+    <nav id="section-navigation">
+        <div class="section-nav-item" data-section="hero" data-title="Hero Section">
+            <button class="section-nav-button" aria-label="Go to Hero section"></button>
+        </div>
+        <div class="section-nav-item" data-section="about" data-title="About Section">
+            <button class="section-nav-button" aria-label="Go to About section"></button>
+        </div>
+        <div class="section-nav-item" data-section="services" data-title="Services Section">
+            <button class="section-nav-button" aria-label="Go to Services section"></button>
+        </div>
+        <div class="section-nav-item" data-section="portfolio" data-title="Portfolio Section">
+            <button class="section-nav-button" aria-label="Go to Portfolio section"></button>
+        </div>
+        <div class="section-nav-item" data-section="contact" data-title="Contact Section">
+            <button class="section-nav-button" aria-label="Go to Contact section"></button>
+        </div>
+    </nav>
+    
+    <!-- Sections -->
+    <section id="hero" class="section">
+        <h1>🏠 Hero Section</h1>
+        <p>Welcome to the hero section. This is the main landing area of the website with an eye-catching design and key messaging.</p>
+    </section>
+    
+    <section id="about" class="section">
+        <h2>👤 About Section</h2>
+        <p>Learn more about our company, mission, and values. This section provides detailed information about who we are and what we stand for.</p>
+    </section>
+    
+    <section id="services" class="section">
+        <h2>🛠️ Services Section</h2>
+        <p>Discover our comprehensive range of services designed to meet your needs. We offer professional solutions with exceptional quality.</p>
+    </section>
+    
+    <section id="portfolio" class="section">
+        <h2>💼 Portfolio Section</h2>
+        <p>Explore our portfolio of successful projects and case studies. See examples of our work and the results we've achieved for our clients.</p>
+    </section>
+    
+    <section id="contact" class="section">
+        <h2>📞 Contact Section</h2>
+        <p>Get in touch with us today. We're here to answer your questions and discuss how we can help you achieve your goals.</p>
+    </section>
+    
+    <!-- Debug Console -->
+    <div class="debug-console" id="debug-console">
+        <div style="color: #fff; margin-bottom: 10px; border-bottom: 2px solid #00ff00; padding-bottom: 5px;">
+            🐛 Debug Console - Section Navigation Component
+        </div>
+    </div>
+    
+    <!-- Performance Config -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    
+    <!-- Section Navigation Component -->
+    <script src="src/scripts/components/section-navigation-new.js"></script>
+    
+    <script>
+        console.log('🚀 Initializing Section Navigation Refactored Test');
+        
+        // Debug console management
+        let debugConsole = null;
+        let debugVisible = false;
+        
+        function addDebugLog(message, type = 'info') {
+            if (!debugConsole) {
+                debugConsole = document.getElementById('debug-console');
+            }
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            
+            debugConsole.appendChild(logEntry);
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+            
+            // Limit console entries
+            const entries = debugConsole.querySelectorAll('.log-entry');
+            if (entries.length > 100) {
+                entries[0].remove();
+            }
+        }
+        
+        // Initialize Section Navigation Component
+        let sectionNavigation = null;
+        
+        try {
+            sectionNavigation = new SectionNavigation(document.body, {
+                debug: true,
+                customLogger: (level, message, data) => {
+                    addDebugLog(`${message}${data ? ' ' + JSON.stringify(data) : ''}`, level);
+                }
+            });
+            
+            console.log('✅ SectionNavigation component initialized:', sectionNavigation.getState());
+            
+            // Update status display
+            document.getElementById('status-display').innerHTML = `
+                <strong>Status:</strong> ✅ Initialized<br>
+                <strong>ID:</strong> ${sectionNavigation.id}<br>
+                <strong>Sections:</strong> ${sectionNavigation.getSections().length}<br>
+                <strong>Current:</strong> ${sectionNavigation.getCurrentSection()}
+            `;
+            
+        } catch (error) {
+            console.error('❌ Failed to initialize SectionNavigation:', error);
+            addDebugLog(`Failed to initialize: ${error.message}`, 'error');
+            
+            document.getElementById('status-display').innerHTML = `
+                <strong>Status:</strong> ❌ Failed<br>
+                <strong>Error:</strong> ${error.message}
+            `;
+        }
+        
+        // Event Listeners
+        if (sectionNavigation) {
+            // Section changed
+            sectionNavigation.on('sectionChanged', (event) => {
+                console.log('📍 Section changed:', event.detail);
+                addDebugLog(`Section changed: ${event.detail.previousSection} → ${event.detail.currentSection}`, 'info');
+                
+                // Update status display
+                document.getElementById('status-display').innerHTML = `
+                    <strong>Status:</strong> ✅ Active<br>
+                    <strong>Current:</strong> ${event.detail.currentSection}<br>
+                    <strong>Title:</strong> ${event.detail.sectionTitle}<br>
+                    <strong>Previous:</strong> ${event.detail.previousSection}
+                `;
+            });
+            
+            // Navigation started
+            sectionNavigation.on('navigationStarted', (event) => {
+                console.log('🚀 Navigation started:', event.detail);
+                addDebugLog(`Navigation started to: ${event.detail.targetSection}`, 'info');
+            });
+            
+            // Navigation completed
+            sectionNavigation.on('navigationCompleted', (event) => {
+                console.log('✅ Navigation completed:', event.detail);
+                addDebugLog(`Navigation completed: ${event.detail.targetSection} (${event.detail.method})`, 'success');
+            });
+            
+            // Keyboard navigation
+            sectionNavigation.on('keyboardNavigation', (event) => {
+                console.log('⌨️ Keyboard navigation:', event.detail);
+                addDebugLog(`Keyboard: ${event.detail.key} (${event.detail.fromSection} → ${event.detail.toSection})`, 'info');
+            });
+            
+            // Click feedback
+            sectionNavigation.on('clickFeedback', (event) => {
+                console.log('✨ Click feedback:', event.detail);
+                addDebugLog(`Click feedback: ${event.detail.targetSection}`, 'info');
+            });
+            
+            // Hero cube reset (if available)
+            sectionNavigation.on('heroCubeReset', (event) => {
+                console.log('🔄 Hero cube reset:', event.detail);
+                addDebugLog(`Hero cube reset: ${event.detail.targetSection} (${event.detail.method})`, 'info');
+            });
+            
+            // Cursor play button deactivated (if available)
+            sectionNavigation.on('cursorPlayButtonDeactivated', (event) => {
+                console.log('🎬 Cursor play button deactivated:', event.detail);
+                addDebugLog(`Cursor play button deactivated: ${event.detail.targetSection}`, 'info');
+            });
+        }
+        
+        // Test Functions
+        window.testSectionNavigation = {
+            goToSection: (sectionId) => {
+                if (!sectionNavigation) {
+                    console.warn('⚠️ SectionNavigation not initialized');
+                    return;
+                }
+                
+                console.log(`🧭 Test: Going to section ${sectionId}`);
+                sectionNavigation.goToSection(sectionId);
+            },
+            
+            getState: () => {
+                if (!sectionNavigation) {
+                    console.warn('⚠️ SectionNavigation not initialized');
+                    return;
+                }
+                
+                const state = sectionNavigation.getState();
+                console.log('📊 SectionNavigation State:', state);
+                addDebugLog(`State: ${JSON.stringify(state, null, 2)}`, 'info');
+                return state;
+            },
+            
+            getSections: () => {
+                if (!sectionNavigation) {
+                    console.warn('⚠️ SectionNavigation not initialized');
+                    return;
+                }
+                
+                const sections = sectionNavigation.getSections();
+                console.log('📋 Sections:', sections);
+                addDebugLog(`Sections: ${JSON.stringify(sections, null, 2)}`, 'info');
+                return sections;
+            },
+            
+            getCurrentSection: () => {
+                if (!sectionNavigation) {
+                    console.warn('⚠️ SectionNavigation not initialized');
+                    return;
+                }
+                
+                const current = sectionNavigation.getCurrentSection();
+                console.log('📍 Current Section:', current);
+                addDebugLog(`Current section: ${current}`, 'info');
+                return current;
+            },
+            
+            toggleDebug: () => {
+                debugVisible = !debugVisible;
+                const console = document.getElementById('debug-console');
+                console.classList.toggle('visible', debugVisible);
+                
+                if (debugVisible) {
+                    addDebugLog('Debug console opened', 'info');
+                } else {
+                    console.log('🐛 Debug console closed');
+                }
+            }
+        };
+        
+        console.log('🎮 Test functions available in window.testSectionNavigation');
+        console.log('📊 Use window.testSectionNavigation.getState() to check component state');
+        console.log('🧭 Use window.testSectionNavigation.goToSection(id) to navigate');
+        console.log('🐛 Use window.testSectionNavigation.toggleDebug() to show debug console');
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'd':
+                        e.preventDefault();
+                        window.testSectionNavigation.toggleDebug();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        window.testSectionNavigation.getState();
+                        break;
+                }
+            }
+        });
+        
+        console.log('⌨️ Keyboard shortcuts: Ctrl+D (debug), Ctrl+S (state)');
+        console.log('⌨️ Navigation: Arrow Up/Down, Home, End (focus navigation first)');
+    </script>
+</body>
+</html>

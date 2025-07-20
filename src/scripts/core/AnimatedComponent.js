@@ -29,7 +29,7 @@ class AnimatedComponent extends BaseComponent {
     // =============================================================================
     
     get requiredDependencies() {
-        return [...super.requiredDependencies, 'ScrollTrigger'];
+        return [...super.requiredDependencies, 'gsap'];
     }
     
     get defaultOptions() {
@@ -60,7 +60,16 @@ class AnimatedComponent extends BaseComponent {
         animation._animationName = name;
         
         this.animations.add(animation);
-        this.log('debug', `Animation added: ${name || 'unnamed'}`, animation);
+        
+        // Безопасные данные для логирования (без циклических ссылок)
+        const safeData = {
+            name: name || 'unnamed',
+            type: animation.constructor.name,
+            duration: typeof animation.duration === 'function' ? animation.duration() : 'unknown',
+            targets: animation.targets ? animation.targets().length : 0
+        };
+        
+        this.log('debug', `Animation added: ${name || 'unnamed'}`, safeData);
         
         return animation;
     }

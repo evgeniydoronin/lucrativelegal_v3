@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>All Components Integration Test - Refactored Components</title>
+    <meta name="description" content="Integration test for all 13 refactored components using BaseComponent architecture">
+    <meta name="keywords" content="integration test, refactored components, BaseComponent, GSAP, ScrollTrigger">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="src/assets/images/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="src/assets/images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="src/assets/images/favicon/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="src/assets/images/favicon/apple-touch-icon.png">
+    
+    <!-- Preconnect для оптимизации загрузки шрифтов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="src/styles/main.scss" type="text/css">
+    
+    <style>
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #000;
+            overflow-x: hidden;
+        }
+        
+        /* Integration Test Specific Styles */
+        .integration-test-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 10px 20px;
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .integration-test-header h1 {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        
+        .integration-test-header p {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        
+        .integration-test-controls {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+            max-width: 300px;
+        }
+        
+        .integration-test-controls h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .test-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background: #0056b3;
+        }
+        
+        .test-button.success {
+            background: #28a745;
+        }
+        
+        .test-button.danger {
+            background: #dc3545;
+        }
+        
+        .test-button.warning {
+            background: #ffc107;
+            color: #000;
+        }
+        
+        .performance-monitor {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+        
+        .performance-monitor h4 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .performance-metric {
+            display: flex;
+            justify-content: space-between;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        
+        .performance-metric .value {
+            font-weight: bold;
+        }
+        
+        .performance-metric.good .value {
+            color: #28a745;
+        }
+        
+        .performance-metric.warning .value {
+            color: #ffc107;
+        }
+        
+        .performance-metric.danger .value {
+            color: #dc3545;
+        }
+        
+        .debug-console {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 250px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.95);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-y: auto;
+            z-index: 9998;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+        
+        .debug-console.visible {
+            display: block;
+        }
+        
+        .debug-console .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+        }
+        
+        .debug-console .log-entry.error {
+            color: #ff4444;
+        }
+        
+        .debug-console .log-entry.warn {
+            color: #ffaa00;
+        }
+        
+        .debug-console .log-entry.info {
+            color: #44aaff;
+        }
+        
+        .debug-console .log-entry.success {
+            color: #44ff44;
+        }
+        
+        /* Component Status Indicators */
+        .component-status {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+            max-width: 250px;
+        }
+        
+        .component-status h3 {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .component-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 5px 0;
+            font-size: 12px;
+        }
+        
+        .component-item .status {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #666;
+        }
+        
+        .component-item .status.loading {
+            background: #ffc107;
+            animation: pulse 1s infinite;
+        }
+        
+        .component-item .status.success {
+            background: #28a745;
+        }
+        
+        .component-item .status.error {
+            background: #dc3545;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        /* Main content offset */
+        .main-content {
+            margin-top: 80px;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .integration-test-controls,
+            .component-status,
+            .performance-monitor {
+                position: relative;
+                margin: 10px;
+                max-width: none;
+            }
+            
+            .debug-console {
+                position: relative;
+                height: 150px;
+                margin: 10px;
+                right: auto;
+            }
+            
+            .main-content {
+                margin-top: 120px;
+            }
+        }
+        
+        /* Hero Stars Animation Styles */
+        .hero--with-stars {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-stars-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+            
+            --gradient-1-color: rgba(80, 11, 169, 0.4);
+            --gradient-2-color: rgba(192, 113, 224, 0.25);
+            --gradient-3-color: rgba(8, 4, 10, 0.25);
+            --base-color: #000000;
+            
+            background: 
+                radial-gradient(circle at 30% 45%, var(--gradient-1-color), transparent 50%),
+                radial-gradient(circle at 65% 60%, var(--gradient-2-color), transparent 40%),
+                radial-gradient(circle at 60% 75%, var(--gradient-3-color), transparent 40%),
+                var(--base-color);
+            
+            transition: 
+                --gradient-1-color 0.3s ease,
+                --gradient-2-color 0.3s ease,
+                --gradient-3-color 0.3s ease,
+                --base-color 0.3s ease,
+                opacity 0.3s ease;
+            
+            will-change: transform;
+            backface-visibility: hidden;
+            contain: layout style paint;
+            
+            clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+        }
+        
+        /* Hero Stars Layers */
+        .hero-stars-layer-1,
+        .hero-stars-layer-2,
+        .hero-stars-layer-3 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        .hero-stars-layer-1 {
+            z-index: 1;
+        }
+        
+        .hero-stars-layer-2 {
+            z-index: 2;
+        }
+        
+        .hero-stars-layer-3 {
+            z-index: 3;
+        }
+        
+        /* Basic section styles */
+        .section {
+            min-height: 100vh;
+            padding: 100px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section h2 {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            color: white;
+        }
+        
+        .section p {
+            font-size: 1.2rem;
+            max-width: 600px;
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Section backgrounds */
+        .hero {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        }
+        
+        .future-marketing {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .case-studies {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .services {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .portfolio {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .footer-section {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+        }
+    </style>
+</head>
+<body>
+    <!-- Integration Test Header -->
+    <div class="integration-test-header">
+        <h1>🧪 All Components Integration Test</h1>
+        <p>Testing all 13 refactored components with BaseComponent architecture</p>
+    </div>
+    
+    <!-- Component Status Monitor -->
+    <div class="component-status">
+        <h3>📊 Component Status</h3>
+        <div class="component-item">
+            <span>Header</span>
+            <div class="status" id="status-header"></div>
+        </div>
+        <div class="component-item">
+            <span>Preloader</span>
+            <div class="status" id="status-preloader"></div>
+        </div>
+        <div class="component-item">
+            <span>Hero Cube</span>
+            <div class="status" id="status-hero-cube"></div>
+        </div>
+        <div class="component-item">
+            <span>Hero Stars</span>
+            <div class="status" id="status-hero-stars"></div>
+        </div>
+        <div class="component-item">
+            <span>Future Marketing</span>
+            <div class="status" id="status-future-marketing"></div>
+        </div>
+        <div class="component-item">
+            <span>Case Studies</span>
+            <div class="status" id="status-case-studies"></div>
+        </div>
+        <div class="component-item">
+            <span>Services</span>
+            <div class="status" id="status-services"></div>
+        </div>
+        <div class="component-item">
+            <span>Portfolio</span>
+            <div class="status" id="status-portfolio"></div>
+        </div>
+        <div class="component-item">
+            <span>Footer</span>
+            <div class="status" id="status-footer"></div>
+        </div>
+        <div class="component-item">
+            <span>Scroll to Top</span>
+            <div class="status" id="status-scroll-to-top"></div>
+        </div>
+        <div class="component-item">
+            <span>Section Nav</span>
+            <div class="status" id="status-section-navigation"></div>
+        </div>
+        <div class="component-item">
+            <span>Word Animator</span>
+            <div class="status" id="status-word-animator"></div>
+        </div>
+        <div class="component-item">
+            <span>Cursor Button</span>
+            <div class="status" id="status-cursor-play-button"></div>
+        </div>
+    </div>
+    
+    <!-- Integration Test Controls -->
+    <div class="integration-test-controls">
+        <h3>🎮 Test Controls</h3>
+        
+        <button class="test-button success" onclick="integrationTest.startTest()">
+            🚀 Start Integration Test
+        </button>
+        <button class="test-button" onclick="integrationTest.testScrollTriggers()">
+            📜 Test ScrollTriggers
+        </button>
+        <button class="test-button" onclick="integrationTest.testAnimations()">
+            🎬 Test Animations
+        </button>
+        <button class="test-button" onclick="integrationTest.testInteractions()">
+            🖱️ Test Interactions
+        </button>
+        
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.2);">
+        
+        <button class="test-button warning" onclick="integrationTest.toggleDebug()">
+            🐛 Toggle Debug Console
+        </button>
+        <button class="test-button" onclick="integrationTest.getComponentStates()">
+            📊 Get All States
+        </button>
+        <button class="test-button danger" onclick="integrationTest.resetAll()">
+            🔄 Reset All Components
+        </button>
+    </div>
+    
+    <!-- Performance Monitor -->
+    <div class="performance-monitor">
+        <h4>⚡ Performance</h4>
+        <div class="performance-metric">
+            <span>FPS:</span>
+            <span class="value good" id="fps-value">60</span>
+        </div>
+        <div class="performance-metric">
+            <span>Memory:</span>
+            <span class="value good" id="memory-value">45MB</span>
+        </div>
+        <div class="performance-metric">
+            <span>ScrollTriggers:</span>
+            <span class="value good" id="scrolltriggers-value">0</span>
+        </div>
+        <div class="performance-metric">
+            <span>Components:</span>
+            <span class="value good" id="components-value">0/13</span>
+        </div>
+    </div>
+    
+    <!-- Debug Console -->
+    <div class="debug-console" id="debug-console">
+        <div style="color: #fff; margin-bottom: 10px; border-bottom: 2px solid #00ff00; padding-bottom: 5px;">
+            🐛 Integration Test Debug Console
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header Component -->
+        <div id="header-sticky" class="header header--transparent header--blur header--border">
+            <div class="llg-container">
+                <div class="llg-grid items-center">
+                    <div class="col-span-2 md:col-span-3 xl:col-span-3">
+                        <div class="header__logo">
+                            <a href="/">
+                                <img data-width="300" class="header__logo-white" src="src/assets/images/header/logo-white.png" alt="Legal Leads Group">
+                                <img data-width="300" class="header__logo-black" src="src/assets/images/header/logo-black.png" alt="Legal Leads Group">
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-span-4 md:col-span-2 xl:col-span-6 llg-desktop-only">
+                        <div class="header__nav-box">
+                            <div class="header__nav header__dropdown dropdown-white-bg">
+                                <nav class="header__desktop-menu">
+                                    <ul>
+                                        <li><a href="#hero">Home</a></li>
+                                        <li><a href="#future-marketing">Marketing</a></li>
+                                        <li><a href="#case-studies">Cases</a></li>
+                                        <li><a href="#services">Services</a></li>
+                                        <li><a href="#portfolio">Portfolio</a></li>
+                                        <li><a href="#footer">Contact</a></li>
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-span-2 md:col-span-3 xl:col-span-3">
+                        <div class="header__actions">
+                            <div class="header__btn-box llg-desktop-only">
+                                <a href="#" class="btn-goo btn-goo--red">
+                                    <span class="btn-goo__filter-blur"></span>
+                                    <span class="btn-goo__filter">
+                                        <span class="btn-goo__text">Start Test</span>
+                                        <span class="btn-goo__circle">
+                                            <svg width="10" height="10" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                <path d="M1 9L9 1M9 1H1M9 1V9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                        </span>
+                                    </span>
+                                </a>
+                            </div>
+                            <div class="header__mobile-toggle llg-mobile-only">
+                                <button class="header__offcanvas-open-btn">
+                                    <i></i>
+                                    <i></i>
+                                    <i></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Preloader Component -->
+        <div class="preloader" id="preloader">
+            <div class="preloader__content">
+                <div class="preloader__logo">
+                    <img src="src/assets/images/header/logo-white.png" alt="Legal Leads Group">
+                </div>
+                <div class="preloader__progress">
+                    <div class="preloader__progress-bar"></div>
+                </div>
+                <div class="preloader__text">Loading Integration Test...</div>
+            </div>
+        </div>
+
+        <!-- Hero Section with Cube and Stars -->
+        <section id="hero" class="section hero hero--with-stars">
+            <!-- Анимация звездного неба -->
+            <div class="hero-stars-animation">
+                <div class="hero-stars-layer-1"></div>
+                <div class="hero-stars-layer-2"></div>
+                <div class="hero-stars-layer-3"></div>
+            </div>
+
+            <div class="hero-title-container">
+                <h4>Integration Test</h4>
+                <h1>All Components<br>Working Together</h1>
+            </div>
+            <div class="hero-subtitle-container">
+                <p>Testing all 13 refactored components with BaseComponent architecture.</p>
+                <p>Scroll down to see all components in action.</p>
+            </div>
+
+            <!-- 3D Куб -->
+            <div class="hero-cube-container">
+                <div class="hero-cube">
+                    <div class="cube-face cube-face--front"></div>
+                    <div class="cube-face cube-face--back"></div>
+                    <div class="cube-face cube-face--right"></div>
+                    <div class="cube-face cube-face--left"></div>
+                    <div class="cube-face cube-face--top"></div>
+                    <div class="cube-face cube-face--bottom"></div>
+                </div>
+                <!-- 2D Квадрат для подмены -->
+                <div class="hero-square">
+                    <div class="hero-square-bg"></div>
+                </div>
+                <!-- Видео поверх красного фона -->
+                <video class="hero-video" controls playsinline>
+                    <source src="src/assets/videos/Grow-Your-Law-Firm-6.mp4" type="video/mp4">
+                    Integration test video.
+                </video>
+            </div>
+        </section>
+
+        <!-- Future Marketing Section -->
+        <section id="future-marketing" class="section future-marketing">
+            <div class="section-header section-header--center">
+                <h4 class="section-header__subtitle">Rocket Leads Platform</h4>
+                <h2 class="section-header__title">The Future of Lead Generation Marketing</h2>
+                <p class="section-header__description">It's time to finally make money from your marketing.</p>
+            </div>
+
+            <!-- Future Marketing Cards Container -->
+            <div class="future-cards-spacer">
+                <div class="future-cards-viewer">
+                    <div class="future-cards-track">
+                        <!-- Card 1: 30-Day Guarantee -->
+                        <div class="future-card" data-card="1">
+                            <div class="future-card__content">
+                                <figure class="future-card__image">
+                                    <img src="src/assets/images/spaceship.png" alt="astronaut on rocket" loading="lazy">
+                                </figure>
+                                <p class="future-card__subtitle">30-Day Guarantee</p>
+                                <h3 class="future-card__title">Performance & Profit Driven Marketing</h3>
+                                <div class="future-card__description">
+                                    <p>Need leads for your law firm or medical practice now? Are you tired of wasting money on the empty promises of SEO companies? Try our <strong>Rocket Leads Platform</strong>.</p>
+                                </div>
+                                <div class="future-card__button">
+                                    <a href="#" class="future-card__cta">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Find Your Next Client -->
+                        <div class="future-card" data-card="2">
+                            <div class="future-card__content">
+                                <figure class="future-card__image">
+                                    <img src="src/assets/images/spaceship.png" alt="astronaut on rocket" loading="lazy">
+                                </figure>
+                                <p class="future-card__subtitle">Find Your Next Client</p>
+                                <h3 class="future-card__title">Time is Money</h3>
+                                <div class="future-card__description">
+                                    <p>Stop wasting your time with SEO and Digital Marketing Companies that promise but cannot deliver. You are not paying to rank for random keywords, you are investing in your business to make a profit.</p>
+                                </div>
+                                <div class="future-card__button">
+                                    <a href="#" class="future-card__cta">Get Leads Today</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: What We Offer -->
+                        <div class="future-card" data-card="3">
+                            <div class="future-card__content">
+                                <figure class="future-card__image">
+                                    <img src="src/assets/images/spaceship.png" alt="astronaut on rocket" loading="lazy">
+                                </figure>
+                                <p class="future-card__subtitle">What We Offer</p>
+                                <h3 class="future-card__title">Generate More Leads</h3>
+                                <div class="future-card__description">
+                                    <ul class="future-card__list">
+                                        <li>No contract or long term commitments.</li>
+                                        <li>Guaranteed results within 30 days or less.</li>
+                                        <li>24/7 access to our domestic lead gen support staff.</li>
+                                        <li>Lead and call tracking software.</li>
+                                    </ul>
+                                </div>
+                                <div class="future-card__button">
+                                    <a href="#" class="future-card__cta">Get a Demo</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Case Studies Section -->
+        <section id="case-studies" class="section case-studies">
+            <div class="section-header section-header--center">
+                <h4 class="section-header__subtitle">Rocket Leads Platform</h4>
+                <h2 class="section-header__title">Case Studies <br> & Client Results</h2>
+            </div>
+            
+            <div class="horizontal-scroll-container">
+                <div class="slides-wrapper">
+                    <!-- Slide 1: Hawkins Felton -->
+                    <div class="slide slide-1">
+                        <div class="slide-content">
+                            <!-- Main content with 2 columns -->
+                            <div class="slide-main-content">
+                                <div class="slide-photos">
+                                    <img src="src/assets/images/cases/hawkins-lawfirm.png" alt="Hawkins Felton Law Firm" class="photo-image">
+                                    <!-- Metrics under the image -->
+                                    <div class="slide-metrics-overlay">
+                                        <div class="metric-number">350%</div>
+                                        <div class="metric-description">ROAS month after month</div>
+                                    </div>
+                                </div>
+                                <div class="slide-info">
+                                    <h3 class="firm-name">Hawkins Felton</h3>
+                                    <div class="info-item">
+                                        <span class="label">Website:</span>
+                                        <span class="value">hawkins-lawfirm.com</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Personal Injury Cases:</span>
+                                        <span class="value">$1,850.00 to $3,750.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Monthly Results:</span>
+                                        <span class="value">12-17 signed and retained quality cases each month directly from LLG</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Best Month:</span>
+                                        <span class="value">28 signed and retained cases directly from LLG</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="slide slide-2">
+                        <div class="slide-content">
+                            <!-- Main content with 2 columns -->
+                            <div class="slide-main-content">
+                                <div class="slide-photos">
+                                    <img src="src/assets/images/cases/hawkins-lawfirm.png" alt="Test Law Firm 2" class="photo-image">
+                                    <!-- Metrics under the image -->
+                                    <div class="slide-metrics-overlay">
+                                        <div class="metric-number">280%</div>
+                                        <div class="metric-description">ROI improvement</div>
+                                    </div>
+                                </div>
+                                <div class="slide-info">
+                                    <h3 class="firm-name">Test Law Firm 2</h3>
+                                    <div class="info-item">
+                                        <span class="label">Website:</span>
+                                        <span class="value">testlawfirm2.com</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Criminal Defense Cases:</span>
+                                        <span class="value">$2,500.00 to $5,000.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Monthly Results:</span>
+                                        <span class="value">8-12 signed cases each month</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Best Month:</span>
+                                        <span class="value">18 signed cases</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="slide slide-3">
+                        <div class="slide-content">
+                            <!-- Main content with 2 columns -->
+                            <div class="slide-main-content">
+                                <div class="slide-photos">
+                                    <img src="src/assets/images/cases/hawkins-lawfirm.png" alt="Test Law Firm 3" class="photo-image">
+                                    <!-- Metrics under the image -->
+                                    <div class="slide-metrics-overlay">
+                                        <div class="metric-number">420%</div>
+                                        <div class="metric-description">Lead increase</div>
+                                    </div>
+                                </div>
+                                <div class="slide-info">
+                                    <h3 class="firm-name">Test Law Firm 3</h3>
+                                    <div class="info-item">
+                                        <span class="label">Website:</span>
+                                        <span class="value">testlawfirm3.com</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Family Law Cases:</span>
+                                        <span class="value">$1,200.00 to $2,800.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Monthly Results:</span>
+                                        <span class="value">15-20 signed cases each month</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Best Month:</span>
+                                        <span class="value">32 signed cases</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="llg-services-section">
+            <header class="section-header llg-container">
+                <div class="llg-subgrid">
+                    <!-- Основной заголовок -->
+                    <div class="col-span-full section-header__title">
+                        <h2 class="section-title js-scroll-blur-effect" data-text="Services">Services</h2>
+                    </div>
+                    
+                    <!-- Подзаголовок/описание -->
+                    <div class="col-span-4 md:col-span-5 md:col-start-4 xl:col-span-8 xl:col-start-3 section-header__description">
+                        <h3 class="section-description js-scroll-blur-effect-adaptive" 
+                            data-text="Legal Leads Group is more than just a digital marketing firm, we are a LEAD GENERATION Agency. Our job is to help your law firm, medical practice, or business make MONEY.">
+                            Legal Leads Group is more than just a digital marketing firm, we are a LEAD GENERATION Agency. Our job is to help your law firm, medical practice, or business make MONEY.
+                        </h3>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Pin spacer for scroll effect -->
+            <div class="pin-spacer">
+                <div class="js-cards-viewer">
+                    <ul class="js-cards-list">
+                        <!-- Service 1: Aggressive Case Generation -->
+                        <li class="js-card" 
+                            data-service-id="aggressive-case-generation"
+                            data-cursor="View<br>Details">
+                            <div class="card-content">
+                                <!-- Service icon -->
+                                <img src="src/assets/images/services/element-079.png" 
+                                     alt="Aggressive Case Generation" 
+                                     class="js-card-image">
+                                
+                                <!-- Scrolling title -->
+                                <h2 class="js-scroll-title">Aggressive Case Generation</h2>
+                                
+                                <!-- Service description -->
+                                <p class="js-card-description">
+                                    Google Ads for Attorneys. Aggressive case generation through targeted Google Ads.
+                                </p>
+                            </div>
+                        </li>
+
+                        <!-- Service 2: Building Your Law Firm's BRAND -->
+                        <li class="js-card" 
+                            data-service-id="law-firm-brand"
+                            data-cursor="View<br>Details">
+                            <div class="card-content">
+                                <img src="src/assets/images/services/element-012.png" 
+                                     alt="Building Your Law Firm's BRAND" 
+                                     class="js-card-image">
+                                
+                                <h2 class="js-scroll-title">Building Your Law Firm's BRAND</h2>
+                                
+                                <p class="js-card-description">
+                                    Social Media Marketing for Law Firms. Building brand and digital presence through social media.
+                                </p>
+                            </div>
+                        </li>
+
+                        <!-- Service 3: Quality Content & SEO -->
+                        <li class="js-card" 
+                            data-service-id="quality-content-seo"
+                            data-cursor="View<br>Details">
+                            <div class="card-content">
+                                <img src="src/assets/images/services/element-016.png" 
+                                     alt="Quality Content & SEO" 
+                                     class="js-card-image">
+                                
+                                <h2 class="js-scroll-title">Quality Content & SEO</h2>
+                                
+                                <p class="js-card-description">
+                                    State-of-the-Art SEO for Lawyers. Quality content and natural case lead funnels through SEO.
+                                </p>
+                            </div>
+                        </li>
+
+                        <!-- Service 4: Dominating Your Local Market -->
+                        <li class="js-card" 
+                            data-service-id="local-market-domination"
+                            data-cursor="View<br>Details">
+                            <div class="card-content">
+                                <img src="src/assets/images/services/element-017.png" 
+                                     alt="Dominating Your Local Market" 
+                                     class="js-card-image">
+                                
+                                <h2 class="js-scroll-title">Dominating Your Local Market</h2>
+                                
+                                <p class="js-card-description">
+                                    Local Service Ads for Attorneys. Dominating the local market through local service ads.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <!-- Service counter -->
+                    <div class="card-counter">
+                        <span class="js-client-number">
+                            <span class="js-client-number-units">01</span>/04
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio Section -->
+        <section id="portfolio" class="section portfolio">
+            <h2>Portfolio</h2>
+            <p>Testing portfolio component with filtering and animations.</p>
+            
+            <div class="portfolio-filters">
+                <button class="portfolio-filter active" data-filter="all">All</button>
+                <button class="portfolio-filter" data-filter="web">Web</button>
+                <button class="portfolio-filter" data-filter="mobile">Mobile</button>
+            </div>
+            
+            <div class="portfolio-grid">
+                <div class="portfolio-item" data-category="web">
+                    <h3>Web Project 1</h3>
+                    <p>Portfolio item with filtering</p>
+                </div>
+                <div class="portfolio-item" data-category="mobile">
+                    <h3>Mobile Project 1</h3>
+                    <p>Portfolio item with filtering</p>
+                </div>
+                <div class="portfolio-item" data-category="web">
+                    <h3>Web Project 2</h3>
+                    <p>Portfolio item with filtering</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <section id="footer" class="section footer-section">
+            <h2>Footer</h2>
+            <p>Testing footer component with all interactive elements.</p>
+            
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul>
+                        <li><a href="#">About</a></li>
+                        <li><a href="#">Services</a></li>
+                        <li><a href="#">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Case Studies</a></li>
+                        <li><a href="#">Portfolio</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Contact</h3>
+                    <ul>
+                        <li><a href="tel:+18052738791">+ 1 805-273-8791</a></li>
+                        <li><a href="mailto:info@lucrativelegal.com">info@lucrativelegal.com</a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Scroll to Top Component -->
+        <div class="scroll-to-top" id="scroll-to-top">
+            <button class="scroll-to-top__btn">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 15V5M10 5L5 10M10 5L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Section Navigation Component -->
+        <div class="section-navigation" id="section-navigation">
+            <div class="section-navigation__dots">
+                <button class="section-navigation__dot active" data-section="hero"></button>
+                <button class="section-navigation__dot" data-section="future-marketing"></button>
+                <button class="section-navigation__dot" data-section="case-studies"></button>
+                <button class="section-navigation__dot" data-section="services"></button>
+                <button class="section-navigation__dot" data-section="portfolio"></button>
+                <button class="section-navigation__dot" data-section="footer"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- GSAP Library -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/ScrollTrigger.min.js"></script>
+
+    <!-- Performance Configuration -->
+    <script src="src/scripts/core/performance-config.js"></script>
+
+    <!-- Component Architecture -->
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    <script src="src/scripts/core/AnimatedInteractiveComponent.js"></script>
+
+    <!-- Animation Service and Services -->
+    <script src="src/scripts/core/AnimationService.js"></script>
+    <script src="src/scripts/services/ScrollTriggerManager.js"></script>
+    <script src="src/scripts/services/CubeAnimationService.js"></script>
+    <script src="src/scripts/services/VideoControlService.js"></script>
+    <script src="src/scripts/services/PositioningService.js"></script>
+    <script src="src/scripts/services/ScaleEffectService.js"></script>
+    <script src="src/scripts/services/TextVisibilityService.js"></script>
+
+    <!-- Lenis for Smooth Scrolling -->
+    <script src="https://unpkg.com/lenis@1.3.5/dist/lenis.min.js"></script>
+
+    <!-- Refactored Components -->
+    <script src="src/scripts/components/header-new.js"></script>
+    <script src="src/scripts/components/preloader-new.js"></script>
+    <script src="src/scripts/components/hero-cube-new.js"></script>
+    <script src="src/scripts/components/hero-stars-scroll-new.js"></script>
+    <script src="src/scripts/components/future-marketing-new.js"></script>
+    <script src="src/scripts/components/case-studies-new.js"></script>
+    <script src="src/scripts/components/services-new.js"></script>
+    <script src="src/scripts/components/portfolio-new.js"></script>
+    <script src="src/scripts/components/footer-new.js"></script>
+    <script src="src/scripts/components/scroll-to-top-new.js"></script>
+    <script src="src/scripts/components/section-navigation-new.js"></script>
+    <script src="src/scripts/components/word-animator-new.js"></script>
+    <script src="src/scripts/components/cursor-play-button.js"></script>
+
+    <!-- Integration Test Script -->
+    <script>
+        console.log('🚀 Starting All Components Integration Test');
+        
+        // Global integration test object
+        window.integrationTest = {
+            components: {},
+            debugConsole: null,
+            debugVisible: false,
+            performanceMonitor: null,
+            
+            // Initialize integration test
+            init() {
+                console.log('🔧 Initializing Integration Test...');
+                
+                this.debugConsole = document.getElementById('debug-console');
+                this.setupPerformanceMonitor();
+                this.addDebugLog('Integration Test initialized', 'success');
+                
+                // Initialize all components
+                this.initializeComponents();
+                
+                // Setup keyboard shortcuts
+                this.setupKeyboardShortcuts();
+                
+                console.log('✅ Integration Test ready!');
+            },
+            
+            // Initialize all components
+            initializeComponents() {
+                const componentConfigs = [
+                    { name: 'header', class: 'Header', element: '#header-sticky' },
+                    { name: 'preloader', class: 'Preloader', element: '#preloader' },
+                    { name: 'hero-cube', class: 'HeroCube', element: '#hero' },
+                    { name: 'hero-stars', class: 'HeroStarsScroll', element: '#hero' },
+                    { name: 'future-marketing', class: 'FutureMarketing', element: '#future-marketing' },
+                    { name: 'case-studies', class: 'CaseStudies', element: '#case-studies' },
+                    { name: 'services', class: 'Services', element: '#services' },
+                    { name: 'portfolio', class: 'Portfolio', element: '#portfolio' },
+                    { name: 'footer', class: 'Footer', element: '#footer' },
+                    { name: 'scroll-to-top', class: 'ScrollToTop', element: '#scroll-to-top' },
+                    { name: 'section-navigation', class: 'SectionNavigation', element: '#section-navigation' },
+                    { name: 'word-animator', class: 'WordAnimator', element: '.section' },
+                    { name: 'cursor-play-button', class: 'CursorPlayButton', element: 'body' }
+                ];
+                
+                let successCount = 0;
+                
+                componentConfigs.forEach(config => {
+                    try {
+                        this.setComponentStatus(config.name, 'loading');
+                        
+                        const element = document.querySelector(config.element);
+                        if (!element) {
+                            throw new Error(`Element ${config.element} not found`);
+                        }
+                        
+                        // Check if component class exists
+                        if (typeof window[config.class] === 'undefined') {
+                            throw new Error(`Component class ${config.class} not found`);
+                        }
+                        
+                        // Initialize component
+                        const component = new window[config.class](element, {
+                            debug: true,
+                            enableDebug: false
+                        });
+                        
+                        this.components[config.name] = component;
+                        this.setComponentStatus(config.name, 'success');
+                        this.addDebugLog(`${config.class} initialized successfully`, 'success');
+                        successCount++;
+                        
+                    } catch (error) {
+                        this.setComponentStatus(config.name, 'error');
+                        this.addDebugLog(`Failed to initialize ${config.class}: ${error.message}`, 'error');
+                        console.error(`❌ Failed to initialize ${config.class}:`, error);
+                    }
+                });
+                
+                // Update components counter
+                document.getElementById('components-value').textContent = `${successCount}/13`;
+                
+                if (successCount === 13) {
+                    document.getElementById('components-value').parentElement.className = 'performance-metric good';
+                    this.addDebugLog('All components initialized successfully!', 'success');
+                } else if (successCount >= 10) {
+                    document.getElementById('components-value').parentElement.className = 'performance-metric warning';
+                    this.addDebugLog(`${successCount}/13 components initialized`, 'warn');
+                } else {
+                    document.getElementById('components-value').parentElement.className = 'performance-metric danger';
+                    this.addDebugLog(`Only ${successCount}/13 components initialized`, 'error');
+                }
+            },
+            
+            // Set component status indicator
+            setComponentStatus(componentName, status) {
+                const statusElement = document.getElementById(`status-${componentName}`);
+                if (statusElement) {
+                    statusElement.className = `status ${status}`;
+                }
+            },
+            
+            // Add debug log entry
+            addDebugLog(message, type = 'info') {
+                if (!this.debugConsole) return;
+                
+                const logEntry = document.createElement('div');
+                logEntry.className = `log-entry ${type}`;
+                logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+                
+                this.debugConsole.appendChild(logEntry);
+                this.debugConsole.scrollTop = this.debugConsole.scrollHeight;
+                
+                // Limit console entries
+                const entries = this.debugConsole.querySelectorAll('.log-entry');
+                if (entries.length > 100) {
+                    entries[0].remove();
+                }
+            },
+            
+            // Setup performance monitor
+            setupPerformanceMonitor() {
+                let frameCount = 0;
+                let lastTime = performance.now();
+                
+                const updatePerformance = () => {
+                    frameCount++;
+                    const currentTime = performance.now();
+                    
+                    if (currentTime - lastTime >= 1000) {
+                        const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                        
+                        // Update FPS
+                        const fpsElement = document.getElementById('fps-value');
+                        fpsElement.textContent = fps;
+                        
+                        if (fps >= 55) {
+                            fpsElement.parentElement.className = 'performance-metric good';
+                        } else if (fps >= 30) {
+                            fpsElement.parentElement.className = 'performance-metric warning';
+                        } else {
+                            fpsElement.parentElement.className = 'performance-metric danger';
+                        }
+                        
+                        // Update ScrollTriggers count
+                        const scrollTriggersCount = gsap.getProperty ? 
+                            (ScrollTrigger.getAll ? ScrollTrigger.getAll().length : 0) : 0;
+                        document.getElementById('scrolltriggers-value').textContent = scrollTriggersCount;
+                        
+                        // Update Memory (approximate)
+                        if (performance.memory) {
+                            const memoryMB = Math.round(performance.memory.usedJSHeapSize / 1024 / 1024);
+                            const memoryElement = document.getElementById('memory-value');
+                            memoryElement.textContent = `${memoryMB}MB`;
+                            
+                            if (memoryMB <= 50) {
+                                memoryElement.parentElement.className = 'performance-metric good';
+                            } else if (memoryMB <= 100) {
+                                memoryElement.parentElement.className = 'performance-metric warning';
+                            } else {
+                                memoryElement.parentElement.className = 'performance-metric danger';
+                            }
+                        }
+                        
+                        frameCount = 0;
+                        lastTime = currentTime;
+                    }
+                    
+                    requestAnimationFrame(updatePerformance);
+                };
+                
+                updatePerformance();
+            },
+            
+            // Setup keyboard shortcuts
+            setupKeyboardShortcuts() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.ctrlKey || e.metaKey) {
+                        switch (e.key) {
+                            case 'd':
+                                e.preventDefault();
+                                this.toggleDebug();
+                                break;
+                            case 's':
+                                e.preventDefault();
+                                this.getComponentStates();
+                                break;
+                            case 'r':
+                                e.preventDefault();
+                                this.resetAll();
+                                break;
+                            case 't':
+                                e.preventDefault();
+                                this.startTest();
+                                break;
+                        }
+                    }
+                });
+            },
+            
+            // Start integration test
+            startTest() {
+                this.addDebugLog('Starting comprehensive integration test...', 'info');
+                
+                // Test all components
+                this.testScrollTriggers();
+                setTimeout(() => this.testAnimations(), 1000);
+                setTimeout(() => this.testInteractions(), 2000);
+                
+                this.addDebugLog('Integration test completed!', 'success');
+            },
+            
+            // Test ScrollTriggers
+            testScrollTriggers() {
+                this.addDebugLog('Testing ScrollTriggers...', 'info');
+                
+                if (typeof ScrollTrigger !== 'undefined') {
+                    const triggers = ScrollTrigger.getAll();
+                    this.addDebugLog(`Found ${triggers.length} ScrollTriggers`, 'info');
+                    
+                    // Test scroll to different sections
+                    const sections = ['#hero', '#future-marketing', '#case-studies', '#services', '#portfolio'];
+                    let currentSection = 0;
+                    
+                    const scrollToNext = () => {
+                        if (currentSection < sections.length) {
+                            const section = document.querySelector(sections[currentSection]);
+                            if (section) {
+                                section.scrollIntoView({ behavior: 'smooth' });
+                                this.addDebugLog(`Scrolled to ${sections[currentSection]}`, 'info');
+                            }
+                            currentSection++;
+                            setTimeout(scrollToNext, 1500);
+                        } else {
+                            // Scroll back to top
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                            this.addDebugLog('ScrollTrigger test completed', 'success');
+                        }
+                    };
+                    
+                    scrollToNext();
+                } else {
+                    this.addDebugLog('ScrollTrigger not available', 'error');
+                }
+            },
+            
+            // Test animations
+            testAnimations() {
+                this.addDebugLog('Testing animations...', 'info');
+                
+                Object.keys(this.components).forEach(componentName => {
+                    const component = this.components[componentName];
+                    if (component && typeof component.testAnimations === 'function') {
+                        try {
+                            component.testAnimations();
+                            this.addDebugLog(`${componentName} animations tested`, 'success');
+                        } catch (error) {
+                            this.addDebugLog(`${componentName} animation test failed: ${error.message}`, 'error');
+                        }
+                    }
+                });
+            },
+            
+            // Test interactions
+            testInteractions() {
+                this.addDebugLog('Testing interactions...', 'info');
+                
+                // Test portfolio filters
+                const portfolioFilters = document.querySelectorAll('.portfolio-filter');
+                portfolioFilters.forEach((filter, index) => {
+                    setTimeout(() => {
+                        filter.click();
+                        this.addDebugLog(`Clicked portfolio filter: ${filter.textContent}`, 'info');
+                    }, index * 500);
+                });
+                
+                // Test scroll to top button
+                setTimeout(() => {
+                    const scrollToTopBtn = document.querySelector('.scroll-to-top__btn');
+                    if (scrollToTopBtn) {
+                        scrollToTopBtn.click();
+                        this.addDebugLog('Tested scroll to top button', 'info');
+                    }
+                }, 2000);
+            },
+            
+            // Toggle debug console
+            toggleDebug() {
+                this.debugVisible = !this.debugVisible;
+                this.debugConsole.classList.toggle('visible', this.debugVisible);
+                
+                if (this.debugVisible) {
+                    this.addDebugLog('Debug console opened', 'info');
+                } else {
+                    console.log('🐛 Debug console closed');
+                }
+            },
+            
+            // Get all component states
+            getComponentStates() {
+                this.addDebugLog('Getting all component states...', 'info');
+                
+                const states = {};
+                Object.keys(this.components).forEach(componentName => {
+                    const component = this.components[componentName];
+                    if (component && typeof component.getState === 'function') {
+                        try {
+                            states[componentName] = component.getState();
+                            this.addDebugLog(`${componentName} state retrieved`, 'success');
+                        } catch (error) {
+                            this.addDebugLog(`Failed to get ${componentName} state: ${error.message}`, 'error');
+                        }
+                    }
+                });
+                
+                console.log('📊 All Component States:', states);
+                return states;
+            },
+            
+            // Reset all components
+            resetAll() {
+                this.addDebugLog('Resetting all components...', 'warn');
+                
+                Object.keys(this.components).forEach(componentName => {
+                    const component = this.components[componentName];
+                    if (component && typeof component.reset === 'function') {
+                        try {
+                            component.reset();
+                            this.addDebugLog(`${componentName} reset`, 'success');
+                        } catch (error) {
+                            this.addDebugLog(`Failed to reset ${componentName}: ${error.message}`, 'error');
+                        }
+                    }
+                });
+                
+                // Scroll to top
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        };
+        
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                integrationTest.init();
+            });
+        } else {
+            integrationTest.init();
+        }
+        
+        // Add some basic styles for missing elements
+        const additionalStyles = `
+            <style>
+                .future-marketing-cards,
+                .case-studies-grid,
+                .services-grid,
+                .portfolio-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 2rem;
+                    margin-top: 3rem;
+                    max-width: 1200px;
+                }
+                
+                .future-marketing-card,
+                .case-study-item,
+                .service-item,
+                .portfolio-item {
+                    background: rgba(255, 255, 255, 0.1);
+                    padding: 2rem;
+                    border-radius: 10px;
+                    backdrop-filter: blur(10px);
+                    border: 1px solid rgba(255, 255, 255, 0.2);
+                    transition: transform 0.3s ease, background 0.3s ease;
+                }
+                
+                .future-marketing-card:hover,
+                .case-study-item:hover,
+                .service-item:hover,
+                .portfolio-item:hover {
+                    transform: translateY(-5px);
+                    background: rgba(255, 255, 255, 0.15);
+                }
+                
+                .portfolio-filters {
+                    display: flex;
+                    gap: 1rem;
+                    margin-bottom: 2rem;
+                    justify-content: center;
+                }
+                
+                .portfolio-filter {
+                    padding: 0.5rem 1rem;
+                    background: rgba(255, 255, 255, 0.1);
+                    color: white;
+                    border: 1px solid rgba(255, 255, 255, 0.3);
+                    border-radius: 5px;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+                
+                .portfolio-filter:hover,
+                .portfolio-filter.active {
+                    background: rgba(255, 255, 255, 0.2);
+                    border-color: rgba(255, 255, 255, 0.5);
+                }
+                
+                .footer-content {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                    gap: 2rem;
+                    margin-top: 2rem;
+                    max-width: 800px;
+                }
+                
+                .footer-column h3 {
+                    margin-bottom: 1rem;
+                    color: white;
+                }
+                
+                .footer-column ul {
+                    list-style: none;
+                }
+                
+                .footer-column li {
+                    margin: 0.5rem 0;
+                }
+                
+                .footer-column a {
+                    color: rgba(255, 255, 255, 0.8);
+                    text-decoration: none;
+                    transition: color 0.3s ease;
+                }
+                
+                .footer-column a:hover {
+                    color: white;
+                }
+                
+                .scroll-to-top {
+                    position: fixed;
+                    bottom: 100px;
+                    right: 30px;
+                    z-index: 1000;
+                }
+                
+                .scroll-to-top__btn {
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 50%;
+                    background: rgba(0, 123, 255, 0.9);
+                    color: white;
+                    border: none;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    transition: all 0.3s ease;
+                    backdrop-filter: blur(10px);
+                }
+                
+                .scroll-to-top__btn:hover {
+                    background: rgba(0, 123, 255, 1);
+                    transform: translateY(-2px);
+                }
+                
+                .section-navigation {
+                    position: fixed;
+                    right: 30px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    z-index: 1000;
+                }
+                
+                .section-navigation__dots {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 10px;
+                }
+                
+                .section-navigation__dot {
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    background: rgba(255, 255, 255, 0.3);
+                    border: none;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                }
+                
+                .section-navigation__dot.active,
+                .section-navigation__dot:hover {
+                    background: rgba(255, 255, 255, 0.8);
+                    transform: scale(1.2);
+                }
+                
+                .preloader {
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: #000;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 10001;
+                    opacity: 0;
+                    pointer-events: none;
+                    transition: opacity 0.5s ease;
+                }
+                
+                .preloader.active {
+                    opacity: 1;
+                    pointer-events: all;
+                }
+                
+                .preloader__content {
+                    text-align: center;
+                    color: white;
+                }
+                
+                .preloader__logo img {
+                    max-width: 200px;
+                    margin-bottom: 2rem;
+                }
+                
+                .preloader__progress {
+                    width: 200px;
+                    height: 4px;
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 2px;
+                    overflow: hidden;
+                    margin-bottom: 1rem;
+                }
+                
+                .preloader__progress-bar {
+                    height: 100%;
+                    background: #007bff;
+                    width: 0%;
+                    transition: width 0.3s ease;
+                }
+                
+                .preloader__text {
+                    font-size: 14px;
+                    opacity: 0.8;
+                }
+            </style>
+        `;
+        
+        document.head.insertAdjacentHTML('beforeend', additionalStyles);
+        
+        console.log('⌨️ Keyboard shortcuts: Ctrl+D (debug), Ctrl+S (states), Ctrl+R (reset), Ctrl+T (test)');
+        console.log('🎮 Use the control panel on the right to interact with the test');
+        console.log('📊 Monitor performance metrics in the bottom right');
+        console.log('🌟 All 13 components are ready for integration testing!');
+    </script>
+</body>
+</html>

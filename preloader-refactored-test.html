@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Preloader Refactored Test</title>
+    
+    <!-- GSAP (не обязательно для Preloader, но для общей архитектуры) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Performance Config -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    
+    <!-- Preloader Component -->
+    <script src="src/scripts/components/preloader-new.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background: #000;
+            color: #fff;
+            overflow: hidden;
+        }
+        
+        /* Preloader Styles */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #1a1a1a 0%, #000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+        
+        #preloader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        #preloader-percentage {
+            font-size: 8rem;
+            font-weight: bold;
+            color: #fff;
+            margin-bottom: 2rem;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            transition: opacity 0.3s ease;
+            z-index: 3;
+            position: relative;
+        }
+        
+        #preloader-command {
+            font-size: 1.5rem;
+            color: #00ff00;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            font-family: 'Courier New', monospace;
+            text-shadow: 0 0 15px rgba(0, 255, 0, 0.8);
+            z-index: 3;
+            position: relative;
+            margin-top: 1rem;
+        }
+        
+        #preloader-command.visible {
+            opacity: 1;
+        }
+        
+        #preloader-rocket {
+            position: absolute;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 6rem;
+            opacity: 1;
+            z-index: 4;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+        }
+        
+        #preloader-rocket.takeoff {
+            animation: rocketTakeoff 3s ease-in-out forwards;
+        }
+        
+        @keyframes rocketTakeoff {
+            0% {
+                transform: translateX(-50%) translateY(0) scale(1);
+                opacity: 1;
+                text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+            }
+            25% {
+                transform: translateX(-50%) translateY(-30px) scale(1.2);
+                opacity: 1;
+                text-shadow: 0 0 30px rgba(255, 255, 255, 1);
+            }
+            50% {
+                transform: translateX(-50%) translateY(-60px) scale(1.1);
+                opacity: 1;
+                text-shadow: 0 0 25px rgba(255, 255, 255, 0.9);
+            }
+            100% {
+                transform: translateX(-50%) translateY(-120vh) scale(0.8);
+                opacity: 0;
+                text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+            }
+        }
+        
+        #preloader-slices {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        #preloader-slices::before,
+        #preloader-slices::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 50%;
+            height: 100%;
+            background: #1a1a1a;
+            transition: transform 0.8s ease-in-out;
+        }
+        
+        #preloader-slices::before {
+            left: 0;
+        }
+        
+        #preloader-slices::after {
+            right: 0;
+        }
+        
+        #preloader-slices.animate::before {
+            transform: translateX(-100%);
+        }
+        
+        #preloader-slices.animate::after {
+            transform: translateX(100%);
+        }
+        
+        /* Main Content */
+        .main-content {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .main-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .main-content p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.9);
+            max-width: 600px;
+            margin-bottom: 2rem;
+        }
+        
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 2000;
+            min-width: 300px;
+            border: 1px solid #333;
+        }
+        
+        .debug-panel h4 {
+            margin-bottom: 10px;
+            color: #00ff00;
+        }
+        
+        .debug-panel div {
+            margin-bottom: 5px;
+        }
+        
+        .debug-panel .status {
+            color: #00ff00;
+        }
+        
+        .debug-panel .error {
+            color: #ff0000;
+        }
+        
+        .debug-panel .warning {
+            color: #ffaa00;
+        }
+        
+        .debug-controls {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+        }
+        
+        .debug-controls button {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        
+        .debug-controls button:hover {
+            background: #555;
+        }
+        
+        .test-controls {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+        }
+        
+        .test-controls button {
+            background: #006600;
+            color: #fff;
+            border: 1px solid #008800;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        
+        .test-controls button:hover {
+            background: #008800;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            #preloader-percentage {
+                font-size: 4rem;
+            }
+            
+            #preloader-command {
+                font-size: 1rem;
+                letter-spacing: 2px;
+            }
+            
+            .main-content h1 {
+                font-size: 2rem;
+            }
+            
+            .debug-panel {
+                right: 10px;
+                bottom: 10px;
+                min-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Preloader -->
+    <div id="preloader">
+        <div id="preloader-percentage">10</div>
+        <div id="preloader-command">LAUNCHING YOUR ROI</div>
+        <div id="preloader-rocket">🚀</div>
+        <div id="preloader-slices"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <h1>🎉 Preloader Test Complete!</h1>
+        <p>The preloader animation has finished successfully. This content is now visible after the rocket takeoff and curtain separation animations.</p>
+        <p>Check the debug panel for component state and test controls.</p>
+    </div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <h4>🔧 Preloader Debug Panel</h4>
+        <div>Status: <span id="status" class="status">Initializing...</span></div>
+        <div>Phase: <span id="animationPhase">initial</span></div>
+        <div>Percentage: <span id="currentPercentage">10</span>%</div>
+        <div>Page Loaded: <span id="pageLoaded">false</span></div>
+        <div>Is Loading: <span id="isLoading">false</span></div>
+        <div>Component ID: <span id="componentId">--</span></div>
+        <div>Command: <span id="currentCommand">--</span></div>
+        
+        <div class="debug-controls">
+            <button onclick="testPreloader.getState()">State</button>
+            <button onclick="testPreloader.forceComplete()">Force Complete</button>
+            <button onclick="testPreloader.forceHide()">Force Hide</button>
+            <button onclick="testPreloader.destroy()">Destroy</button>
+        </div>
+        
+        <div class="test-controls">
+            <button onclick="testPreloader.restart()">🔄 Restart Test</button>
+            <button onclick="testPreloader.simulateSlowLoad()">🐌 Slow Load</button>
+        </div>
+    </div>
+    
+    <script>
+        console.log('🚀 Initializing Preloader Refactored Test');
+        
+        let preloaderComponent = null;
+        let updateInterval = null;
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Initialize Preloader Component
+                // Preloader инициализируется автоматически с body как элементом
+                preloaderComponent = new Preloader(document.body, {
+                    debug: true,
+                    countdownDuration: 2000,
+                    completionDuration: 500,
+                    rocketTakeoffDuration: 2000,
+                    slicesAnimationDuration: 800
+                });
+                
+                // Ждем завершения инициализации перед вызовом getState()
+                setTimeout(() => {
+                    console.log('✅ Preloader component initialized:', preloaderComponent.getState());
+                }, 0);
+                
+                // Update debug panel
+                updateDebugPanel();
+                
+                // Start periodic updates
+                updateInterval = setInterval(updateDebugPanel, 100);
+                
+                // Listen to preloader events
+                preloaderComponent.on('shown', () => {
+                    console.log('👁️ Preloader shown');
+                });
+                
+                preloaderComponent.on('loadingStarted', () => {
+                    console.log('🔄 Loading started');
+                });
+                
+                preloaderComponent.on('pageLoaded', () => {
+                    console.log('📄 Page loaded event');
+                });
+                
+                preloaderComponent.on('loadingCompleted', () => {
+                    console.log('✅ Loading completed');
+                });
+                
+                preloaderComponent.on('exitAnimationStarted', () => {
+                    console.log('🎬 Exit animation started');
+                });
+                
+                preloaderComponent.on('rocketTakeoffStarted', () => {
+                    console.log('🚀 Rocket takeoff started');
+                });
+                
+                preloaderComponent.on('slicesAnimationStarted', () => {
+                    console.log('🎭 Slices animation started');
+                });
+                
+                preloaderComponent.on('hidden', () => {
+                    console.log('👻 Preloader hidden');
+                    document.getElementById('status').textContent = 'Hidden';
+                    if (updateInterval) {
+                        clearInterval(updateInterval);
+                        updateInterval = null;
+                    }
+                });
+                
+                preloaderComponent.on('forceCompleted', () => {
+                    console.log('⚡ Force completed');
+                });
+                
+                preloaderComponent.on('forceHidden', () => {
+                    console.log('⚡ Force hidden');
+                });
+                
+            } catch (error) {
+                console.error('❌ Preloader initialization failed:', error);
+                document.getElementById('status').textContent = 'Error';
+                document.getElementById('status').className = 'error';
+            }
+        });
+        
+        function updateDebugPanel() {
+            if (!preloaderComponent) return;
+            
+            const state = preloaderComponent.getState();
+            
+            document.getElementById('status').textContent = state.isDestroyed ? 'Destroyed' : 'Active';
+            document.getElementById('animationPhase').textContent = state.animationPhase;
+            document.getElementById('currentPercentage').textContent = state.currentPercentage;
+            document.getElementById('pageLoaded').textContent = state.pageLoaded;
+            document.getElementById('isLoading').textContent = state.isLoading;
+            document.getElementById('componentId').textContent = state.id;
+            document.getElementById('currentCommand').textContent = state.currentCommand || '--';
+        }
+        
+        // Test functions for console
+        window.testPreloader = {
+            getState: () => {
+                const state = preloaderComponent?.getState();
+                console.log('Preloader State:', state);
+                return state;
+            },
+            
+            forceComplete: () => {
+                if (preloaderComponent) {
+                    preloaderComponent.forceComplete();
+                    console.log('🔥 Force completed preloader');
+                }
+            },
+            
+            forceHide: () => {
+                if (preloaderComponent) {
+                    preloaderComponent.forceHide();
+                    console.log('🔥 Force hidden preloader');
+                }
+            },
+            
+            destroy: () => {
+                if (preloaderComponent) {
+                    preloaderComponent.destroy();
+                    preloaderComponent = null;
+                    document.getElementById('status').textContent = 'Destroyed';
+                    document.getElementById('status').className = 'error';
+                    if (updateInterval) {
+                        clearInterval(updateInterval);
+                        updateInterval = null;
+                    }
+                    console.log('🗑️ Preloader destroyed');
+                }
+            },
+            
+            restart: () => {
+                console.log('🔄 Restarting preloader test...');
+                location.reload();
+            },
+            
+            simulateSlowLoad: () => {
+                console.log('🐌 Simulating slow page load...');
+                // Блокируем событие load на 5 секунд
+                const originalAddEventListener = window.addEventListener;
+                window.addEventListener = function(type, listener, options) {
+                    if (type === 'load') {
+                        setTimeout(() => {
+                            originalAddEventListener.call(window, type, listener, options);
+                        }, 5000);
+                    } else {
+                        originalAddEventListener.call(window, type, listener, options);
+                    }
+                };
+            }
+        };
+        
+        console.log('🎮 Test functions available in window.testPreloader');
+        console.log('📊 Use window.testPreloader.getState() to check component state');
+        console.log('🔄 Use window.testPreloader.restart() to restart the test');
+        
+        // Simulate some loading time for testing
+        console.log('⏳ Simulating page loading...');
+        
+        // Add some artificial loading delay for testing
+        setTimeout(() => {
+            console.log('📄 Artificial page load complete');
+        }, 1000);
+    </script>
+</body>
+</html>

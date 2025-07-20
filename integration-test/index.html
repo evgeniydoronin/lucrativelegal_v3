@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    
+    <!-- SEO Meta Tags -->
+    <title>🧪 All Components Integration Test - Refactored Architecture</title>
+    <meta name="description" content="Complete integration test for all 13 refactored components using BaseComponent architecture">
+    <meta name="keywords" content="integration test, refactored components, BaseComponent, GSAP, ScrollTrigger, performance">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="../src/assets/images/favicon/favicon.ico">
+    <link rel="icon" type="image/png" sizes="32x32" href="../src/assets/images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../src/assets/images/favicon/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="../src/assets/images/favicon/apple-touch-icon.png">
+    
+    <!-- Preconnect для оптимизации загрузки шрифтов -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Google Fonts - Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Integration Test Header -->
+    <div class="integration-test-header">
+        <h1>🧪 All Components Integration Test</h1>
+        <p>Testing all 13 refactored components with BaseComponent architecture - Performance Optimized</p>
+    </div>
+    
+    <!-- Component Status Monitor -->
+    <div class="component-status">
+        <h3>📊 Component Status</h3>
+        <div class="component-item">
+            <span>Header</span>
+            <div class="status" id="status-header"></div>
+        </div>
+        <div class="component-item">
+            <span>Preloader</span>
+            <div class="status" id="status-preloader"></div>
+        </div>
+        <div class="component-item">
+            <span>Hero Cube</span>
+            <div class="status" id="status-hero-cube"></div>
+        </div>
+        <div class="component-item">
+            <span>Hero Stars</span>
+            <div class="status" id="status-hero-stars"></div>
+        </div>
+        <div class="component-item">
+            <span>Future Marketing</span>
+            <div class="status" id="status-future-marketing"></div>
+        </div>
+        <div class="component-item">
+            <span>Case Studies</span>
+            <div class="status" id="status-case-studies"></div>
+        </div>
+        <div class="component-item">
+            <span>Services</span>
+            <div class="status" id="status-services"></div>
+        </div>
+        <div class="component-item">
+            <span>Portfolio</span>
+            <div class="status" id="status-portfolio"></div>
+        </div>
+        <div class="component-item">
+            <span>Footer</span>
+            <div class="status" id="status-footer"></div>
+        </div>
+        <div class="component-item">
+            <span>Scroll to Top</span>
+            <div class="status" id="status-scroll-to-top"></div>
+        </div>
+        <div class="component-item">
+            <span>Section Nav</span>
+            <div class="status" id="status-section-navigation"></div>
+        </div>
+        <div class="component-item">
+            <span>Word Animator</span>
+            <div class="status" id="status-word-animator"></div>
+        </div>
+        <div class="component-item">
+            <span>Cursor Button</span>
+            <div class="status" id="status-cursor-play-button"></div>
+        </div>
+    </div>
+    
+    <!-- Integration Test Controls -->
+    <div class="integration-test-controls">
+        <h3>🎮 Test Controls</h3>
+        
+        <button class="test-button success" onclick="integrationTest.startTest()">
+            🚀 Start Integration Test
+        </button>
+        <button class="test-button" onclick="integrationTest.testScrollTriggers()">
+            📜 Test ScrollTriggers
+        </button>
+        <button class="test-button" onclick="integrationTest.testAnimations()">
+            🎬 Test Animations
+        </button>
+        <button class="test-button" onclick="integrationTest.testInteractions()">
+            🖱️ Test Interactions
+        </button>
+        
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.2);">
+        
+        <button class="test-button warning" onclick="integrationTest.toggleDebug()">
+            🐛 Toggle Debug Console
+        </button>
+        <button class="test-button" onclick="integrationTest.getComponentStates()">
+            📊 Get All States
+        </button>
+        <button class="test-button danger" onclick="integrationTest.resetAll()">
+            🔄 Reset All Components
+        </button>
+        
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.2);">
+        
+        <button class="test-button" onclick="integrationTest.testPerformance()">
+            ⚡ Performance Test
+        </button>
+        <button class="test-button" onclick="integrationTest.stressTest()">
+            🔥 Stress Test
+        </button>
+    </div>
+    
+    <!-- Performance Monitor -->
+    <div class="performance-monitor">
+        <h4>⚡ Performance Metrics</h4>
+        <div class="performance-metric">
+            <span>FPS:</span>
+            <span class="value good" id="fps-value">60</span>
+        </div>
+        <div class="performance-metric">
+            <span>Memory:</span>
+            <span class="value good" id="memory-value">45MB</span>
+        </div>
+        <div class="performance-metric">
+            <span>ScrollTriggers:</span>
+            <span class="value good" id="scrolltriggers-value">0</span>
+        </div>
+        <div class="performance-metric">
+            <span>Components:</span>
+            <span class="value good" id="components-value">0/13</span>
+        </div>
+        <div class="performance-metric">
+            <span>Animations:</span>
+            <span class="value good" id="animations-value">0</span>
+        </div>
+        <div class="performance-metric">
+            <span>Event Listeners:</span>
+            <span class="value good" id="listeners-value">0</span>
+        </div>
+    </div>
+    
+    <!-- Debug Console -->
+    <div class="debug-console" id="debug-console">
+        <div class="debug-header">
+            🐛 Integration Test Debug Console
+            <button class="debug-clear" onclick="integrationTest.clearDebug()">Clear</button>
+        </div>
+        <div class="debug-content" id="debug-content"></div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Header Component -->
+        <header id="header-sticky" class="header">
+            <div class="header-container">
+                <div class="header-logo">
+                    <img src="../src/assets/images/header/logo-white.png" alt="Legal Leads Group" class="logo-white">
+                    <img src="../src/assets/images/header/logo-black.png" alt="Legal Leads Group" class="logo-black">
+                </div>
+                <nav class="header-nav">
+                    <ul>
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="#future-marketing">Marketing</a></li>
+                        <li><a href="#case-studies">Cases</a></li>
+                        <li><a href="#services">Services</a></li>
+                        <li><a href="#portfolio">Portfolio</a></li>
+                        <li><a href="#footer">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="header-cta">Start Test</button>
+                    <button class="mobile-toggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Preloader Component -->
+        <div class="preloader" id="preloader">
+            <div class="preloader-content">
+                <div class="preloader-logo">
+                    <img src="../src/assets/images/header/logo-white.png" alt="Legal Leads Group">
+                </div>
+                <div class="preloader-progress">
+                    <div class="preloader-progress-bar"></div>
+                </div>
+                <div class="preloader-text">Loading Integration Test...</div>
+                <div class="preloader-percentage">0%</div>
+            </div>
+        </div>
+
+        <!-- Hero Section with Cube and Stars -->
+        <section id="hero" class="section hero">
+            <!-- Hero Stars Animation -->
+            <div class="hero-stars-animation">
+                <div class="hero-stars-layer-1"></div>
+                <div class="hero-stars-layer-2"></div>
+                <div class="hero-stars-layer-3"></div>
+            </div>
+
+            <div class="hero-content">
+                <div class="hero-title-container">
+                    <h4 class="hero-subtitle">Integration Test</h4>
+                    <h1 class="hero-title">All Components<br>Working Together</h1>
+                </div>
+                <div class="hero-description">
+                    <p>Testing all 13 refactored components with BaseComponent architecture.</p>
+                    <p>Scroll down to see all components in action with optimized performance.</p>
+                </div>
+
+                <!-- 3D Куб -->
+                <div class="hero-cube-container">
+                    <div class="hero-cube">
+                        <div class="cube-face cube-face--front"></div>
+                        <div class="cube-face cube-face--back"></div>
+                        <div class="cube-face cube-face--right"></div>
+                        <div class="cube-face cube-face--left"></div>
+                        <div class="cube-face cube-face--top"></div>
+                        <div class="cube-face cube-face--bottom"></div>
+                    </div>
+                    <!-- 2D Квадрат для подмены -->
+                    <div class="hero-square">
+                        <div class="hero-square-bg"></div>
+                    </div>
+                    <!-- Видео поверх красного фона -->
+                    <video class="hero-video" controls playsinline>
+                        <source src="../src/assets/videos/Grow-Your-Law-Firm-6.mp4" type="video/mp4">
+                        Integration test video.
+                    </video>
+                </div>
+            </div>
+        </section>
+
+        <!-- Future Marketing Section -->
+        <section id="future-marketing" class="section future-marketing">
+            <div class="section-header">
+                <h4 class="section-subtitle">Rocket Leads Platform</h4>
+                <h2 class="section-title">The Future of Lead Generation Marketing</h2>
+                <p class="section-description">It's time to finally make money from your marketing.</p>
+            </div>
+
+            <!-- Future Marketing Cards Container -->
+            <div class="future-cards-spacer">
+                <div class="future-cards-viewer">
+                    <div class="future-cards-track">
+                        <!-- Card 1: 30-Day Guarantee -->
+                        <div class="future-card" data-card="1">
+                            <div class="future-card-content">
+                                <div class="future-card-image">
+                                    <img src="../src/assets/images/spaceship.png" alt="astronaut on rocket" loading="lazy">
+                                </div>
+                                <p class="future-card-subtitle">30-Day Guarantee</p>
+                                <h3 class="future-card-title">Performance & Profit Driven Marketing</h3>
+                                <div class="future-card-description">
+                                    <p>Need leads for your law firm or medical practice now? Are you tired of wasting money on the empty promises of SEO companies? Try our <strong>Rocket Leads Platform</strong>.</p>
+                                </div>
+                                <div class="future-card-button">
+                                    <a href="#" class="future-card-cta">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 2: Find Your Next Client -->
+                        <div class="future-card" data-card="2">
+                            <div class="future-card-content">
+                                <div class="future-card-image">
+                                    <img src="../src/assets/images/spaceship.png" alt="astronaut on rocket" loading="lazy">
+                                </div>
+                                <p class="future-card-subtitle">Find Your Next Client</p>
+                                <h3 class="future-card-title">Time is Money</h3>
+                                <div class="future-card-description">
+                                    <p>Stop wasting your time with SEO and Digital Marketing Companies that promise but cannot deliver. You are not paying to rank for random keywords, you are investing in your business to make a profit.</p>
+                                </div>
+                                <div class="future-card-button">
+                                    <a href="#" class="future-card-cta">Get Leads Today</a>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Card 3: What We Offer -->
+                        <div class="future-card" data-card="3">
+                            <div class="future-card-content">
+                                <div class="future-card-image">
+                                    <img src="../src/assets/images/spaceship.png" alt="astronaut on rocket" loading="lazy">
+                                </div>
+                                <p class="future-card-subtitle">What We Offer</p>
+                                <h3 class="future-card-title">Generate More Leads</h3>
+                                <div class="future-card-description">
+                                    <ul class="future-card-list">
+                                        <li>No contract or long term commitments.</li>
+                                        <li>Guaranteed results within 30 days or less.</li>
+                                        <li>24/7 access to our domestic lead gen support staff.</li>
+                                        <li>Lead and call tracking software.</li>
+                                        <li>Weekly conversion ZOOM meetings with your lead gen team.</li>
+                                    </ul>
+                                </div>
+                                <div class="future-card-button">
+                                    <a href="#" class="future-card-cta">Get a Demo</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Case Studies Section -->
+        <section id="case-studies" class="section case-studies">
+            <div class="section-header">
+                <h4 class="section-subtitle">Rocket Leads Platform</h4>
+                <h2 class="section-title">Case Studies & Client Results</h2>
+            </div>
+            
+            <div class="horizontal-scroll-container">
+                <div class="slides-wrapper">
+                    <!-- Slide 1: Hawkins Felton -->
+                    <div class="slide slide-1">
+                        <div class="slide-content">
+                            <div class="slide-main-content">
+                                <div class="slide-photos">
+                                    <img src="../src/assets/images/cases/hawkins-lawfirm.png" alt="Hawkins Felton Law Firm" class="photo-image">
+                                    <div class="slide-metrics-overlay">
+                                        <div class="metric-number">350%</div>
+                                        <div class="metric-description">ROAS month after month</div>
+                                    </div>
+                                </div>
+                                <div class="slide-info">
+                                    <h3 class="firm-name">Hawkins Felton</h3>
+                                    <div class="info-item">
+                                        <span class="label">Website:</span>
+                                        <span class="value">hawkins-lawfirm.com</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Personal Injury Cases:</span>
+                                        <span class="value">$1,850.00 to $3,750.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Monthly Results:</span>
+                                        <span class="value">12-17 signed and retained quality cases each month directly from LLG</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Best Month:</span>
+                                        <span class="value">28 signed and retained cases directly from LLG</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="slide slide-2">
+                        <div class="slide-content">
+                            <div class="slide-main-content">
+                                <div class="slide-photos">
+                                    <img src="../src/assets/images/cases/hawkins-lawfirm.png" alt="Test Law Firm 2" class="photo-image">
+                                    <div class="slide-metrics-overlay">
+                                        <div class="metric-number">280%</div>
+                                        <div class="metric-description">ROI improvement</div>
+                                    </div>
+                                </div>
+                                <div class="slide-info">
+                                    <h3 class="firm-name">Test Law Firm 2</h3>
+                                    <div class="info-item">
+                                        <span class="label">Website:</span>
+                                        <span class="value">testlawfirm2.com</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Criminal Defense Cases:</span>
+                                        <span class="value">$2,500.00 to $5,000.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Monthly Results:</span>
+                                        <span class="value">8-12 signed cases each month</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Best Month:</span>
+                                        <span class="value">18 signed cases</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3 -->
+                    <div class="slide slide-3">
+                        <div class="slide-content">
+                            <div class="slide-main-content">
+                                <div class="slide-photos">
+                                    <img src="../src/assets/images/cases/hawkins-lawfirm.png" alt="Test Law Firm 3" class="photo-image">
+                                    <div class="slide-metrics-overlay">
+                                        <div class="metric-number">420%</div>
+                                        <div class="metric-description">Lead increase</div>
+                                    </div>
+                                </div>
+                                <div class="slide-info">
+                                    <h3 class="firm-name">Test Law Firm 3</h3>
+                                    <div class="info-item">
+                                        <span class="label">Website:</span>
+                                        <span class="value">testlawfirm3.com</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Family Law Cases:</span>
+                                        <span class="value">$1,200.00 to $2,800.00</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Monthly Results:</span>
+                                        <span class="value">15-20 signed cases each month</span>
+                                    </div>
+                                    <div class="info-item">
+                                        <span class="label">Best Month:</span>
+                                        <span class="value">32 signed cases</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services" class="section services">
+            <div class="section-header">
+                <h2 class="section-title js-scroll-blur-effect" data-text="Services">Services</h2>
+                <h3 class="section-description js-scroll-blur-effect-adaptive">
+                    Legal Leads Group is more than just a digital marketing firm, we are a LEAD GENERATION Agency. Our job is to help your law firm, medical practice, or business make MONEY.
+                </h3>
+            </div>
+
+            <!-- Pin spacer for scroll effect -->
+            <div class="pin-spacer">
+                <div class="js-cards-viewer">
+                    <ul class="js-cards-list">
+                        <!-- Service 1: Aggressive Case Generation -->
+                        <li class="js-card" 
+                            data-service-id="aggressive-case-generation"
+                            data-cursor="View<br>Details">
+                            <div class="card-content">
+                                <img src="../src/assets/images/services/element-079.png" 
+                                     alt="Aggressive Case Generation" 
+                                     class="js-card-image">
+                                <h2 class="js-scroll-title">Aggressive Case Generation</h2>
+                                <p class="js-card-description">
+                                    Google Ads for Attorneys. Aggressive case generation through targeted Google Ads.
+                                </p>
+                            </div>
+                        </li>
+
+                        <!-- Service 2: Building Your Law Firm's BRAND -->
+                        <li class="js-card" 
+                            data-service-id="law-firm-brand"
+                            data-cursor="View<br>Details">
+                            <div class="card-content">
+                                <img src="../src/assets/images/services/element-012.png" 
+                                     alt="Building Your Law Firm's BRAND" 
+                                     class="js-card-image">
+                                <h2 class="js-scroll-title">Building Your Law Firm's BRAND</h2>
+                                <p class="js-card-description">
+                                    Social Media Marketing for Law Firms. Building brand and digital presence through social media.
+                                </p>
+                            </div>
+                        </li>
+
+                        <!-- Service 3: Quality Content & SEO -->
+                        <li class="js-card" 
+                            data-service-id="quality-content-seo"
+                            data-cursor="View<br>Details">
+                            <div class="card-content">
+                                <img src="../src/assets/images/services/element-016.png" 
+                                     alt="Quality Content & SEO" 
+                                     class="js-card-image">
+                                <h2 class="js-scroll-title">Quality Content & SEO</h2>
+                                <p class="js-card-description">
+                                    State-of-the-Art SEO for Lawyers. Quality content and natural case lead funnels through SEO.
+                                </p>
+                            </div>
+                        </li>
+
+                        <!-- Service 4: Dominating Your Local Market -->
+                        <li class="js-card" 
+                            data-service-id="local-market-domination"
+                            data-cursor="View<br>Details">
+                            <div class="card-content">
+                                <img src="../src/assets/images/services/element-017.png" 
+                                     alt="Dominating Your Local Market" 
+                                     class="js-card-image">
+                                <h2 class="js-scroll-title">Dominating Your Local Market</h2>
+                                <p class="js-card-description">
+                                    Local Service Ads for Attorneys. Dominating the local market through local service ads.
+                                </p>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <!-- Service counter -->
+                    <div class="card-counter">
+                        <span class="js-client-number">
+                            <span class="js-client-number-units">01</span>/04
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Portfolio Section -->
+        <section id="portfolio" class="section portfolio">
+            <div class="section-header">
+                <h2 class="section-title">Portfolio</h2>
+                <p class="section-description">Testing portfolio component with filtering and animations.</p>
+            </div>
+            
+            <div class="portfolio-filters">
+                <button class="portfolio-filter active" data-filter="all">All</button>
+                <button class="portfolio-filter" data-filter="web">Web Design</button>
+                <button class="portfolio-filter" data-filter="mobile">Mobile Apps</button>
+                <button class="portfolio-filter" data-filter="branding">Branding</button>
+            </div>
+            
+            <div class="portfolio-grid">
+                <div class="portfolio-item" data-category="web">
+                    <div class="portfolio-item-image">
+                        <img src="../src/assets/images/projects/digital-mockup-of-four-different-apple-devices-2025-el1-1.webp" alt="Web Project 1">
+                    </div>
+                    <div class="portfolio-item-content">
+                        <h3 class="portfolio-item-title">Law Firm Website</h3>
+                        <p class="portfolio-item-description">Modern responsive website for personal injury law firm</p>
+                        <div class="portfolio-item-tags">
+                            <span class="tag">Web Design</span>
+                            <span class="tag">Legal</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="portfolio-item" data-category="mobile">
+                    <div class="portfolio-item-image">
+                        <img src="../src/assets/images/projects/DUI-Defender-.webp" alt="Mobile Project 1">
+                    </div>
+                    <div class="portfolio-item-content">
+                        <h3 class="portfolio-item-title">DUI Defender App</h3>
+                        <p class="portfolio-item-description">Mobile application for DUI defense attorneys</p>
+                        <div class="portfolio-item-tags">
+                            <span class="tag">Mobile</span>
+                            <span class="tag">Legal Tech</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="portfolio-item" data-category="web">
+                    <div class="portfolio-item-image">
+                        <img src="../src/assets/images/projects/responsive-mockup-featuring-several-apple-products-against-a-plain-background-2029-el1-2.webp" alt="Web Project 2">
+                    </div>
+                    <div class="portfolio-item-content">
+                        <h3 class="portfolio-item-title">Medical Practice Site</h3>
+                        <p class="portfolio-item-description">Professional website for medical practice with appointment booking</p>
+                        <div class="portfolio-item-tags">
+                            <span class="tag">Web Design</span>
+                            <span class="tag">Medical</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="portfolio-item" data-category="branding">
+                    <div class="portfolio-item-image">
+                        <img src="../src/assets/images/projects/responsive-mockup-featuring-several-apple-products-against-a-plain-background-2029-el1-3.webp" alt="Branding Project 1">
+                    </div>
+                    <div class="portfolio-item-content">
+                        <h3 class="portfolio-item-title">Legal Brand Identity</h3>
+                        <p class="portfolio-item-description">Complete brand identity package for boutique law firm</p>
+                        <div class="portfolio-item-tags">
+                            <span class="tag">Branding</span>
+                            <span class="tag">Identity</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="portfolio-item" data-category="web">
+                    <div class="portfolio-item-image">
+                        <img src="../src/assets/images/projects/responsive-mockup-featuring-several-apple-products-against-a-plain-background-2029-el1-4.webp" alt="Web Project 3">
+                    </div>
+                    <div class="portfolio-item-content">
+                        <h3 class="portfolio-item-title">Corporate Law Portal</h3>
+                        <p class="portfolio-item-description">Enterprise-level portal for corporate legal services</p>
+                        <div class="portfolio-item-tags">
+                            <span class="tag">Web Design</span>
+                            <span class="tag">Corporate</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="portfolio-item" data-category="mobile">
+                    <div class="portfolio-item-image">
+                        <img src="../src/assets/images/projects/responsive-mockup-featuring-three-different-electronic-devices-2028-el1.webp" alt="Mobile Project 2">
+                    </div>
+                    <div class="portfolio-item-content">
+                        <h3 class="portfolio-item-title">Legal Case Tracker</h3>
+                        <p class="portfolio-item-description">Mobile app for tracking legal case progress</p>
+                        <div class="portfolio-item-tags">
+                            <span class="tag">Mobile</span>
+                            <span class="tag">Productivity</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <footer id="footer" class="section footer">
+            <div class="footer-content">
+                <div class="footer-main">
+                    <div class="footer-logo">
+                        <img src="../src/assets/images/header/logo-white.png" alt="Legal Leads Group">
+                    </div>
+                    <p class="footer-description">
+                        Professional legal services and marketing for law firms. Expert legal consultation, business formation, litigation support, and comprehensive legal solutions.
+                    </p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link">Facebook</a>
+                        <a href="#" class="social-link">Twitter</a>
+                        <a href="#" class="social-link">LinkedIn</a>
+                        <a href="#" class="social-link">Instagram</a>
+                    </div>
+                </div>
+                
+                <div class="footer-columns">
+                    <div class="footer-column">
+                        <h3>Company</h3>
+                        <ul>
+                            <li><a href="#">About</a></li>
+                            <li><a href="#">Services</a></li>
+                            <li><a href="#">Contact</a></li>
+                            <li><a href="#">Careers</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Resources</h3>
+                        <ul>
+                            <li><a href="#">Blog</a></li>
+                            <li><a href="#">Case Studies</a></li>
+                            <li><a href="#">Portfolio</a></li>
+                            <li><a href="#">Documentation</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h3>Contact</h3>
+                        <ul>
+                            <li><a href="tel:+18052738791">+ 1 805-273-8791</a></li>
+                            <li><a href="mailto:info@lucrativelegal.com">info@lucrativelegal.com</a></li>
+                            <li>Los Angeles, CA</li>
+                            <li>Dallas, TX</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2025 Legal Leads Group. All rights reserved. | Integration Test Environment</p>
+            </div>
+        </footer>
+        
+        <!-- Scroll to Top Component -->
+        <div class="scroll-to-top" id="scroll-to-top">
+            <button class="scroll-to-top-btn">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10 15V5M10 5L5 10M10 5L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Section Navigation Component -->
+        <div class="section-navigation" id="section-navigation">
+            <div class="section-navigation-dots">
+                <button class="section-navigation-dot active" data-section="hero"></button>
+                <button class="section-navigation-dot" data-section="future-marketing"></button>
+                <button class="section-navigation-dot" data-section="case-studies"></button>
+                <button class="section-navigation-dot" data-section="services"></button>
+                <button class="section-navigation-dot" data-section="portfolio"></button>
+                <button class="section-navigation-dot" data-section="footer"></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="scripts.js"></script>
+</body>
+</html>

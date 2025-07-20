@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Refactored - Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .test-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            z-index: 1000;
+            border-bottom: 2px solid #333;
+        }
+        
+        .test-header h1 {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .test-controls button {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .test-controls button:hover {
+            background: #555;
+        }
+        
+        .test-controls button.active {
+            background: #00ff88;
+            color: black;
+        }
+        
+        .status {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* Spacer for fixed header */
+        .header-spacer {
+            height: 120px;
+        }
+        
+        /* Portfolio Styles */
+        #portfolio {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 4rem 2rem;
+            position: relative;
+        }
+        
+        .portfolio-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .portfolio-header h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .portfolio-header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .portfolio-item {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .portfolio-item img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .portfolio-item .content {
+            padding: 1.5rem;
+        }
+        
+        .portfolio-item .title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+        
+        .portfolio-item .description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .portfolio-item .tags {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .portfolio-item .tag {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-width: 300px;
+            z-index: 999;
+        }
+        
+        .debug-panel h3 {
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+        
+        .debug-panel .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+            color: #ccc;
+        }
+        
+        .debug-panel .metric .value {
+            color: #00ff88;
+        }
+        
+        /* Spacer sections */
+        .spacer-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: #2a2a2a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Header -->
+    <div class="test-header">
+        <h1>🎨 Portfolio Component - Refactored Test</h1>
+        <div class="test-controls">
+            <button onclick="testFocusItem(0)">Focus Item 1</button>
+            <button onclick="testFocusItem(1)">Focus Item 2</button>
+            <button onclick="testFocusItem(2)">Focus Item 3</button>
+            <button onclick="testBlurAll()">Blur All</button>
+            <button onclick="testToggleMouseTracking()">Toggle Mouse</button>
+            <button onclick="testRefresh()">Refresh</button>
+            <button onclick="testDestroy()">Destroy</button>
+            <button onclick="testReinit()">Re-init</button>
+            <span class="status" id="status">Initializing...</span>
+        </div>
+    </div>
+    
+    <div class="header-spacer"></div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debugPanel">
+        <h3>📊 Debug Info</h3>
+        <div class="metric">
+            <span>Component:</span>
+            <span class="value" id="componentStatus">Loading...</span>
+        </div>
+        <div class="metric">
+            <span>Items Count:</span>
+            <span class="value" id="itemsCount">-</span>
+        </div>
+        <div class="metric">
+            <span>Mouse Tracking:</span>
+            <span class="value" id="mouseTracking">-</span>
+        </div>
+        <div class="metric">
+            <span>Hover Animation:</span>
+            <span class="value" id="hoverAnimation">-</span>
+        </div>
+        <div class="metric">
+            <span>Animations:</span>
+            <span class="value" id="animationsCount">-</span>
+        </div>
+        <div class="metric">
+            <span>Event Handlers:</span>
+            <span class="value" id="eventHandlers">-</span>
+        </div>
+        <div class="metric">
+            <span>ScrollTriggers:</span>
+            <span class="value" id="scrollTriggers">-</span>
+        </div>
+    </div>
+    
+    <!-- Spacer Section -->
+    <div class="spacer-section">
+        <div>Scroll down to see Portfolio ⬇️</div>
+    </div>
+    
+    <!-- Portfolio Section -->
+    <section id="portfolio">
+        <div class="portfolio-header">
+            <h2>Our Portfolio</h2>
+            <p>Showcasing our best work with interactive animations and smooth user experience.</p>
+        </div>
+        
+        <div class="portfolio-grid">
+            <div class="portfolio-item">
+                <img src="https://picsum.photos/400/200?random=1" alt="Project 1">
+                <div class="content">
+                    <div class="title">Legal Website Redesign</div>
+                    <div class="description">Complete redesign of a law firm website with modern animations and improved user experience.</div>
+                    <div class="tags">
+                        <span class="tag">Web Design</span>
+                        <span class="tag">GSAP</span>
+                        <span class="tag">Legal</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="portfolio-item">
+                <img src="https://picsum.photos/400/200?random=2" alt="Project 2">
+                <div class="content">
+                    <div class="title">Marketing Dashboard</div>
+                    <div class="description">Interactive dashboard for marketing analytics with real-time data visualization.</div>
+                    <div class="tags">
+                        <span class="tag">Dashboard</span>
+                        <span class="tag">Analytics</span>
+                        <span class="tag">React</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="portfolio-item">
+                <img src="https://picsum.photos/400/200?random=3" alt="Project 3">
+                <div class="content">
+                    <div class="title">E-commerce Platform</div>
+                    <div class="description">Full-featured e-commerce platform with advanced animations and smooth checkout flow.</div>
+                    <div class="tags">
+                        <span class="tag">E-commerce</span>
+                        <span class="tag">Animation</span>
+                        <span class="tag">UX</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="portfolio-item">
+                <img src="https://picsum.photos/400/200?random=4" alt="Project 4">
+                <div class="content">
+                    <div class="title">Mobile App Design</div>
+                    <div class="description">Modern mobile app design with micro-interactions and smooth transitions.</div>
+                    <div class="tags">
+                        <span class="tag">Mobile</span>
+                        <span class="tag">UI/UX</span>
+                        <span class="tag">Figma</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="portfolio-item">
+                <img src="https://picsum.photos/400/200?random=5" alt="Project 5">
+                <div class="content">
+                    <div class="title">Brand Identity</div>
+                    <div class="description">Complete brand identity design including logo, colors, and marketing materials.</div>
+                    <div class="tags">
+                        <span class="tag">Branding</span>
+                        <span class="tag">Logo</span>
+                        <span class="tag">Identity</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="portfolio-item">
+                <img src="https://picsum.photos/400/200?random=6" alt="Project 6">
+                <div class="content">
+                    <div class="title">3D Web Experience</div>
+                    <div class="description">Immersive 3D web experience with WebGL and advanced animations.</div>
+                    <div class="tags">
+                        <span class="tag">3D</span>
+                        <span class="tag">WebGL</span>
+                        <span class="tag">Three.js</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Another Spacer Section -->
+    <div class="spacer-section">
+        <div>End of Portfolio ⬆️</div>
+    </div>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    <script src="src/scripts/core/AnimatedInteractiveComponent.js"></script>
+    <script src="src/scripts/services/ScrollTriggerManager.js"></script>
+    <script src="src/scripts/core/AnimationService.js"></script>
+    
+    <!-- Portfolio Component -->
+    <script src="src/scripts/components/portfolio-new.js?v=20250119-2210"></script>
+    
+    <script>
+        // Global variables
+        let portfolioComponent = null;
+        let animationService = null;
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Portfolio Test');
+            
+            // Initialize AnimationService
+            if (window.AnimationService) {
+                animationService = window.AnimationService.getInstance();
+                console.log('✅ AnimationService initialized');
+            }
+            
+            // Initialize Portfolio component
+            initPortfolio();
+            
+            // Start debug updates
+            setInterval(updateDebugPanel, 1000);
+            
+            updateStatus('Ready');
+        });
+        
+        function initPortfolio() {
+            try {
+                const element = document.querySelector('#portfolio');
+                if (element && window.Portfolio) {
+                    portfolioComponent = new Portfolio(element, {
+                        debug: true,
+                        mouseTrackingEnabled: true,
+                        hoverAnimationEnabled: true
+                    });
+                    
+                    // Add event listeners
+                    portfolioComponent.on('itemClicked', (event) => {
+                        console.log('📱 Portfolio item clicked:', event.detail);
+                        updateStatus(`Item ${event.detail.index} clicked`);
+                    });
+                    
+                    portfolioComponent.on('gridAnimated', (event) => {
+                        console.log('🎬 Grid animated:', event.detail.direction);
+                        updateStatus(`Grid animated ${event.detail.direction}`);
+                    });
+                    
+                    console.log('✅ Portfolio component initialized');
+                    updateStatus('Initialized');
+                } else {
+                    console.error('❌ Failed to initialize Portfolio component');
+                    updateStatus('Failed to initialize');
+                }
+            } catch (error) {
+                console.error('❌ Error initializing Portfolio:', error);
+                updateStatus('Error: ' + error.message);
+            }
+        }
+        
+        function testFocusItem(index) {
+            if (portfolioComponent && typeof portfolioComponent.focusItem === 'function') {
+                const success = portfolioComponent.focusItem(index);
+                updateStatus(success ? `Focused item ${index}` : `Failed to focus item ${index}`);
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testBlurAll() {
+            if (portfolioComponent && typeof portfolioComponent.blurAllItems === 'function') {
+                portfolioComponent.blurAllItems();
+                updateStatus('All items blurred');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testToggleMouseTracking() {
+            if (portfolioComponent && typeof portfolioComponent.toggleMouseTracking === 'function') {
+                const enabled = portfolioComponent.toggleMouseTracking();
+                updateStatus(`Mouse tracking ${enabled ? 'enabled' : 'disabled'}`);
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testRefresh() {
+            if (portfolioComponent && typeof portfolioComponent.refresh === 'function') {
+                portfolioComponent.refresh();
+                updateStatus('Component refreshed');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testDestroy() {
+            if (portfolioComponent && typeof portfolioComponent.destroy === 'function') {
+                portfolioComponent.destroy();
+                portfolioComponent = null;
+                updateStatus('Component destroyed');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testReinit() {
+            testDestroy();
+            setTimeout(() => {
+                initPortfolio();
+            }, 100);
+        }
+        
+        function updateStatus(message) {
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.textContent = message;
+            }
+        }
+        
+        function updateDebugPanel() {
+            if (!portfolioComponent) {
+                document.getElementById('componentStatus').textContent = 'Inactive';
+                document.getElementById('itemsCount').textContent = '-';
+                document.getElementById('mouseTracking').textContent = '-';
+                document.getElementById('hoverAnimation').textContent = '-';
+                document.getElementById('animationsCount').textContent = '-';
+                document.getElementById('eventHandlers').textContent = '-';
+                document.getElementById('scrollTriggers').textContent = '-';
+                return;
+            }
+            
+            // Get component stats
+            const stats = portfolioComponent.getStats ? portfolioComponent.getStats() : {};
+            
+            document.getElementById('componentStatus').textContent = 'Active';
+            document.getElementById('itemsCount').textContent = portfolioComponent.portfolioItems ? portfolioComponent.portfolioItems.length : '-';
+            document.getElementById('mouseTracking').textContent = portfolioComponent.options?.mouseTrackingEnabled ? 'Yes' : 'No';
+            document.getElementById('hoverAnimation').textContent = portfolioComponent.options?.hoverAnimationEnabled ? 'Yes' : 'No';
+            document.getElementById('animationsCount').textContent = stats.animations || '-';
+            document.getElementById('eventHandlers').textContent = stats.eventHandlers || '-';
+            
+            // Count ScrollTriggers
+            const scrollTriggers = ScrollTrigger.getAll();
+            document.getElementById('scrollTriggers').textContent = scrollTriggers.length;
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (portfolioComponent && typeof portfolioComponent.handlePortfolioResize === 'function') {
+                portfolioComponent.handlePortfolioResize();
+            }
+        });
+        
+        // Performance monitoring
+        let lastTime = performance.now();
+        let frameCount = 0;
+        
+        function measureFPS() {
+            frameCount++;
+            const currentTime = performance.now();
+            
+            if (currentTime - lastTime >= 1000) {
+                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                console.log(`📊 FPS: ${fps}`);
+                
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            requestAnimationFrame(measureFPS);
+        }
+        
+        // Start FPS monitoring
+        requestAnimationFrame(measureFPS);
+    </script>
+</body>
+</html>

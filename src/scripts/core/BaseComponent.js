@@ -22,6 +22,9 @@ class BaseComponent {
         // Уникальный ID компонента
         this.id = this.generateId();
         
+        // Коллекция для отслеживания обработчиков событий
+        this.eventHandlers = new Map();
+        
         // Проверка зависимостей
         if (!this.checkDependencies()) {
             return;
@@ -51,7 +54,7 @@ class BaseComponent {
      * Переопределяется в дочерних классах
      */
     get requiredDependencies() {
-        return ['gsap']; // Базовые зависимости
+        return []; // Пустой по умолчанию, каждый компонент сам определяет свои зависимости
     }
     
     // =============================================================================
@@ -229,7 +232,26 @@ class BaseComponent {
         // Отправляем глобальное событие
         document.dispatchEvent(event);
         
-        this.log('debug', `Event emitted: ${eventName}`, data);
+        // Безопасные данные для логирования (без циклических ссылок)
+        const safeData = Object.keys(data).reduce((acc, key) => {
+            const value = data[key];
+            if (value instanceof HTMLElement) {
+                acc[key] = `[HTMLElement: ${value.tagName}#${value.id || 'no-id'}]`;
+            } else if (typeof value === 'object' && value !== null) {
+                // Проверяем на циклические ссылки
+                try {
+                    JSON.stringify(value);
+                    acc[key] = value;
+                } catch (e) {
+                    acc[key] = '[Object with circular references]';
+                }
+            } else {
+                acc[key] = value;
+            }
+            return acc;
+        }, {});
+        
+        this.log('debug', `Event emitted: ${eventName}`, safeData);
     }
     
     /**
@@ -246,6 +268,53 @@ class BaseComponent {
     off(eventName, callback) {
         this.element.removeEventListener(`component:${eventName}`, callback);
         this.log('debug', `Event listener removed: ${eventName}`);
+    }
+    
+    /**
+     * Добавление обработчика событий с автоматическим отслеживанием
+     */
+    addEventHandler(target, eventName, handler, options = {}) {
+        const handlerKey = `${target === window ? 'window' : target === document ? 'document' : 'element'}_${eventName}`;
+        
+        // Сохраняем ссылку для последующей очистки
+        if (!this.eventHandlers.has(handlerKey)) {
+            this.eventHandlers.set(handlerKey, []);
+        }
+        
+        this.eventHandlers.get(handlerKey).push({
+            target,
+            eventName,
+            handler,
+            options
+        });
+        
+        // Добавляем обработчик
+        target.addEventListener(eventName, handler, options);
+        
+        this.log('debug', `Event handler added: ${handlerKey}`);
+    }
+    
+    /**
+     * Удаление конкретного обработчика событий
+     */
+    removeEventHandler(target, eventName, handler) {
+        const handlerKey = `${target === window ? 'window' : target === document ? 'document' : 'element'}_${eventName}`;
+        
+        if (this.eventHandlers.has(handlerKey)) {
+            const handlers = this.eventHandlers.get(handlerKey);
+            const index = handlers.findIndex(h => h.handler === handler);
+            
+            if (index !== -1) {
+                handlers.splice(index, 1);
+                target.removeEventListener(eventName, handler);
+                
+                if (handlers.length === 0) {
+                    this.eventHandlers.delete(handlerKey);
+                }
+                
+                this.log('debug', `Event handler removed: ${handlerKey}`);
+            }
+        }
     }
     
     // =============================================================================
@@ -348,8 +417,17 @@ class BaseComponent {
     }
     
     unbindEvents() {
-        // Переопределяется в дочерних классах
-        // Отвязка обработчиков событий
+        // Автоматическая очистка всех зарегистрированных обработчиков событий
+        this.eventHandlers.forEach((handlers, handlerKey) => {
+            handlers.forEach(({ target, eventName, handler }) => {
+                target.removeEventListener(eventName, handler);
+            });
+        });
+        
+        this.eventHandlers.clear();
+        this.log('debug', 'All event handlers cleaned up');
+        
+        // Переопределяется в дочерних классах для дополнительной очистки
     }
     
     cleanupAnimations() {

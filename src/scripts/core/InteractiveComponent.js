@@ -11,17 +11,28 @@ class InteractiveComponent extends BaseComponent {
     constructor(element, options = {}) {
         super(element, options);
         
-        // Коллекции для управления событиями
-        this.eventHandlers = new Map();
-        this.throttledFunctions = new Map();
-        this.debouncedFunctions = new Map();
-        
         // Состояние интерактивности
         this.interactivityEnabled = true;
         this.touchDevice = 'ontouchstart' in window;
         
-        // Настройка обработки resize
-        this.setupResizeHandler();
+        // НЕ вызываем setupResizeHandler() в конструкторе!
+        // Он будет вызван в bindEvents() после полной инициализации
+    }
+    
+    // =============================================================================
+    // Lifecycle Methods (BaseComponent)
+    // =============================================================================
+    
+    beforeInit() {
+        super.beforeInit();
+        
+        // ✅ ПРАВИЛЬНО - инициализация коллекций в beforeInit()
+        // Это гарантирует что коллекции готовы ДО вызова bindEvents()
+        this.eventHandlers = new Map();
+        this.throttledFunctions = new Map();
+        this.debouncedFunctions = new Map();
+        
+        this.log('debug', 'InteractiveComponent collections initialized');
     }
     
     // =============================================================================

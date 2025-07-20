@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ScrollToTop Refactored Test</title>
+    
+    <!-- GSAP (не обязательно для ScrollToTop, но для общей архитектуры) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Performance Config -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    
+    <!-- ScrollToTop Component -->
+    <script src="src/scripts/components/scroll-to-top-new.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        /* Hero Section */
+        #hero {
+            height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .hero-content p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        /* Content Sections */
+        .content-section {
+            min-height: 100vh;
+            padding: 4rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .content-section:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .content-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: #333;
+        }
+        
+        .content-section p {
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+            color: #666;
+        }
+        
+        /* Scroll to Top Button */
+        #scroll-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: #667eea;
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(20px) scale(0.8);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        
+        #scroll-to-top.visible {
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+        
+        #scroll-to-top:hover {
+            background: #5a67d8;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .scroll-to-top__button {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            transition: transform 0.2s ease;
+        }
+        
+        .scroll-to-top__button.clicked {
+            transform: scale(0.9);
+        }
+        
+        .scroll-to-top__button::before {
+            content: '↑';
+            font-weight: bold;
+        }
+        
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 2000;
+            min-width: 300px;
+            border: 1px solid #333;
+        }
+        
+        .debug-panel h4 {
+            margin-bottom: 10px;
+            color: #00ff00;
+        }
+        
+        .debug-panel div {
+            margin-bottom: 5px;
+        }
+        
+        .debug-panel .status {
+            color: #00ff00;
+        }
+        
+        .debug-panel .error {
+            color: #ff0000;
+        }
+        
+        .debug-panel .warning {
+            color: #ffaa00;
+        }
+        
+        .debug-controls {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+        }
+        
+        .debug-controls button {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        
+        .debug-controls button:hover {
+            background: #555;
+        }
+        
+        .test-controls {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #444;
+        }
+        
+        .test-controls button {
+            background: #006600;
+            color: #fff;
+            border: 1px solid #008800;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 10px;
+        }
+        
+        .test-controls button:hover {
+            background: #008800;
+        }
+        
+        /* Scroll Progress Indicator */
+        .scroll-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            z-index: 1001;
+        }
+        
+        .scroll-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            #scroll-to-top {
+                width: 50px;
+                height: 50px;
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+            
+            .content-section h2 {
+                font-size: 2rem;
+            }
+            
+            .debug-panel {
+                right: 10px;
+                top: 10px;
+                min-width: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Scroll Progress -->
+    <div class="scroll-progress">
+        <div class="scroll-progress-bar" id="scroll-progress-bar"></div>
+    </div>
+    
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="hero-content">
+            <h1>🚀 ScrollToTop Test</h1>
+            <p>Scroll down to see the scroll-to-top button appear</p>
+        </div>
+    </section>
+    
+    <!-- Content Sections -->
+    <section class="content-section">
+        <div>
+            <h2>Section 1</h2>
+            <p>This is the first content section. The scroll-to-top button should appear when you scroll past 300px from the top.</p>
+        </div>
+    </section>
+    
+    <section class="content-section">
+        <div>
+            <h2>Section 2</h2>
+            <p>Continue scrolling to test the button functionality. The button should smoothly appear and disappear based on scroll position.</p>
+        </div>
+    </section>
+    
+    <section class="content-section">
+        <div>
+            <h2>Section 3</h2>
+            <p>Test the click functionality by clicking the scroll-to-top button. It should instantly scroll back to the hero section.</p>
+        </div>
+    </section>
+    
+    <section class="content-section">
+        <div>
+            <h2>Section 4</h2>
+            <p>The component includes throttled scroll detection for optimal performance and integrates with Lenis smooth scroll if available.</p>
+        </div>
+    </section>
+    
+    <section class="content-section">
+        <div>
+            <h2>Section 5</h2>
+            <p>This is the final section. Use the debug panel to monitor the component state and test various controls.</p>
+        </div>
+    </section>
+    
+    <!-- Scroll to Top Button -->
+    <button id="scroll-to-top" aria-label="Scroll to top">
+        <div class="scroll-to-top__button"></div>
+    </button>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <h4>🔧 ScrollToTop Debug Panel</h4>
+        <div>Status: <span id="status" class="status">Initializing...</span></div>
+        <div>Visible: <span id="isVisible">false</span></div>
+        <div>Scroll Y: <span id="currentScrollY">0</span>px</div>
+        <div>Threshold: <span id="scrollThreshold">300</span>px</div>
+        <div>Lenis: <span id="lenisAvailable">false</span></div>
+        <div>Hero Cube: <span id="heroCubeAvailable">false</span></div>
+        <div>Component ID: <span id="componentId">--</span></div>
+        
+        <div class="debug-controls">
+            <button onclick="testScrollToTop.getState()">State</button>
+            <button onclick="testScrollToTop.toggle()">Toggle</button>
+            <button onclick="testScrollToTop.scrollToTop()">Scroll Top</button>
+            <button onclick="testScrollToTop.destroy()">Destroy</button>
+        </div>
+        
+        <div class="test-controls">
+            <button onclick="testScrollToTop.setThreshold(100)">Threshold 100px</button>
+            <button onclick="testScrollToTop.setThreshold(500)">Threshold 500px</button>
+            <button onclick="testScrollToTop.forceShow()">Force Show</button>
+            <button onclick="testScrollToTop.forceHide()">Force Hide</button>
+        </div>
+    </div>
+    
+    <script>
+        console.log('🚀 Initializing ScrollToTop Refactored Test');
+        
+        let scrollToTopComponent = null;
+        let updateInterval = null;
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Initialize ScrollToTop Component
+                scrollToTopComponent = new ScrollToTop(document.body, {
+                    debug: true,
+                    scrollThreshold: 300,
+                    scrollThrottle: 16,
+                    lenisIntegration: true,
+                    heroCubeIntegration: true
+                });
+                
+                console.log('✅ ScrollToTop component initialized:', scrollToTopComponent.getState());
+                
+                // Update debug panel
+                updateDebugPanel();
+                
+                // Start periodic updates
+                updateInterval = setInterval(updateDebugPanel, 100);
+                
+                // Listen to ScrollToTop events
+                scrollToTopComponent.on('buttonShown', () => {
+                    console.log('👁️ Button shown');
+                });
+                
+                scrollToTopComponent.on('buttonHidden', () => {
+                    console.log('👻 Button hidden');
+                });
+                
+                scrollToTopComponent.on('scrollToTopClicked', () => {
+                    console.log('🖱️ Button clicked');
+                });
+                
+                scrollToTopComponent.on('scrollStarted', (data) => {
+                    console.log('🚀 Scroll started:', data);
+                });
+                
+                scrollToTopComponent.on('heroCubeReset', (data) => {
+                    console.log('🔄 Hero cube reset:', data);
+                });
+                
+                scrollToTopComponent.on('clickFeedback', () => {
+                    console.log('✨ Click feedback');
+                });
+                
+                scrollToTopComponent.on('toggled', (data) => {
+                    console.log('🔄 Toggled:', data);
+                });
+                
+                scrollToTopComponent.on('thresholdChanged', (data) => {
+                    console.log('📏 Threshold changed:', data);
+                });
+                
+            } catch (error) {
+                console.error('❌ ScrollToTop initialization failed:', error);
+                document.getElementById('status').textContent = 'Error';
+                document.getElementById('status').className = 'error';
+            }
+        });
+        
+        // Update scroll progress bar
+        function updateScrollProgress() {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+            const scrollPercent = (scrollTop / scrollHeight) * 100;
+            
+            document.getElementById('scroll-progress-bar').style.width = scrollPercent + '%';
+        }
+        
+        // Update debug panel
+        function updateDebugPanel() {
+            if (!scrollToTopComponent) return;
+            
+            const state = scrollToTopComponent.getState();
+            
+            document.getElementById('status').textContent = state.isDestroyed ? 'Destroyed' : 'Active';
+            document.getElementById('isVisible').textContent = state.isVisible;
+            document.getElementById('currentScrollY').textContent = state.currentScrollY;
+            document.getElementById('scrollThreshold').textContent = state.scrollThreshold;
+            document.getElementById('lenisAvailable').textContent = state.lenisAvailable;
+            document.getElementById('heroCubeAvailable').textContent = state.heroCubeAvailable;
+            document.getElementById('componentId').textContent = state.id;
+            
+            // Update scroll progress
+            updateScrollProgress();
+        }
+        
+        // Add scroll listener for progress bar
+        window.addEventListener('scroll', updateScrollProgress, { passive: true });
+        
+        // Test functions for console
+        window.testScrollToTop = {
+            getState: () => {
+                const state = scrollToTopComponent?.getState();
+                console.log('ScrollToTop State:', state);
+                return state;
+            },
+            
+            toggle: (force) => {
+                if (scrollToTopComponent) {
+                    scrollToTopComponent.toggle(force);
+                    console.log('🔄 Toggled button');
+                }
+            },
+            
+            scrollToTop: () => {
+                if (scrollToTopComponent) {
+                    scrollToTopComponent.scrollToTop();
+                    console.log('🚀 Programmatic scroll to top');
+                }
+            },
+            
+            setThreshold: (threshold) => {
+                if (scrollToTopComponent) {
+                    scrollToTopComponent.setThreshold(threshold);
+                    console.log(`📏 Threshold set to ${threshold}px`);
+                }
+            },
+            
+            forceShow: () => {
+                if (scrollToTopComponent) {
+                    scrollToTopComponent.toggle(true);
+                    console.log('👁️ Force show button');
+                }
+            },
+            
+            forceHide: () => {
+                if (scrollToTopComponent) {
+                    scrollToTopComponent.toggle(false);
+                    console.log('👻 Force hide button');
+                }
+            },
+            
+            destroy: () => {
+                if (scrollToTopComponent) {
+                    scrollToTopComponent.destroy();
+                    scrollToTopComponent = null;
+                    document.getElementById('status').textContent = 'Destroyed';
+                    document.getElementById('status').className = 'error';
+                    if (updateInterval) {
+                        clearInterval(updateInterval);
+                        updateInterval = null;
+                    }
+                    console.log('🗑️ ScrollToTop destroyed');
+                }
+            }
+        };
+        
+        console.log('🎮 Test functions available in window.testScrollToTop');
+        console.log('📊 Use window.testScrollToTop.getState() to check component state');
+        console.log('🔄 Use window.testScrollToTop.toggle() to toggle button visibility');
+    </script>
+</body>
+</html>

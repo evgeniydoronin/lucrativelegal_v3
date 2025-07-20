@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cursor Play Button Refactored Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            cursor: none; /* Hide default cursor for better effect */
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            position: relative;
+            color: white;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            font-weight: bold;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+            max-width: 600px;
+        }
+        
+        .video-placeholder {
+            width: 600px;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border: 2px dashed rgba(255, 255, 255, 0.5);
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .video-placeholder:hover {
+            background: rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Cursor Play Button Styles */
+        .cursor-play-button {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 12px 20px;
+            border-radius: 50px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            font-weight: 600;
+            font-size: 14px;
+            white-space: nowrap;
+            user-select: none;
+        }
+        
+        .cursor-play-content {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .cursor-play-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 20px;
+            height: 20px;
+            background: #007bff;
+            color: white;
+            border-radius: 50%;
+        }
+        
+        .cursor-play-icon svg {
+            width: 10px;
+            height: 10px;
+            margin-left: 1px; /* Визуальное центрирование треугольника */
+        }
+        
+        /* Test Controls */
+        .test-controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            max-width: 300px;
+            cursor: auto; /* Restore cursor for controls */
+        }
+        
+        .test-controls h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .test-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background: #0056b3;
+        }
+        
+        .test-button.secondary {
+            background: #6c757d;
+        }
+        
+        .test-button.secondary:hover {
+            background: #545b62;
+        }
+        
+        .test-button.success {
+            background: #28a745;
+        }
+        
+        .test-button.success:hover {
+            background: #1e7e34;
+        }
+        
+        .test-button.danger {
+            background: #dc3545;
+        }
+        
+        .test-button.danger:hover {
+            background: #c82333;
+        }
+        
+        .status-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+            border-left: 4px solid #007bff;
+        }
+        
+        /* Debug Console */
+        .debug-console {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-y: auto;
+            z-index: 1002;
+            display: none;
+            cursor: auto; /* Restore cursor for console */
+        }
+        
+        .debug-console.visible {
+            display: block;
+        }
+        
+        .debug-console .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+        }
+        
+        .debug-console .log-entry.error {
+            color: #ff4444;
+        }
+        
+        .debug-console .log-entry.warn {
+            color: #ffaa00;
+        }
+        
+        .debug-console .log-entry.info {
+            color: #44aaff;
+        }
+        
+        .debug-console .log-entry.success {
+            color: #44ff44;
+        }
+        
+        /* Instructions */
+        .instructions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            color: #333;
+            z-index: 1000;
+            max-width: 300px;
+            cursor: auto; /* Restore cursor for instructions */
+        }
+        
+        .instructions h4 {
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+        
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .instructions li {
+            margin: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .instructions li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #007bff;
+        }
+        
+        /* Mobile message */
+        .mobile-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            z-index: 1003;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-message {
+                display: block;
+            }
+            
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .video-placeholder {
+                width: 90%;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Controls -->
+    <div class="test-controls">
+        <h3>🎬 Cursor Play Button Test</h3>
+        
+        <button class="test-button success" onclick="testCursorPlayButton.activate()">
+            ▶️ Activate Button
+        </button>
+        <button class="test-button danger" onclick="testCursorPlayButton.deactivate()">
+            ⏹️ Deactivate Button
+        </button>
+        <button class="test-button" onclick="testCursorPlayButton.updateMobile()">
+            📱 Update Mobile State
+        </button>
+        
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+        
+        <button class="test-button secondary" onclick="testCursorPlayButton.getState()">
+            📊 Get State
+        </button>
+        <button class="test-button secondary" onclick="testCursorPlayButton.getElements()">
+            📋 Get Elements
+        </button>
+        <button class="test-button secondary" onclick="testCursorPlayButton.toggleDebug()">
+            🐛 Toggle Debug Console
+        </button>
+        
+        <div class="status-display" id="status-display">
+            <strong>Status:</strong> Initializing...
+        </div>
+    </div>
+    
+    <!-- Instructions -->
+    <div class="instructions">
+        <h4>🎯 How to Test:</h4>
+        <ul>
+            <li>Click "Activate Button"</li>
+            <li>Move mouse around</li>
+            <li>Click anywhere to "play"</li>
+            <li>Watch debug console</li>
+            <li>Test on mobile/desktop</li>
+        </ul>
+    </div>
+    
+    <!-- Mobile Message -->
+    <div class="mobile-message">
+        <h3>📱 Mobile Device Detected</h3>
+        <p>Cursor Play Button is disabled on mobile devices.<br>
+        The component will execute the callback immediately.</p>
+    </div>
+    
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <h1 class="hero-title">Cursor Play Button Demo</h1>
+        <p class="hero-subtitle">
+            Move your mouse around and click anywhere when the play button is active.
+            The button will follow your cursor with smooth animation.
+        </p>
+        
+        <div class="video-placeholder">
+            <span>🎥 Video Placeholder - Click anywhere when button is active</span>
+        </div>
+        
+        <p style="opacity: 0.7; font-size: 1rem;">
+            Use the controls in the top-left corner to test the component
+        </p>
+    </section>
+    
+    <!-- Debug Console -->
+    <div class="debug-console" id="debug-console">
+        <div style="color: #fff; margin-bottom: 10px; border-bottom: 2px solid #00ff00; padding-bottom: 5px;">
+            🐛 Debug Console - Cursor Play Button Component
+        </div>
+    </div>
+    
+    <!-- Performance Config -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    <script src="src/scripts/core/AnimatedInteractiveComponent.js"></script>
+    
+    <!-- Cursor Play Button Component -->
+    <script src="src/scripts/components/cursor-play-button-new.js"></script>
+    
+    <script>
+        console.log('🚀 Initializing Cursor Play Button Refactored Test');
+        
+        // Debug console management
+        let debugConsole = null;
+        let debugVisible = false;
+        
+        function addDebugLog(message, type = 'info') {
+            if (!debugConsole) {
+                debugConsole = document.getElementById('debug-console');
+            }
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            
+            debugConsole.appendChild(logEntry);
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+            
+            // Limit console entries
+            const entries = debugConsole.querySelectorAll('.log-entry');
+            if (entries.length > 100) {
+                entries[0].remove();
+            }
+        }
+        
+        // Initialize Cursor Play Button Component
+        let cursorPlayButton = null;
+        
+        try {
+            cursorPlayButton = new CursorPlayButton(document.body, {
+                debug: true,
+                customLogger: (level, message, data) => {
+                    let dataStr = '';
+                    if (data) {
+                        try {
+                            dataStr = ' ' + JSON.stringify(data, (key, value) => {
+                                // Исключаем DOM элементы и функции
+                                if (value instanceof HTMLElement) {
+                                    return `[HTMLElement: ${value.tagName}#${value.id || 'no-id'}]`;
+                                }
+                                if (typeof value === 'function') {
+                                    return '[Function]';
+                                }
+                                return value;
+                            });
+                        } catch (e) {
+                            dataStr = ' [Object with circular references]';
+                        }
+                    }
+                    addDebugLog(`${message}${dataStr}`, level);
+                }
+            });
+            
+            console.log('✅ CursorPlayButton component initialized:', cursorPlayButton.getState());
+            
+            // Update status display
+            const state = cursorPlayButton.getState();
+            document.getElementById('status-display').innerHTML = `
+                <strong>Status:</strong> ✅ Initialized<br>
+                <strong>ID:</strong> ${state.id}<br>
+                <strong>Mobile:</strong> ${state.isMobile ? 'Yes' : 'No'}<br>
+                <strong>Has Button:</strong> ${state.hasButton ? 'Yes' : 'No'}<br>
+                <strong>Active:</strong> ${state.isActive ? 'Yes' : 'No'}
+            `;
+            
+        } catch (error) {
+            console.error('❌ Failed to initialize CursorPlayButton:', error);
+            addDebugLog(`Failed to initialize: ${error.message}`, 'error');
+            
+            document.getElementById('status-display').innerHTML = `
+                <strong>Status:</strong> ❌ Failed<br>
+                <strong>Error:</strong> ${error.message}
+            `;
+        }
+        
+        // Event Listeners
+        if (cursorPlayButton) {
+            // Button activated
+            cursorPlayButton.on('activated', (event) => {
+                console.log('🎬 Button activated:', event.detail);
+                addDebugLog(`Button activated with callback: ${event.detail.callback}`, 'success');
+            });
+            
+            // Button deactivated
+            cursorPlayButton.on('deactivated', (event) => {
+                console.log('🎬 Button deactivated:', event.detail);
+                addDebugLog(`Button deactivated`, 'info');
+            });
+            
+            // Play triggered
+            cursorPlayButton.on('playTriggered', (event) => {
+                console.log('🎬 Play triggered:', event.detail);
+                addDebugLog(`Play triggered by click`, 'success');
+            });
+            
+            // Mobile state changed
+            cursorPlayButton.on('mobileStateChanged', (event) => {
+                console.log('📱 Mobile state changed:', event.detail);
+                addDebugLog(`Mobile state: ${event.detail.wasMobile} → ${event.detail.isMobile}`, 'info');
+            });
+            
+            // Callback updated
+            cursorPlayButton.on('callbackUpdated', (event) => {
+                console.log('🔄 Callback updated:', event.detail);
+                addDebugLog(`Callback updated: ${event.detail.hasCallback}`, 'info');
+            });
+        }
+        
+        // Test Functions
+        window.testCursorPlayButton = {
+            activate: () => {
+                if (!cursorPlayButton) {
+                    console.warn('⚠️ CursorPlayButton not initialized');
+                    return;
+                }
+                
+                // Create a mock play callback
+                const playCallback = () => {
+                    console.log('🎥 Video play callback executed!');
+                    addDebugLog('Video play callback executed!', 'success');
+                    
+                    // Show visual feedback
+                    const placeholder = document.querySelector('.video-placeholder');
+                    if (placeholder) {
+                        placeholder.style.background = 'rgba(40, 167, 69, 0.3)';
+                        placeholder.innerHTML = '<span>🎥 Video Playing! (Mock)</span>';
+                        
+                        setTimeout(() => {
+                            placeholder.style.background = 'rgba(0, 0, 0, 0.3)';
+                            placeholder.innerHTML = '<span>🎥 Video Placeholder - Click anywhere when button is active</span>';
+                        }, 2000);
+                    }
+                    
+                    // Auto-deactivate after play
+                    setTimeout(() => {
+                        cursorPlayButton.deactivate();
+                    }, 1000);
+                };
+                
+                cursorPlayButton.activate(playCallback);
+                console.log('🎬 Button activated with callback');
+                
+                // Update status
+                const state = cursorPlayButton.getState();
+                document.getElementById('status-display').innerHTML = `
+                    <strong>Status:</strong> ✅ Active<br>
+                    <strong>Mobile:</strong> ${state.isMobile ? 'Yes' : 'No'}<br>
+                    <strong>Has Button:</strong> ${state.hasButton ? 'Yes' : 'No'}<br>
+                    <strong>Has Callback:</strong> ${state.hasCallback ? 'Yes' : 'No'}<br>
+                    <strong>Global Handler:</strong> ${state.hasGlobalHandler ? 'Yes' : 'No'}
+                `;
+            },
+            
+            deactivate: () => {
+                if (!cursorPlayButton) {
+                    console.warn('⚠️ CursorPlayButton not initialized');
+                    return;
+                }
+                
+                cursorPlayButton.deactivate();
+                console.log('🎬 Button deactivated');
+                
+                // Update status
+                const state = cursorPlayButton.getState();
+                document.getElementById('status-display').innerHTML = `
+                    <strong>Status:</strong> ⏹️ Inactive<br>
+                    <strong>Mobile:</strong> ${state.isMobile ? 'Yes' : 'No'}<br>
+                    <strong>Has Button:</strong> ${state.hasButton ? 'Yes' : 'No'}<br>
+                    <strong>Has Callback:</strong> ${state.hasCallback ? 'Yes' : 'No'}<br>
+                    <strong>Global Handler:</strong> ${state.hasGlobalHandler ? 'Yes' : 'No'}
+                `;
+            },
+            
+            updateMobile: () => {
+                if (!cursorPlayButton) {
+                    console.warn('⚠️ CursorPlayButton not initialized');
+                    return;
+                }
+                
+                const isMobile = cursorPlayButton.updateMobileState();
+                console.log(`📱 Mobile state updated: ${isMobile}`);
+                addDebugLog(`Mobile state updated: ${isMobile}`, 'info');
+            },
+            
+            getState: () => {
+                if (!cursorPlayButton) {
+                    console.warn('⚠️ CursorPlayButton not initialized');
+                    return;
+                }
+                
+                const state = cursorPlayButton.getState();
+                console.log('📊 CursorPlayButton State:', state);
+                addDebugLog(`State: ${JSON.stringify(state, null, 2)}`, 'info');
+                return state;
+            },
+            
+            getElements: () => {
+                if (!cursorPlayButton) {
+                    console.warn('⚠️ CursorPlayButton not initialized');
+                    return;
+                }
+                
+                const elements = cursorPlayButton.getElements();
+                console.log('📋 CursorPlayButton Elements:', elements);
+                addDebugLog(`Elements: button=${!!elements.button}, content=${!!elements.content}`, 'info');
+                return elements;
+            },
+            
+            toggleDebug: () => {
+                debugVisible = !debugVisible;
+                const console = document.getElementById('debug-console');
+                console.classList.toggle('visible', debugVisible);
+                
+                if (debugVisible) {
+                    addDebugLog('Debug console opened', 'info');
+                } else {
+                    console.log('🐛 Debug console closed');
+                }
+            }
+        };
+        
+        console.log('🎮 Test functions available in window.testCursorPlayButton');
+        console.log('📊 Use window.testCursorPlayButton.getState() to check component state');
+        console.log('🎬 Use window.testCursorPlayButton.activate() to activate the button');
+        console.log('🐛 Use window.testCursorPlayButton.toggleDebug() to show debug console');
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'd':
+                        e.preventDefault();
+                        window.testCursorPlayButton.toggleDebug();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        window.testCursorPlayButton.getState();
+                        break;
+                    case 'a':
+                        e.preventDefault();
+                        window.testCursorPlayButton.activate();
+                        break;
+                    case 'q':
+                        e.preventDefault();
+                        window.testCursorPlayButton.deactivate();
+                        break;
+                }
+            }
+        });
+        
+        console.log('⌨️ Keyboard shortcuts: Ctrl+D (debug), Ctrl+S (state), Ctrl+A (activate), Ctrl+Q (deactivate)');
+        
+        // Auto-activate for demo (after 2 seconds)
+        setTimeout(() => {
+            if (cursorPlayButton && !cursorPlayButton.getState().isMobile) {
+                console.log('🎬 Auto-activating button for demo...');
+                window.testCursorPlayButton.activate();
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

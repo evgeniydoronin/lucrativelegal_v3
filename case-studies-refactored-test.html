@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Case Studies Refactored - Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a1a;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .test-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            z-index: 1000;
+            border-bottom: 2px solid #333;
+        }
+        
+        .test-header h1 {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .test-controls button {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .test-controls button:hover {
+            background: #555;
+        }
+        
+        .test-controls button.active {
+            background: #00ff88;
+            color: black;
+        }
+        
+        .status {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* Spacer for fixed header */
+        .header-spacer {
+            height: 120px;
+        }
+        
+        /* Case Studies Styles */
+        #case-studies {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+        }
+        
+        .horizontal-scroll-container {
+            height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .slides-wrapper {
+            display: flex;
+            height: 100%;
+            will-change: transform;
+        }
+        
+        .slide {
+            min-width: 100vw;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 2rem;
+        }
+        
+        .slide:nth-child(1) { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .slide:nth-child(2) { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+        .slide:nth-child(3) { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+        .slide:nth-child(4) { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
+        .slide:nth-child(5) { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
+        .slide:nth-child(6) { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+        .slide:nth-child(7) { background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%); }
+        
+        .slide-content {
+            text-align: center;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .slide-content h2 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+        
+        .slide-content p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .slide-content .slide-number {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-width: 300px;
+            z-index: 999;
+        }
+        
+        .debug-panel h3 {
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+        
+        .debug-panel .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+            color: #ccc;
+        }
+        
+        .debug-panel .metric .value {
+            color: #00ff88;
+        }
+        
+        /* Spacer sections */
+        .spacer-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: #2a2a2a;
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Header -->
+    <div class="test-header">
+        <h1>🎢 Case Studies Horizontal Scroll - Refactored Test</h1>
+        <div class="test-controls">
+            <button onclick="testGoToSlide(0)">Slide 1</button>
+            <button onclick="testGoToSlide(1)">Slide 2</button>
+            <button onclick="testGoToSlide(2)">Slide 3</button>
+            <button onclick="testGoToSlide(3)">Slide 4</button>
+            <button onclick="testGoToSlide(4)">Slide 5</button>
+            <button onclick="testGoToSlide(5)">Slide 6</button>
+            <button onclick="testGoToSlide(6)">Slide 7</button>
+            <button onclick="testRefresh()">Refresh</button>
+            <button onclick="testDestroy()">Destroy</button>
+            <button onclick="testReinit()">Re-init</button>
+            <span class="status" id="status">Initializing...</span>
+        </div>
+    </div>
+    
+    <div class="header-spacer"></div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debugPanel">
+        <h3>📊 Debug Info</h3>
+        <div class="metric">
+            <span>Component:</span>
+            <span class="value" id="componentStatus">Loading...</span>
+        </div>
+        <div class="metric">
+            <span>Current Slide:</span>
+            <span class="value" id="currentSlide">-</span>
+        </div>
+        <div class="metric">
+            <span>Total Slides:</span>
+            <span class="value" id="totalSlides">-</span>
+        </div>
+        <div class="metric">
+            <span>Scroll Distance:</span>
+            <span class="value" id="scrollDistance">-</span>
+        </div>
+        <div class="metric">
+            <span>Has Timeline:</span>
+            <span class="value" id="hasTimeline">-</span>
+        </div>
+        <div class="metric">
+            <span>AnimationService:</span>
+            <span class="value" id="animationService">-</span>
+        </div>
+        <div class="metric">
+            <span>ScrollTriggers:</span>
+            <span class="value" id="scrollTriggers">-</span>
+        </div>
+    </div>
+    
+    <!-- Spacer Section -->
+    <div class="spacer-section">
+        <div>Scroll down to see Case Studies ⬇️</div>
+    </div>
+    
+    <!-- Case Studies Section -->
+    <section id="case-studies">
+        <div class="horizontal-scroll-container">
+            <div class="slides-wrapper">
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="slide-number">1/7</div>
+                        <h2>Legal Marketing Revolution</h2>
+                        <p>Transforming how law firms connect with clients through innovative digital strategies and compelling storytelling.</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="slide-number">2/7</div>
+                        <h2>Personal Injury Success</h2>
+                        <p>Helping personal injury attorneys achieve 300% increase in qualified leads through targeted campaigns.</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="slide-number">3/7</div>
+                        <h2>Corporate Law Growth</h2>
+                        <p>Scaling corporate law practices with sophisticated branding and client acquisition strategies.</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="slide-number">4/7</div>
+                        <h2>Family Law Excellence</h2>
+                        <p>Building trust and empathy in family law marketing while maintaining professional authority.</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="slide-number">5/7</div>
+                        <h2>Criminal Defense Impact</h2>
+                        <p>Creating powerful narratives for criminal defense attorneys that resonate with potential clients.</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="slide-number">6/7</div>
+                        <h2>Immigration Law Reach</h2>
+                        <p>Expanding immigration law practices through culturally sensitive and multilingual marketing approaches.</p>
+                    </div>
+                </div>
+                <div class="slide">
+                    <div class="slide-content">
+                        <div class="slide-number">7/7</div>
+                        <h2>Future of Legal Marketing</h2>
+                        <p>Pioneering the next generation of legal marketing with AI, automation, and personalized client experiences.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Another Spacer Section -->
+    <div class="spacer-section">
+        <div>End of Case Studies ⬆️</div>
+    </div>
+
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    <script src="src/scripts/core/AnimatedInteractiveComponent.js"></script>
+    <script src="src/scripts/services/ScrollTriggerManager.js"></script>
+    <script src="src/scripts/core/AnimationService.js"></script>
+    
+    <!-- Case Studies Component -->
+    <script src="src/scripts/components/case-studies-new.js?v=20250119-2157"></script>
+    
+    <script>
+        // Global variables
+        let caseStudiesComponent = null;
+        let animationService = null;
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Case Studies Test');
+            
+            // Initialize AnimationService
+            if (window.AnimationService) {
+                animationService = window.AnimationService.getInstance();
+                console.log('✅ AnimationService initialized');
+            }
+            
+            // Initialize Case Studies component
+            initCaseStudies();
+            
+            // Start debug updates
+            setInterval(updateDebugPanel, 1000);
+            
+            updateStatus('Ready');
+        });
+        
+        function initCaseStudies() {
+            try {
+                const element = document.querySelector('#case-studies');
+                if (element && window.CaseStudiesHorizontalScroll) {
+                    caseStudiesComponent = new CaseStudiesHorizontalScroll(element);
+                    console.log('✅ Case Studies component initialized');
+                    updateStatus('Initialized');
+                } else {
+                    console.error('❌ Failed to initialize Case Studies component');
+                    updateStatus('Failed to initialize');
+                }
+            } catch (error) {
+                console.error('❌ Error initializing Case Studies:', error);
+                updateStatus('Error: ' + error.message);
+            }
+        }
+        
+        function testGoToSlide(index) {
+            if (caseStudiesComponent && typeof caseStudiesComponent.goToSlide === 'function') {
+                caseStudiesComponent.goToSlide(index);
+                updateStatus(`Navigating to slide ${index + 1}`);
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testRefresh() {
+            if (caseStudiesComponent && typeof caseStudiesComponent.handleResize === 'function') {
+                caseStudiesComponent.handleResize();
+                updateStatus('Component refreshed');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testDestroy() {
+            if (caseStudiesComponent && typeof caseStudiesComponent.destroy === 'function') {
+                caseStudiesComponent.destroy();
+                caseStudiesComponent = null;
+                updateStatus('Component destroyed');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testReinit() {
+            testDestroy();
+            setTimeout(() => {
+                initCaseStudies();
+            }, 100);
+        }
+        
+        function updateStatus(message) {
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.textContent = message;
+            }
+        }
+        
+        function updateDebugPanel() {
+            const state = caseStudiesComponent ? caseStudiesComponent.getState() : null;
+            
+            document.getElementById('componentStatus').textContent = caseStudiesComponent ? 'Active' : 'Inactive';
+            document.getElementById('currentSlide').textContent = state ? (state.currentSlideIndex + 1) : '-';
+            document.getElementById('totalSlides').textContent = state ? state.totalSlides : '-';
+            document.getElementById('scrollDistance').textContent = state ? state.scrollDistance + 'px' : '-';
+            document.getElementById('hasTimeline').textContent = state ? (state.hasTimeline ? 'Yes' : 'No') : '-';
+            document.getElementById('animationService').textContent = animationService ? 'Active' : 'Inactive';
+            
+            // Count ScrollTriggers
+            const scrollTriggers = ScrollTrigger.getAll();
+            document.getElementById('scrollTriggers').textContent = scrollTriggers.length;
+        }
+        
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            if (caseStudiesComponent && typeof caseStudiesComponent.handleResize === 'function') {
+                caseStudiesComponent.handleResize();
+            }
+        });
+        
+        // Performance monitoring
+        let lastTime = performance.now();
+        let frameCount = 0;
+        
+        function measureFPS() {
+            frameCount++;
+            const currentTime = performance.now();
+            
+            if (currentTime - lastTime >= 1000) {
+                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                console.log(`📊 FPS: ${fps}`);
+                
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            requestAnimationFrame(measureFPS);
+        }
+        
+        // Start FPS monitoring
+        requestAnimationFrame(measureFPS);
+    </script>
+</body>
+</html>

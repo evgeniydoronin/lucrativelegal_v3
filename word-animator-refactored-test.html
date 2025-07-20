@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Word Animator Refactored Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f5f5f5;
+        }
+        
+        /* Section Styles */
+        .section {
+            min-height: 100vh;
+            padding: 100px 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section:nth-child(odd) {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .section:nth-child(even) {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        /* Typography */
+        .section-title {
+            font-size: 3rem;
+            margin-bottom: 30px;
+            font-weight: bold;
+        }
+        
+        .section-description {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 40px;
+            line-height: 1.8;
+        }
+        
+        .section-description.long-text {
+            max-width: 1000px;
+            font-size: 1.1rem;
+        }
+        
+        /* Word Animation Styles */
+        .word {
+            display: inline-block;
+            position: relative;
+            margin-right: 0.3em;
+        }
+        
+        .blur-word {
+            display: inline-block;
+            position: relative;
+            margin-right: 0.3em;
+            will-change: opacity, filter;
+        }
+        
+        /* Test Controls */
+        .test-controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            max-width: 300px;
+        }
+        
+        .test-controls h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .test-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background: #0056b3;
+        }
+        
+        .test-button.secondary {
+            background: #6c757d;
+        }
+        
+        .test-button.secondary:hover {
+            background: #545b62;
+        }
+        
+        .test-button.success {
+            background: #28a745;
+        }
+        
+        .test-button.success:hover {
+            background: #1e7e34;
+        }
+        
+        .status-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            font-size: 12px;
+            border-left: 4px solid #007bff;
+        }
+        
+        /* Debug Console */
+        .debug-console {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.9);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-y: auto;
+            z-index: 1002;
+            display: none;
+        }
+        
+        .debug-console.visible {
+            display: block;
+        }
+        
+        .debug-console .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+        }
+        
+        .debug-console .log-entry.error {
+            color: #ff4444;
+        }
+        
+        .debug-console .log-entry.warn {
+            color: #ffaa00;
+        }
+        
+        .debug-console .log-entry.info {
+            color: #44aaff;
+        }
+        
+        .debug-console .log-entry.success {
+            color: #44ff44;
+        }
+        
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #333;
+            z-index: 1000;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateY(0);
+            }
+            40% {
+                transform: translateY(-10px);
+            }
+            60% {
+                transform: translateY(-5px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Controls -->
+    <div class="test-controls">
+        <h3>🎭 Word Animator Test</h3>
+        
+        <button class="test-button" onclick="testWordAnimator.addWordElement()">
+            ➕ Add Word Element
+        </button>
+        <button class="test-button" onclick="testWordAnimator.addBlurElement()">
+            ➕ Add Blur Element
+        </button>
+        <button class="test-button" onclick="testWordAnimator.refresh()">
+            🔄 Refresh ScrollTrigger
+        </button>
+        <button class="test-button" onclick="testWordAnimator.toggleParallax()">
+            🌊 Toggle Parallax
+        </button>
+        
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+        
+        <button class="test-button secondary" onclick="testWordAnimator.getState()">
+            📊 Get State
+        </button>
+        <button class="test-button secondary" onclick="testWordAnimator.getElements()">
+            📋 Get Elements
+        </button>
+        <button class="test-button secondary" onclick="testWordAnimator.scrollToSection(2)">
+            📍 Scroll to Section 2
+        </button>
+        <button class="test-button secondary" onclick="testWordAnimator.toggleDebug()">
+            🐛 Toggle Debug Console
+        </button>
+        
+        <div class="status-display" id="status-display">
+            <strong>Status:</strong> Initializing...
+        </div>
+    </div>
+    
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator">
+        👇 Scroll to see animations
+    </div>
+    
+    <!-- Sections with different animation types -->
+    <section class="section">
+        <h1 class="section-title js-word-animate">Word Animation Test</h1>
+        <p class="section-description js-scroll-blur-effect">This is a short text that demonstrates the scroll blur effect with progressive word animation. Each word becomes clear as you scroll.</p>
+    </section>
+    
+    <section class="section">
+        <h2 class="section-title js-scroll-blur-effect">Scroll Blur Title</h2>
+        <p class="section-description js-word-animate">This paragraph uses simple word animation. Words appear one by one with a stagger effect when the section comes into view.</p>
+    </section>
+    
+    <section class="section">
+        <h2 class="section-title js-scroll-blur-effect">Long Text Adaptive</h2>
+        <p class="section-description long-text js-scroll-blur-effect-adaptive">
+            This is a much longer text that demonstrates the adaptive scroll blur effect. The adaptive algorithm automatically adjusts the animation timing and parameters based on the text length. 
+            With longer texts like this one, the system uses faster delay steps and uniform initial blur values to ensure smooth performance. 
+            The parallax effect is also reduced for adaptive texts to maintain readability. This approach ensures that both short and long texts have optimal animation experiences.
+            Notice how all words start with the same blur level and gradually become clear as you scroll, creating a smooth reading experience.
+        </p>
+    </section>
+    
+    <section class="section">
+        <h2 class="section-title js-word-animate">Mixed Animations</h2>
+        <p class="section-description js-scroll-blur-effect">Regular blur effect for comparison.</p>
+        <p class="section-description js-word-animate" style="margin-top: 20px;">And word animation below it.</p>
+    </section>
+    
+    <section class="section">
+        <h2 class="section-title js-scroll-blur-effect">Performance Test</h2>
+        <p class="section-description long-text js-scroll-blur-effect-adaptive">
+            This section tests performance with multiple animated elements. The WordAnimator component is designed to handle multiple simultaneous animations efficiently.
+            It uses GSAP's optimized rendering and ScrollTrigger's performance features to maintain smooth 60fps animations even with complex text effects.
+            The component also includes proper cleanup mechanisms to prevent memory leaks and ensure optimal performance throughout the page lifecycle.
+            All animations are properly managed through the BaseComponent architecture with automatic resource cleanup.
+        </p>
+        <div style="margin-top: 30px;">
+            <p class="js-word-animate" style="font-size: 1rem; margin: 10px 0;">First dynamic word element</p>
+            <p class="js-scroll-blur-effect" style="font-size: 1rem; margin: 10px 0;">Second blur effect element</p>
+            <p class="js-word-animate" style="font-size: 1rem; margin: 10px 0;">Third word animation element</p>
+        </div>
+    </section>
+    
+    <!-- Debug Console -->
+    <div class="debug-console" id="debug-console">
+        <div style="color: #fff; margin-bottom: 10px; border-bottom: 2px solid #00ff00; padding-bottom: 5px;">
+            🐛 Debug Console - Word Animator Component
+        </div>
+    </div>
+    
+    <!-- Performance Config -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    
+    <!-- Word Animator Component -->
+    <script src="src/scripts/components/word-animator-new.js"></script>
+    
+    <script>
+        console.log('🚀 Initializing Word Animator Refactored Test');
+        
+        // Debug console management
+        let debugConsole = null;
+        let debugVisible = false;
+        
+        function addDebugLog(message, type = 'info') {
+            if (!debugConsole) {
+                debugConsole = document.getElementById('debug-console');
+            }
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            
+            debugConsole.appendChild(logEntry);
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+            
+            // Limit console entries
+            const entries = debugConsole.querySelectorAll('.log-entry');
+            if (entries.length > 100) {
+                entries[0].remove();
+            }
+        }
+        
+        // Initialize Word Animator Component
+        let wordAnimator = null;
+        
+        try {
+            wordAnimator = new WordAnimator(document.body, {
+                debug: true,
+                customLogger: (level, message, data) => {
+                    let dataStr = '';
+                    if (data) {
+                        try {
+                            dataStr = ' ' + JSON.stringify(data, (key, value) => {
+                                // Исключаем DOM элементы и GSAP свойства
+                                if (value instanceof HTMLElement) {
+                                    return `[HTMLElement: ${value.tagName}#${value.id || 'no-id'}]`;
+                                }
+                                if (key === '_gsap' || key === 'target' || key === 'element') {
+                                    return '[Circular Reference]';
+                                }
+                                if (typeof value === 'function') {
+                                    return '[Function]';
+                                }
+                                return value;
+                            });
+                        } catch (e) {
+                            dataStr = ' [Object with circular references]';
+                        }
+                    }
+                    addDebugLog(`${message}${dataStr}`, level);
+                }
+            });
+            
+            console.log('✅ WordAnimator component initialized:', wordAnimator.getState());
+            
+            // Update status display
+            const state = wordAnimator.getState();
+            document.getElementById('status-display').innerHTML = `
+                <strong>Status:</strong> ✅ Initialized<br>
+                <strong>ID:</strong> ${state.id}<br>
+                <strong>Word Elements:</strong> ${state.wordElementsCount}<br>
+                <strong>Blur Elements:</strong> ${state.scrollBlurElementsCount}<br>
+                <strong>Total Processed:</strong> ${state.processedElementsCount}
+            `;
+            
+        } catch (error) {
+            console.error('❌ Failed to initialize WordAnimator:', error);
+            addDebugLog(`Failed to initialize: ${error.message}`, 'error');
+            
+            document.getElementById('status-display').innerHTML = `
+                <strong>Status:</strong> ❌ Failed<br>
+                <strong>Error:</strong> ${error.message}
+            `;
+        }
+        
+        // Event Listeners
+        if (wordAnimator) {
+            // Words animated in
+            wordAnimator.on('wordsAnimatedIn', (event) => {
+                console.log('🎭 Words animated in:', event.detail);
+                addDebugLog(`Words animated in for element`, 'success');
+            });
+            
+            // Words animated out
+            wordAnimator.on('wordsAnimatedOut', (event) => {
+                console.log('🎭 Words animated out:', event.detail);
+                addDebugLog(`Words animated out for element`, 'info');
+            });
+            
+            // Scroll blur started
+            wordAnimator.on('scrollBlurStarted', (event) => {
+                console.log('🌫️ Scroll blur started:', event.detail);
+                addDebugLog(`Scroll blur started for element`, 'info');
+            });
+            
+            // Scroll blur completed
+            wordAnimator.on('scrollBlurCompleted', (event) => {
+                console.log('🌫️ Scroll blur completed:', event.detail);
+                addDebugLog(`Scroll blur completed for element`, 'success');
+            });
+            
+            // Element added
+            wordAnimator.on('elementAdded', (event) => {
+                console.log('➕ Element added:', event.detail);
+                addDebugLog(`New ${event.detail.type} element added`, 'success');
+            });
+            
+            // Parallax toggled
+            wordAnimator.on('parallaxToggled', (event) => {
+                console.log('🌊 Parallax toggled:', event.detail);
+                addDebugLog(`Parallax ${event.detail.enabled ? 'enabled' : 'disabled'}`, 'info');
+            });
+            
+            // Refreshed
+            wordAnimator.on('refreshed', (event) => {
+                console.log('🔄 WordAnimator refreshed:', event.detail);
+                addDebugLog(`ScrollTrigger refreshed`, 'info');
+            });
+        }
+        
+        // Test Functions
+        window.testWordAnimator = {
+            addWordElement: () => {
+                if (!wordAnimator) {
+                    console.warn('⚠️ WordAnimator not initialized');
+                    return;
+                }
+                
+                // Create new element
+                const newElement = document.createElement('p');
+                newElement.textContent = `Dynamic word element added at ${new Date().toLocaleTimeString()}`;
+                newElement.style.cssText = 'font-size: 1rem; margin: 20px auto; max-width: 600px; text-align: center;';
+                
+                // Add to last section
+                const lastSection = document.querySelector('.section:last-child');
+                lastSection.appendChild(newElement);
+                
+                // Add to WordAnimator
+                const success = wordAnimator.addElement(newElement, 'word');
+                console.log(`➕ Added word element: ${success}`);
+                
+                // Update status
+                const state = wordAnimator.getState();
+                document.getElementById('status-display').innerHTML = `
+                    <strong>Status:</strong> ✅ Active<br>
+                    <strong>Word Elements:</strong> ${state.wordElementsCount}<br>
+                    <strong>Blur Elements:</strong> ${state.scrollBlurElementsCount}<br>
+                    <strong>Total:</strong> ${state.processedElementsCount}
+                `;
+            },
+            
+            addBlurElement: () => {
+                if (!wordAnimator) {
+                    console.warn('⚠️ WordAnimator not initialized');
+                    return;
+                }
+                
+                // Create new element
+                const newElement = document.createElement('p');
+                newElement.textContent = `Dynamic blur element with scroll effect added at ${new Date().toLocaleTimeString()}. This text will have blur animation.`;
+                newElement.style.cssText = 'font-size: 1rem; margin: 20px auto; max-width: 600px; text-align: center;';
+                
+                // Add to last section
+                const lastSection = document.querySelector('.section:last-child');
+                lastSection.appendChild(newElement);
+                
+                // Add to WordAnimator
+                const success = wordAnimator.addElement(newElement, 'blur');
+                console.log(`➕ Added blur element: ${success}`);
+                
+                // Update status
+                const state = wordAnimator.getState();
+                document.getElementById('status-display').innerHTML = `
+                    <strong>Status:</strong> ✅ Active<br>
+                    <strong>Word Elements:</strong> ${state.wordElementsCount}<br>
+                    <strong>Blur Elements:</strong> ${state.scrollBlurElementsCount}<br>
+                    <strong>Total:</strong> ${state.processedElementsCount}
+                `;
+            },
+            
+            refresh: () => {
+                if (!wordAnimator) {
+                    console.warn('⚠️ WordAnimator not initialized');
+                    return;
+                }
+                
+                console.log('🔄 Refreshing WordAnimator');
+                wordAnimator.refresh();
+            },
+            
+            toggleParallax: () => {
+                if (!wordAnimator) {
+                    console.warn('⚠️ WordAnimator not initialized');
+                    return;
+                }
+                
+                const state = wordAnimator.getState();
+                const newState = !state.parallaxEnabled;
+                wordAnimator.setParallaxEnabled(newState);
+                console.log(`🌊 Parallax ${newState ? 'enabled' : 'disabled'}`);
+            },
+            
+            getState: () => {
+                if (!wordAnimator) {
+                    console.warn('⚠️ WordAnimator not initialized');
+                    return;
+                }
+                
+                const state = wordAnimator.getState();
+                console.log('📊 WordAnimator State:', state);
+                addDebugLog(`State: ${JSON.stringify(state, null, 2)}`, 'info');
+                return state;
+            },
+            
+            getElements: () => {
+                if (!wordAnimator) {
+                    console.warn('⚠️ WordAnimator not initialized');
+                    return;
+                }
+                
+                const elements = wordAnimator.getElements();
+                console.log('📋 WordAnimator Elements:', elements);
+                addDebugLog(`Elements: word=${elements.wordElements.length}, blur=${elements.scrollBlurElements.length}`, 'info');
+                return elements;
+            },
+            
+            scrollToSection: (sectionIndex) => {
+                const sections = document.querySelectorAll('.section');
+                if (sectionIndex >= 0 && sectionIndex < sections.length) {
+                    sections[sectionIndex].scrollIntoView({ behavior: 'smooth' });
+                    console.log(`📍 Scrolled to section ${sectionIndex + 1}`);
+                }
+            },
+            
+            toggleDebug: () => {
+                debugVisible = !debugVisible;
+                const console = document.getElementById('debug-console');
+                console.classList.toggle('visible', debugVisible);
+                
+                if (debugVisible) {
+                    addDebugLog('Debug console opened', 'info');
+                } else {
+                    console.log('🐛 Debug console closed');
+                }
+            }
+        };
+        
+        console.log('🎮 Test functions available in window.testWordAnimator');
+        console.log('📊 Use window.testWordAnimator.getState() to check component state');
+        console.log('➕ Use window.testWordAnimator.addWordElement() to add new elements');
+        console.log('🐛 Use window.testWordAnimator.toggleDebug() to show debug console');
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'd':
+                        e.preventDefault();
+                        window.testWordAnimator.toggleDebug();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        window.testWordAnimator.getState();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        window.testWordAnimator.refresh();
+                        break;
+                }
+            }
+        });
+        
+        console.log('⌨️ Keyboard shortcuts: Ctrl+D (debug), Ctrl+S (state), Ctrl+R (refresh)');
+        
+        // Hide scroll indicator after first scroll
+        let hasScrolled = false;
+        window.addEventListener('scroll', () => {
+            if (!hasScrolled && window.scrollY > 100) {
+                hasScrolled = true;
+                const indicator = document.querySelector('.scroll-indicator');
+                if (indicator) {
+                    indicator.style.opacity = '0';
+                    setTimeout(() => indicator.remove(), 500);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

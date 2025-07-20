@@ -194,10 +194,10 @@ class PerformanceConfig {
      * Мониторинг производительности в реальном времени
      */
     setupPerformanceMonitoring() {
-        // Мониторинг FPS
+        // Мониторинг FPS (уменьшили частоту)
         this.fpsMonitorInterval = setInterval(() => {
             this.logPerformanceMetrics();
-        }, 5000); // Каждые 5 секунд
+        }, 30000); // Каждые 30 секунд
         
         // Мониторинг памяти (если доступно)
         if (performance.memory) {

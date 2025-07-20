@@ -1,0 +1,1673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnimationService Advanced Test - Real Landing Page Simulation</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .section {
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Hero Section */
+        .hero {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            position: relative;
+        }
+        
+        .hero-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="white" opacity="0.1"/><circle cx="80" cy="40" r="1" fill="white" opacity="0.2"/><circle cx="40" cy="80" r="1.5" fill="white" opacity="0.15"/></svg>');
+            animation: float 20s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        
+        .hero-content {
+            z-index: 2;
+            position: relative;
+        }
+        
+        .hero h1 {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0;
+            transform: translateY(50px);
+        }
+        
+        .hero p {
+            font-size: 1.5rem;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .hero-cube {
+            position: absolute;
+            top: 50%;
+            right: 10%;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-50%) rotateX(45deg) rotateY(45deg);
+            opacity: 0;
+        }
+        
+        /* Portfolio Section */
+        .portfolio {
+            background: #f8f9fa;
+            padding: 100px 0;
+        }
+        
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .portfolio-item {
+            background: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            opacity: 0;
+            transform: translateY(50px) scale(0.9);
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .portfolio-item:hover {
+            transform: translateY(-10px) scale(1.02);
+        }
+        
+        .portfolio-item-image {
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .portfolio-item-content {
+            padding: 1.5rem;
+        }
+        
+        .portfolio-item h3 {
+            color: #667eea;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Services Section */
+        .services {
+            background: white;
+            padding: 100px 0;
+        }
+        
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        
+        .service-card {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            opacity: 0;
+            transform: translateY(50px) rotateX(15deg);
+            transition: all 0.3s ease;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-10px) rotateX(0deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .service-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 50%;
+            margin: 0 auto 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: white;
+            transform: scale(0);
+        }
+        
+        /* Stats Section */
+        .stats {
+            background: #2c3e50;
+            color: white;
+            padding: 100px 0;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            transform: translateY(30px);
+        }
+        
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #4CAF50;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+        }
+        
+        /* Timeline Section */
+        .timeline-section {
+            background: #f8f9fa;
+            padding: 100px 0;
+            overflow: visible;
+        }
+        
+        .timeline-container {
+            position: relative;
+            width: max-content;
+            display: flex;
+            align-items: center;
+            padding: 50px 0;
+        }
+        
+        .timeline-item {
+            width: 300px;
+            margin-right: 100px;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(100px);
+        }
+        
+        .timeline-year {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 1rem;
+        }
+        
+        .timeline-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        /* Team Section */
+        .team {
+            background: white;
+            padding: 100px 0;
+        }
+        
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+            margin-top: 3rem;
+        }
+        
+        .team-member {
+            text-align: center;
+            opacity: 0;
+            transform: translateY(50px) rotateY(15deg);
+            transition: transform 0.3s ease;
+            perspective: 1000px;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-10px) rotateY(0deg);
+        }
+        
+        .team-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            margin: 0 auto 1rem;
+            transform: scale(0);
+        }
+        
+        /* Testimonials Section */
+        .testimonials {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 100px 0;
+        }
+        
+        .testimonial-slider {
+            position: relative;
+            overflow: hidden;
+            margin-top: 3rem;
+        }
+        
+        .testimonial-track {
+            display: flex;
+            width: 500%;
+            transition: transform 0.5s ease;
+        }
+        
+        .testimonial-item {
+            width: 20%;
+            padding: 0 2rem;
+            text-align: center;
+            opacity: 0;
+            transform: translateX(50px);
+        }
+        
+        .testimonial-text {
+            font-size: 1.2rem;
+            font-style: italic;
+            margin-bottom: 2rem;
+        }
+        
+        .testimonial-author {
+            font-weight: bold;
+        }
+        
+        /* Contact Section */
+        .contact {
+            background: #f8f9fa;
+            padding: 100px 0;
+        }
+        
+        .contact-form {
+            max-width: 600px;
+            margin: 3rem auto 0;
+        }
+        
+        .form-group {
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateX(-30px);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .form-input:focus {
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+        
+        /* Floating Elements */
+        .floating-element {
+            position: absolute;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+        
+        .floating-1 {
+            width: 20px;
+            height: 20px;
+            top: 20%;
+            left: 10%;
+            animation: float 15s ease-in-out infinite;
+        }
+        
+        .floating-2 {
+            width: 30px;
+            height: 30px;
+            top: 60%;
+            right: 15%;
+            animation: float 20s ease-in-out infinite reverse;
+        }
+        
+        .floating-3 {
+            width: 15px;
+            height: 15px;
+            top: 80%;
+            left: 20%;
+            animation: float 18s ease-in-out infinite;
+        }
+        
+        /* UI Elements */
+        .section-title {
+            font-size: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        
+        .section-subtitle {
+            font-size: 1.2rem;
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        
+        /* Stats Panel */
+        .stats-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            z-index: 1000;
+            min-width: 350px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .stats-panel h3 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+            text-align: center;
+        }
+        
+        .stats-panel .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding: 2px 0;
+            color: white;
+        }
+        
+        .stat-value {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        .fps-graph {
+            height: 40px;
+            background: #1a1a1a;
+            border-radius: 5px;
+            margin: 10px 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .fps-bar {
+            height: 100%;
+            background: linear-gradient(to top, #e74c3c, #f39c12, #4CAF50);
+            width: 0%;
+            transition: width 0.1s ease;
+        }
+        
+        /* Controls */
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            z-index: 1000;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn:hover {
+            background: #5a6fd8;
+            transform: translateY(-2px);
+        }
+        
+        .btn.danger {
+            background: #e74c3c;
+        }
+        
+        .btn.danger:hover {
+            background: #c0392b;
+        }
+        
+        .btn.success {
+            background: #27ae60;
+        }
+        
+        .btn.success:hover {
+            background: #229954;
+        }
+        
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            z-index: 1001;
+            transition: width 0.1s ease;
+        }
+        
+        /* Performance Warning */
+        .performance-warning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: #f39c12;
+            color: white;
+            padding: 20px 30px;
+            border-radius: 10px;
+            font-weight: bold;
+            z-index: 1002;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .performance-warning.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Mouse Tracker */
+        .mouse-tracker {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background: rgba(102, 126, 234, 0.5);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 999;
+            transition: transform 0.1s ease;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .stats-panel {
+                right: 10px;
+                top: 10px;
+                min-width: 280px;
+                font-size: 11px;
+            }
+            
+            .controls {
+                bottom: 10px;
+                left: 10px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Mouse Tracker -->
+    <div class="mouse-tracker" id="mouseTracker"></div>
+    
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator" id="scrollIndicator"></div>
+    
+    <!-- Performance Warning -->
+    <div class="performance-warning" id="performanceWarning">
+        ⚠️ Performance Warning: High animation load detected!<br>
+        <small>FPS dropped below 50. Consider reducing animation complexity.</small>
+    </div>
+    
+    <!-- Stats Panel -->
+    <div class="stats-panel" id="statsPanel">
+        <h3>📊 Real-time Performance Monitor</h3>
+        <div class="stat-item">
+            <span>ScrollTriggers:</span>
+            <span class="stat-value" id="scrollTriggersCount">0</span>
+        </div>
+        <div class="stat-item">
+            <span>Active Animations:</span>
+            <span class="stat-value" id="activeAnimationsCount">0</span>
+        </div>
+        <div class="stat-item">
+            <span>Active Timelines:</span>
+            <span class="stat-value" id="activeTimelinesCount">0</span>
+        </div>
+        <div class="stat-item">
+            <span>Memory Usage:</span>
+            <span class="stat-value" id="memoryUsage">N/A</span>
+        </div>
+        <div class="stat-item">
+            <span>FPS:</span>
+            <span class="stat-value" id="fpsCounter">60</span>
+        </div>
+        <div class="fps-graph">
+            <div class="fps-bar" id="fpsBar"></div>
+        </div>
+        <div class="stat-item">
+            <span>Debug Mode:</span>
+            <span class="stat-value" id="debugMode">OFF</span>
+        </div>
+        <div class="stat-item">
+            <span>Stress Test:</span>
+            <span class="stat-value" id="stressTestStatus">OFF</span>
+        </div>
+    </div>
+    
+    <!-- Controls -->
+    <div class="controls">
+        <button class="btn" onclick="toggleDebugMode()">🔍 Debug</button>
+        <button class="btn" onclick="refreshScrollTriggers()">🔄 Refresh</button>
+        <button class="btn" onclick="showDetailedStats()">📊 Stats</button>
+        <button class="btn success" onclick="runStressTest()">⚡ Stress Test</button>
+        <button class="btn danger" onclick="cleanupAll()">🗑️ Cleanup</button>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="section hero">
+        <div class="hero-bg"></div>
+        <div class="floating-element floating-1"></div>
+        <div class="floating-element floating-2"></div>
+        <div class="floating-element floating-3"></div>
+        
+        <div class="container hero-content">
+            <h1 id="heroTitle">AnimationService Advanced Test</h1>
+            <p id="heroSubtitle">Симуляция реального большого лендинга с множественными анимациями</p>
+        </div>
+        
+        <div class="hero-cube" id="heroCube"></div>
+    </section>
+
+    <!-- Portfolio Section -->
+    <section class="section portfolio">
+        <div class="container">
+            <h2 class="section-title">Portfolio Showcase</h2>
+            <p class="section-subtitle">Демонстрация batch обработки множественных элементов (50+ элементов)</p>
+            
+            <div class="portfolio-grid" id="portfolioGrid">
+                <!-- Portfolio items will be generated by JavaScript -->
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="section services">
+        <div class="container">
+            <h2 class="section-title">Our Services</h2>
+            <p class="section-subtitle">Интерактивные карточки с hover эффектами и stagger анимациями</p>
+            
+            <div class="services-grid">
+                <div class="service-card">
+                    <div class="service-icon">🎨</div>
+                    <h3>Design</h3>
+                    <p>Creative design solutions with advanced animations</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">💻</div>
+                    <h3>Development</h3>
+                    <p>High-performance web development with GSAP</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🚀</div>
+                    <h3>Optimization</h3>
+                    <p>Performance optimization and animation management</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">📱</div>
+                    <h3>Mobile</h3>
+                    <p>Responsive animations for all devices</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">⚡</div>
+                    <h3>Performance</h3>
+                    <p>60 FPS animations with ScrollTrigger optimization</p>
+                </div>
+                <div class="service-card">
+                    <div class="service-icon">🎯</div>
+                    <h3>Precision</h3>
+                    <p>Pixel-perfect animations with timeline control</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="section stats">
+        <div class="container">
+            <h2 class="section-title">Performance Statistics</h2>
+            <p class="section-subtitle">Анимированные счетчики с эффектом подсчета</p>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number" data-target="164">0</span>
+                    <div class="stat-label">ScrollTriggers Optimized</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="87">0</span>
+                    <div class="stat-label">Performance Improvement %</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="60">0</span>
+                    <div class="stat-label">Stable FPS</div>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="20">0</span>
+                    <div class="stat-label">Final ScrollTrigger Count</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Timeline Section -->
+    <section class="section timeline-section">
+        <div class="container">
+            <h2 class="section-title">Development Timeline</h2>
+            <p class="section-subtitle">Горизонтальный скролл с pin эффектом</p>
+        </div>
+        
+        <div class="timeline-container" id="timelineContainer">
+            <div class="timeline-item">
+                <div class="timeline-year">2024</div>
+                <div class="timeline-content">
+                    <h3>Project Start</h3>
+                    <p>Initial analysis of ScrollTrigger conflicts</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">Q1</div>
+                <div class="timeline-content">
+                    <h3>Architecture Design</h3>
+                    <p>BaseComponent and AnimationService planning</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">Q2</div>
+                <div class="timeline-content">
+                    <h3>Implementation</h3>
+                    <p>ScrollTriggerManager and core systems</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">Q3</div>
+                <div class="timeline-content">
+                    <h3>Testing</h3>
+                    <p>Performance optimization and stress testing</p>
+                </div>
+            </div>
+            <div class="timeline-item">
+                <div class="timeline-year">2025</div>
+                <div class="timeline-content">
+                    <h3>Launch</h3>
+                    <p>Production deployment and monitoring</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="section team">
+        <div class="container">
+            <h2 class="section-title">Our Team</h2>
+            <p class="section-subtitle">3D карточки с flip эффектами</p>
+            
+            <div class="team-grid">
+                <div class="team-member">
+                    <div class="team-photo"></div>
+                    <h3>Lead Developer</h3>
+                    <p>GSAP Animation Expert</p>
+                </div>
+                <div class="team-member">
+                    <div class="team-photo"></div>
+                    <h3>Performance Engineer</h3>
+                    <p>ScrollTrigger Optimization</p>
+                </div>
+                <div class="team-member">
+                    <div class="team-photo"></div>
+                    <h3>UI/UX Designer</h3>
+                    <p>Animation Design</p>
+                </div>
+                <div class="team-member">
+                    <div class="team-photo"></div>
+                    <h3>QA Engineer</h3>
+                    <p>Performance Testing</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials Section -->
+    <section class="section testimonials">
+        <div class="container">
+            <h2 class="section-title">What Our Clients Say</h2>
+            <p class="section-subtitle">Автоматическая карусель с плавными переходами</p>
+            
+            <div class="testimonial-slider">
+                <div class="testimonial-track" id="testimonialTrack">
+                    <div class="testimonial-item">
+                        <div class="testimonial-text">"AnimationService completely transformed our website performance. 60 FPS animations everywhere!"</div>
+                        <div class="testimonial-author">- Tech Startup CEO</div>
+                    </div>
+                    <div class="testimonial-item">
+                        <div class="testimonial-text">"The ScrollTrigger optimization reduced our animation conflicts from 164 to just 8. Amazing!"</div>
+                        <div class="testimonial-author">- E-commerce Director</div>
+                    </div>
+                    <div class="testimonial-item">
+                        <div class="testimonial-text">"Best animation architecture we've ever implemented. Clean, fast, and maintainable."</div>
+                        <div class="testimonial-author">- Development Team Lead</div>
+                    </div>
+                    <div class="testimonial-item">
+                        <div class="testimonial-text">"Our landing page now loads 50% faster with better animations. Incredible results!"</div>
+                        <div class="testimonial-author">- Marketing Manager</div>
+                    </div>
+                    <div class="testimonial-item">
+                        <div class="testimonial-text">"The performance monitoring tools helped us identify bottlenecks instantly."</div>
+                        <div class="testimonial-author">- Performance Engineer</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact">
+        <div class="container">
+            <h2 class="section-title">Get In Touch</h2>
+            <p class="section-subtitle">Интерактивная форма с анимированными полями</p>
+            
+            <form class="contact-form">
+                <div class="form-group">
+                    <input type="text" class="form-input" placeholder="Your Name" required>
+                </div>
+                <div class="form-group">
+                    <input type="email" class="form-input" placeholder="Your Email" required>
+                </div>
+                <div class="form-group">
+                    <input type="text" class="form-input" placeholder="Subject" required>
+                </div>
+                <div class="form-group">
+                    <textarea class="form-input" rows="5" placeholder="Your Message" required></textarea>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn" style="width: 100%; padding: 15px;">Send Message</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- GSAP Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- AnimationService Scripts -->
+    <script src="./src/scripts/core/AnimationService.js"></script>
+    <script src="./src/scripts/services/ScrollTriggerManager.js"></script>
+    
+    <script>
+        // =============================================================================
+        // Advanced AnimationService Test Implementation
+        // =============================================================================
+        
+        let animationService;
+        let fpsCounter = 0;
+        let frameCount = 0;
+        let lastTime = performance.now();
+        let fpsHistory = [];
+        let stressTestActive = false;
+        let testimonialIndex = 0;
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Advanced AnimationService Test initialized');
+            console.log('📍 Current location:', window.location.href);
+            
+            // Проверяем загрузку GSAP
+            console.log('🔍 Checking GSAP availability...');
+            if (typeof gsap === 'undefined') {
+                console.error('❌ GSAP not loaded!');
+                return;
+            } else {
+                console.log('✅ GSAP loaded successfully, version:', gsap.version);
+            }
+            
+            if (typeof ScrollTrigger === 'undefined') {
+                console.error('❌ ScrollTrigger not loaded!');
+                return;
+            } else {
+                console.log('✅ ScrollTrigger loaded successfully');
+            }
+            
+            // Проверяем загрузку AnimationService
+            console.log('🔍 Checking AnimationService availability...');
+            if (typeof AnimationService === 'undefined') {
+                console.error('❌ AnimationService not loaded! Check file path: ./src/scripts/core/AnimationService.js');
+                console.log('🔧 Fallback: Using basic GSAP without AnimationService');
+                initBasicAnimations();
+                return;
+            } else {
+                console.log('✅ AnimationService loaded successfully');
+            }
+            
+            try {
+                // Создаем экземпляр AnimationService
+                console.log('🔧 Creating AnimationService instance...');
+                animationService = AnimationService.getInstance();
+                animationService.updateConfig({ debug: true });
+                console.log('✅ AnimationService instance created');
+                
+                // Генерируем контент
+                console.log('🔧 Generating portfolio items...');
+                generatePortfolioItems();
+                console.log('✅ Portfolio items generated');
+                
+                // Инициализируем анимации
+                console.log('🔧 Initializing animations...');
+                initializeAllAnimations();
+                console.log('✅ Animations initialized');
+                
+                // Запускаем мониторинг
+                console.log('🔧 Starting monitoring...');
+                startAdvancedMonitoring();
+                console.log('✅ Monitoring started');
+                
+                // Инициализируем интерактивность
+                console.log('🔧 Initializing interactivity...');
+                initializeInteractivity();
+                console.log('✅ Interactivity initialized');
+                
+                console.log('🎉 All advanced animations initialized successfully');
+                
+            } catch (error) {
+                console.error('❌ Failed to initialize Advanced AnimationService:', error);
+                console.log('🔧 Fallback: Using basic GSAP without AnimationService');
+                initBasicAnimations();
+            }
+        });
+        
+        // Fallback функция для базовых анимаций без AnimationService
+        function initBasicAnimations() {
+            console.log('🔧 Initializing basic GSAP animations...');
+            
+            // Базовые анимации без AnimationService
+            gsap.registerPlugin(ScrollTrigger);
+            
+            // Hero анимации
+            gsap.to('#heroTitle', {
+                opacity: 1,
+                y: 0,
+                duration: 1,
+                ease: 'back.out(1.7)',
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start: 'top center',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+            
+            gsap.to('#heroSubtitle', {
+                opacity: 1,
+                y: 0,
+                duration: 0.8,
+                delay: 0.3,
+                ease: 'power2.out',
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start: 'top center',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+            
+            // Portfolio items
+            gsap.utils.toArray('.portfolio-item').forEach((item, index) => {
+                gsap.to(item, {
+                    opacity: 1,
+                    y: 0,
+                    scale: 1,
+                    duration: 0.8,
+                    delay: index * 0.05,
+                    ease: 'back.out(1.7)',
+                    scrollTrigger: {
+                        trigger: item,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            });
+            
+            // Section titles
+            gsap.utils.toArray('.section-title').forEach(title => {
+                gsap.to(title, {
+                    opacity: 1,
+                    y: 0,
+                    duration: 0.8,
+                    ease: 'power2.out',
+                    scrollTrigger: {
+                        trigger: title,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            });
+            
+            // Timeline элементы (без pin эффекта)
+            gsap.utils.toArray('.timeline-item').forEach((item, index) => {
+                gsap.to(item, {
+                    opacity: 1,
+                    x: 0,
+                    duration: 0.8,
+                    delay: index * 0.1,
+                    ease: 'power2.out',
+                    scrollTrigger: {
+                        trigger: item,
+                        start: 'top 80%',
+                        toggleActions: 'play none none reverse'
+                    }
+                });
+            });
+            
+            // Scroll progress
+            gsap.to('#scrollIndicator', {
+                width: '100%',
+                ease: 'none',
+                scrollTrigger: {
+                    trigger: 'body',
+                    start: 'top top',
+                    end: 'bottom bottom',
+                    scrub: true
+                }
+            });
+            
+            console.log('✅ Basic animations initialized');
+            
+            // Запускаем базовый мониторинг
+            startBasicMonitoring();
+        }
+        
+        function startBasicMonitoring() {
+            console.log('🔧 Starting basic monitoring...');
+            
+            let fpsCounter = 0;
+            let frameCount = 0;
+            let lastTime = performance.now();
+            
+            function measureFPS() {
+                frameCount++;
+                const currentTime = performance.now();
+                
+                if (currentTime - lastTime >= 1000) {
+                    fpsCounter = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                    frameCount = 0;
+                    lastTime = currentTime;
+                    
+                    // Обновляем только FPS
+                    document.getElementById('fpsCounter').textContent = fpsCounter;
+                    document.getElementById('scrollTriggersCount').textContent = ScrollTrigger.getAll().length;
+                    
+                    const fpsBar = document.getElementById('fpsBar');
+                    const fpsPercentage = Math.min(fpsCounter / 60 * 100, 100);
+                    fpsBar.style.width = fpsPercentage + '%';
+                }
+                
+                requestAnimationFrame(measureFPS);
+            }
+            
+            requestAnimationFrame(measureFPS);
+            console.log('✅ Basic monitoring started');
+        }
+        
+        // =============================================================================
+        // Генерация контента
+        // =============================================================================
+        
+        function generatePortfolioItems() {
+            const portfolioGrid = document.getElementById('portfolioGrid');
+            const itemCount = 50;
+            
+            for (let i = 1; i <= itemCount; i++) {
+                const item = document.createElement('div');
+                item.className = 'portfolio-item';
+                item.innerHTML = `
+                    <div class="portfolio-item-image"></div>
+                    <div class="portfolio-item-content">
+                        <h3>Project ${i}</h3>
+                        <p>Advanced animation project with GSAP optimization</p>
+                    </div>
+                `;
+                portfolioGrid.appendChild(item);
+            }
+        }
+        
+        // =============================================================================
+        // Инициализация всех анимаций
+        // =============================================================================
+        
+        function initializeAllAnimations() {
+            // 1. Hero анимации
+            initHeroAnimations();
+            
+            // 2. Portfolio batch анимации
+            initPortfolioAnimations();
+            
+            // 3. Services анимации
+            initServicesAnimations();
+            
+            // 4. Stats анимации
+            initStatsAnimations();
+            
+            // 5. Timeline анимации
+            initTimelineAnimations();
+            
+            // 6. Team анимации
+            initTeamAnimations();
+            
+            // 7. Testimonials анимации
+            initTestimonialsAnimations();
+            
+            // 8. Contact form анимации
+            initContactAnimations();
+            
+            // 9. Scroll progress
+            initScrollProgress();
+            
+            // 10. Section titles
+            initSectionTitles();
+        }
+        
+        function initHeroAnimations() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            // Hero content timeline
+            const heroTL = animationService.scrollTriggerManager.createMasterTimeline({
+                id: 'hero_timeline',
+                scrollTrigger: {
+                    trigger: '.hero',
+                    start: 'top center',
+                    end: 'bottom center',
+                    toggleActions: 'play none none reverse'
+                }
+            });
+            
+            if (heroTL) {
+                heroTL
+                    .to('#heroTitle', { opacity: 1, y: 0, duration: 1, ease: 'back.out(1.7)' })
+                    .to('#heroSubtitle', { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, '-=0.5')
+                    .to('#heroCube', { opacity: 1, rotateY: 360, duration: 2, ease: 'power2.out' }, '-=0.3');
+            }
+            
+            // Floating elements
+            gsap.to('.floating-1', { y: -20, duration: 3, repeat: -1, yoyo: true, ease: 'power2.inOut' });
+            gsap.to('.floating-2', { y: 15, duration: 4, repeat: -1, yoyo: true, ease: 'power2.inOut' });
+            gsap.to('.floating-3', { y: -10, duration: 2.5, repeat: -1, yoyo: true, ease: 'power2.inOut' });
+        }
+        
+        function initPortfolioAnimations() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            // Batch анимация для portfolio items
+            animationService.scrollTriggerManager.createBatch('.portfolio-item', {
+                id: 'portfolio_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        y: 0,
+                        scale: 1,
+                        duration: 0.8,
+                        stagger: 0.05,
+                        ease: 'back.out(1.7)'
+                    });
+                },
+                onLeave: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 0.7,
+                        scale: 0.95,
+                        duration: 0.5
+                    });
+                },
+                onEnterBack: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        scale: 1,
+                        duration: 0.5
+                    });
+                }
+            });
+        }
+        
+        function initServicesAnimations() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            // Services cards batch
+            animationService.scrollTriggerManager.createBatch('.service-card', {
+                id: 'services_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        y: 0,
+                        rotateX: 0,
+                        duration: 0.8,
+                        stagger: 0.1,
+                        ease: 'power2.out'
+                    });
+                }
+            });
+            
+            // Service icons
+            animationService.scrollTriggerManager.createBatch('.service-icon', {
+                id: 'service_icons_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        scale: 1,
+                        duration: 0.6,
+                        stagger: 0.1,
+                        ease: 'back.out(1.7)'
+                    });
+                }
+            });
+        }
+        
+        function initStatsAnimations() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            // Stats items - используем более специфичный селектор
+            animationService.scrollTriggerManager.createBatch('.stats-grid .stat-item', {
+                id: 'stats_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        stagger: 0.1,
+                        ease: 'power2.out'
+                    });
+                    
+                    // Animate numbers
+                    elements.forEach(element => {
+                        const numberElement = element.querySelector('.stat-number');
+                        if (numberElement && numberElement.dataset.target) {
+                            const target = parseInt(numberElement.dataset.target);
+                            
+                            gsap.to({ value: 0 }, {
+                                value: target,
+                                duration: 2,
+                                ease: 'power2.out',
+                                onUpdate: function() {
+                                    numberElement.textContent = Math.round(this.targets()[0].value);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        
+        function initTimelineAnimations() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            console.log('🔧 Initializing simple timeline animations (without pin effect)');
+            
+            // Простая анимация появления timeline элементов без pin эффекта
+            animationService.scrollTriggerManager.createBatch('.timeline-item', {
+                id: 'timeline_items_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        x: 0,
+                        duration: 0.8,
+                        stagger: 0.1,
+                        ease: 'power2.out'
+                    });
+                },
+                onLeave: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 0.7,
+                        duration: 0.5
+                    });
+                },
+                onEnterBack: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        duration: 0.5
+                    });
+                }
+            });
+            
+            console.log('✅ Timeline animations initialized without pin effect');
+        }
+        
+        function initTeamAnimations() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            // Team members
+            animationService.scrollTriggerManager.createBatch('.team-member', {
+                id: 'team_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        y: 0,
+                        rotateY: 0,
+                        duration: 0.8,
+                        stagger: 0.1,
+                        ease: 'power2.out'
+                    });
+                }
+            });
+            
+            // Team photos
+            animationService.scrollTriggerManager.createBatch('.team-photo', {
+                id: 'team_photos_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        scale: 1,
+                        duration: 0.6,
+                        stagger: 0.1,
+                        ease: 'back.out(1.7)'
+                    });
+                }
+            });
+        }
+        
+        function initTestimonialsAnimations() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            // Testimonials auto-slider
+            const testimonialTrack = document.getElementById('testimonialTrack');
+            const testimonialItems = document.querySelectorAll('.testimonial-item');
+            
+            // Initial animation
+            gsap.to(testimonialItems, {
+                opacity: 1,
+                x: 0,
+                duration: 0.8,
+                stagger: 0.1,
+                ease: 'power2.out'
+            });
+            
+            // Auto-slide
+            setInterval(() => {
+                testimonialIndex = (testimonialIndex + 1) % testimonialItems.length;
+                gsap.to(testimonialTrack, {
+                    x: -testimonialIndex * 20 + '%',
+                    duration: 0.5,
+                    ease: 'power2.inOut'
+                });
+            }, 4000);
+        }
+        
+        function initContactAnimations() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            // Form groups
+            animationService.scrollTriggerManager.createBatch('.form-group', {
+                id: 'contact_form_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        x: 0,
+                        duration: 0.8,
+                        stagger: 0.1,
+                        ease: 'power2.out'
+                    });
+                }
+            });
+        }
+        
+        function initScrollProgress() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            animationService.scrollTriggerManager.create({
+                id: 'scroll_progress',
+                trigger: 'body',
+                start: 'top top',
+                end: 'bottom bottom',
+                onUpdate: (self) => {
+                    const progress = self.progress * 100;
+                    document.getElementById('scrollIndicator').style.width = progress + '%';
+                }
+            });
+        }
+        
+        function initSectionTitles() {
+            if (!animationService.scrollTriggerManager) return;
+            
+            // Section titles
+            animationService.scrollTriggerManager.createBatch('.section-title', {
+                id: 'section_titles_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        ease: 'power2.out'
+                    });
+                }
+            });
+            
+            // Section subtitles
+            animationService.scrollTriggerManager.createBatch('.section-subtitle', {
+                id: 'section_subtitles_batch',
+                onEnter: (elements) => {
+                    gsap.to(elements, {
+                        opacity: 1,
+                        y: 0,
+                        duration: 0.8,
+                        delay: 0.2,
+                        ease: 'power2.out'
+                    });
+                }
+            });
+        }
+        
+        // =============================================================================
+        // Продвинутый мониторинг
+        // =============================================================================
+        
+        function startAdvancedMonitoring() {
+            // FPS мониторинг с историей
+            function measureAdvancedFPS() {
+                frameCount++;
+                const currentTime = performance.now();
+                
+                if (currentTime - lastTime >= 1000) {
+                    fpsCounter = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                    frameCount = 0;
+                    lastTime = currentTime;
+                    
+                    // Добавляем в историю
+                    fpsHistory.push(fpsCounter);
+                    if (fpsHistory.length > 60) {
+                        fpsHistory.shift();
+                    }
+                    
+                    updateAdvancedStatsPanel();
+                    
+                    // Предупреждение о производительности
+                    if (fpsCounter < 50) {
+                        showPerformanceWarning();
+                    }
+                }
+                
+                requestAnimationFrame(measureAdvancedFPS);
+            }
+            
+            requestAnimationFrame(measureAdvancedFPS);
+            
+            // Обновление статистики каждые 2 секунды
+            setInterval(updateAdvancedStatsPanel, 2000);
+        }
+        
+        function updateAdvancedStatsPanel() {
+            if (!animationService) return;
+            
+            const stats = animationService.getStats();
+            const scrollTriggerStats = animationService.scrollTriggerManager ? 
+                animationService.scrollTriggerManager.getStats() : {};
+            
+            document.getElementById('scrollTriggersCount').textContent = stats.scrollTriggers;
+            document.getElementById('activeAnimationsCount').textContent = stats.activeAnimations;
+            document.getElementById('activeTimelinesCount').textContent = stats.activeTimelines;
+            document.getElementById('fpsCounter').textContent = fpsCounter;
+            document.getElementById('debugMode').textContent = stats.config.debug ? 'ON' : 'OFF';
+            document.getElementById('stressTestStatus').textContent = stressTestActive ? 'ACTIVE' : 'OFF';
+            
+            // FPS bar
+            const fpsBar = document.getElementById('fpsBar');
+            const fpsPercentage = Math.min(fpsCounter / 60 * 100, 100);
+            fpsBar.style.width = fpsPercentage + '%';
+            
+            if (stats.memoryUsage) {
+                document.getElementById('memoryUsage').textContent = 
+                    `${stats.memoryUsage.used}MB / ${stats.memoryUsage.total}MB`;
+            }
+        }
+        
+        function showPerformanceWarning() {
+            const warning = document.getElementById('performanceWarning');
+            warning.classList.add('show');
+            
+            setTimeout(() => {
+                warning.classList.remove('show');
+            }, 4000);
+        }
+        
+        // =============================================================================
+        // Интерактивность
+        // =============================================================================
+        
+        function initializeInteractivity() {
+            // Mouse tracker
+            const mouseTracker = document.getElementById('mouseTracker');
+            
+            document.addEventListener('mousemove', (e) => {
+                gsap.to(mouseTracker, {
+                    x: e.clientX - 10,
+                    y: e.clientY - 10,
+                    duration: 0.1,
+                    ease: 'power2.out'
+                });
+            });
+            
+            // Portfolio item hover effects
+            document.querySelectorAll('.portfolio-item').forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    gsap.to(item, {
+                        scale: 1.05,
+                        rotateY: 5,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                    });
+                });
+                
+                item.addEventListener('mouseleave', () => {
+                    gsap.to(item, {
+                        scale: 1,
+                        rotateY: 0,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                    });
+                });
+            });
+            
+            // Service card hover effects
+            document.querySelectorAll('.service-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    gsap.to(card.querySelector('.service-icon'), {
+                        scale: 1.2,
+                        rotation: 360,
+                        duration: 0.5,
+                        ease: 'back.out(1.7)'
+                    });
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    gsap.to(card.querySelector('.service-icon'), {
+                        scale: 1,
+                        rotation: 0,
+                        duration: 0.3,
+                        ease: 'power2.out'
+                    });
+                });
+            });
+        }
+        
+        // =============================================================================
+        // Функции управления
+        // =============================================================================
+        
+        function toggleDebugMode() {
+            if (!animationService) return;
+            
+            const currentConfig = animationService.getConfig();
+            const newDebugMode = !currentConfig.debug;
+            
+            animationService.updateConfig({ debug: newDebugMode });
+            
+            console.log(`Debug mode ${newDebugMode ? 'enabled' : 'disabled'}`);
+        }
+        
+        function refreshScrollTriggers() {
+            if (!animationService || !animationService.scrollTriggerManager) return;
+            
+            animationService.scrollTriggerManager.refresh();
+            console.log('ScrollTriggers refreshed');
+        }
+        
+        function showDetailedStats() {
+            if (!animationService) return;
+            
+            const stats = animationService.getStats();
+            const scrollTriggerStats = animationService.scrollTriggerManager ? 
+                animationService.scrollTriggerManager.getStats() : {};
+            
+            console.log('📊 Detailed AnimationService Statistics:', {
+                ...stats,
+                scrollTriggerManager: scrollTriggerStats,
+                fpsHistory: fpsHistory.slice(-10),
+                averageFPS: fpsHistory.reduce((a, b) => a + b, 0) / fpsHistory.length
+            });
+        }
+        
+        function runStressTest() {
+            if (stressTestActive) {
+                console.log('Stress test already running');
+                return;
+            }
+            
+            stressTestActive = true;
+            console.log('🔥 Starting stress test...');
+            
+            // Создаем 100 дополнительных анимированных элементов
+            const stressContainer = document.createElement('div');
+            stressContainer.id = 'stressTestContainer';
+            stressContainer.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                pointer-events: none;
+                z-index: 500;
+            `;
+            
+            for (let i = 0; i < 100; i++) {
+                const stressElement = document.createElement('div');
+                stressElement.className = 'stress-element';
+                stressElement.style.cssText = `
+                    position: absolute;
+                    width: 10px;
+                    height: 10px;
+                    background: rgba(102, 126, 234, 0.5);
+                    border-radius: 50%;
+                    top: ${Math.random() * 100}%;
+                    left: ${Math.random() * 100}%;
+                `;
+                
+                stressContainer.appendChild(stressElement);
+                
+                // Анимируем каждый элемент
+                gsap.to(stressElement, {
+                    x: Math.random() * 200 - 100,
+                    y: Math.random() * 200 - 100,
+                    scale: Math.random() * 2 + 0.5,
+                    rotation: Math.random() * 360,
+                    duration: Math.random() * 3 + 1,
+                    repeat: -1,
+                    yoyo: true,
+                    ease: 'power2.inOut'
+                });
+            }
+            
+            document.body.appendChild(stressContainer);
+            
+            // Останавливаем стресс-тест через 10 секунд
+            setTimeout(() => {
+                stressTestActive = false;
+                document.body.removeChild(stressContainer);
+                console.log('✅ Stress test completed');
+            }, 10000);
+        }
+        
+        function cleanupAll() {
+            if (!animationService) return;
+            
+            if (confirm('Are you sure you want to cleanup all animations?')) {
+                animationService.cleanup();
+                console.log('All animations cleaned up');
+                
+                // Перезагружаем страницу
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            }
+        }
+        
+        // =============================================================================
+        // Обработка ошибок
+        // =============================================================================
+        
+        window.addEventListener('error', function(event) {
+            console.error('❌ JavaScript Error:', event.error);
+        });
+        
+        // Логирование для демонстрации
+        console.log('🎯 Advanced AnimationService Test Page Loaded');
+        console.log('📋 Available functions: toggleDebugMode(), refreshScrollTriggers(), showDetailedStats(), runStressTest(), cleanupAll()');
+        console.log('🚀 Features: 50+ portfolio items, multiple sections, stress testing, real-time monitoring');
+    </script>
+</body>
+</html>

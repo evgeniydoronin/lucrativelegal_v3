@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Header Refactored Test</title>
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    
+    <!-- Performance Config -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    <script src="src/scripts/core/AnimatedInteractiveComponent.js"></script>
+    
+    <!-- Animation Service -->
+    <script src="src/scripts/services/ScrollTriggerManager.js"></script>
+    <script src="src/scripts/core/AnimationService.js"></script>
+    
+    <!-- Header Component -->
+    <script src="src/scripts/components/header-new.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        
+        /* Header Styles */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            transition: all 0.3s ease;
+            padding: 15px 0;
+        }
+        
+        .header--transparent {
+            background: rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .header--scrolled {
+            background: #fff;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 10px 0;
+        }
+        
+        .header__container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header__logo {
+            position: relative;
+        }
+        
+        .header__logo img {
+            height: 40px;
+            width: auto;
+        }
+        
+        .header__logo-white,
+        .header__logo-black {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        
+        .header__logo-black {
+            display: none;
+        }
+        
+        .header--scrolled .header__logo-white {
+            display: none;
+        }
+        
+        .header--scrolled .header__logo-black {
+            display: block;
+        }
+        
+        /* Navigation */
+        .header__nav ul {
+            display: flex;
+            list-style: none;
+            gap: 30px;
+        }
+        
+        .header__nav a {
+            text-decoration: none;
+            color: #fff;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        
+        .header--scrolled .header__nav a {
+            color: #333;
+        }
+        
+        .header__nav a:hover {
+            color: #007bff;
+        }
+        
+        /* Dropdown */
+        .has-dropdown {
+            position: relative;
+        }
+        
+        .header__submenu {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background: #fff;
+            min-width: 200px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 10px 0;
+            display: none;
+        }
+        
+        .header__submenu a {
+            display: block;
+            padding: 10px 20px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .header__submenu a:last-child {
+            border-bottom: none;
+        }
+        
+        /* Offcanvas Button */
+        .header__offcanvas-open-btn {
+            display: none;
+            flex-direction: column;
+            gap: 4px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .header__offcanvas-open-btn i {
+            width: 25px;
+            height: 3px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+        
+        .header--scrolled .header__offcanvas-open-btn i {
+            background: #333;
+        }
+        
+        /* Offcanvas */
+        .header__offcanvas-area {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 350px;
+            height: 100vh;
+            background: #fff;
+            z-index: 1001;
+            display: none;
+            transform: translateX(100%);
+            padding: 30px;
+        }
+        
+        .header__offcanvas-close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .header__offcanvas-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+        
+        .header__mobile-menu {
+            list-style: none;
+        }
+        
+        .header__mobile-menu li {
+            border-bottom: 1px solid #eee;
+        }
+        
+        .header__mobile-menu a {
+            display: block;
+            padding: 15px 0;
+            color: #333;
+            text-decoration: none;
+            position: relative;
+        }
+        
+        .header__mobile-submenu {
+            padding-left: 20px;
+            background: #f8f9fa;
+        }
+        
+        /* Overlay */
+        .body-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        /* Button */
+        .header__btn-box .btn {
+            background: #007bff;
+            color: #fff;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .header__btn-box .btn:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        /* Mobile */
+        @media (max-width: 768px) {
+            .header__nav {
+                display: none;
+            }
+            
+            .header__offcanvas-open-btn {
+                display: flex;
+            }
+            
+            .header__btn-box {
+                display: none;
+            }
+        }
+        
+        /* Content Sections */
+        .section {
+            min-height: 100vh;
+            padding: 100px 20px 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .section:nth-child(odd) {
+            background: #f8f9fa;
+        }
+        
+        .section h2 {
+            font-size: 3rem;
+            text-align: center;
+            color: #333;
+        }
+        
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            z-index: 2000;
+            min-width: 250px;
+        }
+        
+        .debug-panel h4 {
+            margin-bottom: 10px;
+            color: #00ff00;
+        }
+        
+        .debug-panel div {
+            margin-bottom: 5px;
+        }
+        
+        .debug-panel .status {
+            color: #00ff00;
+        }
+        
+        .debug-panel .error {
+            color: #ff0000;
+        }
+        
+        .debug-panel .warning {
+            color: #ffaa00;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header header--transparent">
+        <div class="header__container">
+            <!-- Logo -->
+            <div class="header__logo">
+                <div class="header__logo-white">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTAwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiBmaWxsPSJ3aGl0ZSIvPgo8dGV4dCB4PSI1MCIgeT0iMjUiIGZpbGw9ImJsYWNrIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkxPR08gV0hJVEU8L3RleHQ+Cjwvc3ZnPgo=" alt="Logo White">
+                </div>
+                <div class="header__logo-black">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiB2aWV3Qm94PSIwIDAgMTAwIDQwIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cmVjdCB3aWR0aD0iMTAwIiBoZWlnaHQ9IjQwIiBmaWxsPSJibGFjayIvPgo8dGV4dCB4PSI1MCIgeT0iMjUiIGZpbGw9IndoaXRlIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiPkxPR08gQkxBQ0s8L3RleHQ+Cjwvc3ZnPgo=" alt="Logo Black">
+                </div>
+            </div>
+            
+            <!-- Navigation -->
+            <nav class="header__nav">
+                <ul>
+                    <li><a href="#home">Home</a></li>
+                    <li class="has-dropdown">
+                        <a href="#services">Services</a>
+                        <div class="header__submenu">
+                            <a href="#service1">Web Design</a>
+                            <a href="#service2">Development</a>
+                            <a href="#service3">SEO</a>
+                        </div>
+                    </li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#contact">Contact</a></li>
+                </ul>
+            </nav>
+            
+            <!-- Button -->
+            <div class="header__btn-box">
+                <a href="#contact" class="btn">Get Started</a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button class="header__offcanvas-open-btn">
+                <i></i>
+                <i></i>
+                <i></i>
+            </button>
+        </div>
+    </header>
+    
+    <!-- Offcanvas Menu -->
+    <div class="header__offcanvas-area">
+        <button class="header__offcanvas-close-btn">&times;</button>
+        
+        <div class="header__offcanvas-content">
+            <h3>Menu</h3>
+            <ul class="header__mobile-menu">
+                <li><a href="#home">Home</a></li>
+                <li class="has-dropdown">
+                    <a href="#services">Services</a>
+                    <div class="header__mobile-submenu">
+                        <a href="#service1">Web Design</a>
+                        <a href="#service2">Development</a>
+                        <a href="#service3">SEO</a>
+                    </div>
+                </li>
+                <li><a href="#about">About</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </div>
+        
+        <div class="header__offcanvas-contact">
+            <h4>Contact Info</h4>
+            <p>Email: info@example.com</p>
+            <p>Phone: +1 234 567 8900</p>
+        </div>
+        
+        <div class="header__offcanvas-social">
+            <h4>Follow Us</h4>
+            <a href="#">Facebook</a>
+            <a href="#">Twitter</a>
+            <a href="#">Instagram</a>
+        </div>
+    </div>
+    
+    <!-- Overlay -->
+    <div class="body-overlay"></div>
+    
+    <!-- Content Sections -->
+    <section id="home" class="section">
+        <h2>Home Section</h2>
+    </section>
+    
+    <section id="services" class="section">
+        <h2>Services Section</h2>
+    </section>
+    
+    <section id="about" class="section">
+        <h2>About Section</h2>
+    </section>
+    
+    <section id="contact" class="section">
+        <h2>Contact Section</h2>
+    </section>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel">
+        <h4>🔧 Header Debug Panel</h4>
+        <div>Status: <span id="status" class="status">Initializing...</span></div>
+        <div>Scroll Y: <span id="scrollY">0</span></div>
+        <div>Is Scrolled: <span id="isScrolled">false</span></div>
+        <div>Current Logo: <span id="currentLogo">white</span></div>
+        <div>Offcanvas: <span id="offcanvasState">closed</span></div>
+        <div>FPS: <span id="fps">--</span></div>
+        <div>Component ID: <span id="componentId">--</span></div>
+    </div>
+    
+    <script>
+        console.log('🚀 Initializing Header Refactored Test');
+        
+        let headerComponent = null;
+        let fpsCounter = 0;
+        let lastTime = performance.now();
+        
+        // FPS Counter
+        function updateFPS() {
+            const now = performance.now();
+            const delta = now - lastTime;
+            const fps = Math.round(1000 / delta);
+            
+            document.getElementById('fps').textContent = fps;
+            lastTime = now;
+            
+            requestAnimationFrame(updateFPS);
+        }
+        
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Wait for AnimationService
+                if (window.AnimationService) {
+                    await window.AnimationService.getInstance();
+                    console.log('✅ AnimationService initialized');
+                }
+                
+                // Initialize Header Component
+                const headerElement = document.querySelector('.header');
+                if (headerElement) {
+                    headerComponent = new Header(headerElement, {
+                        debug: true,
+                        scrollThreshold: 50,
+                        logoSwitchDuration: 0.3
+                    });
+                    
+                    console.log('✅ Header component initialized:', headerComponent.getState());
+                    
+                    // Update debug panel
+                    document.getElementById('status').textContent = 'Initialized';
+                    document.getElementById('componentId').textContent = headerComponent.id;
+                    
+                    // Listen to header events
+                    headerComponent.on('scrollStateChanged', (data) => {
+                        document.getElementById('isScrolled').textContent = data.isScrolled;
+                        document.getElementById('currentLogo').textContent = headerComponent.getState().currentLogo;
+                        console.log('📜 Scroll state changed:', data);
+                    });
+                    
+                    headerComponent.on('offcanvasOpened', () => {
+                        document.getElementById('offcanvasState').textContent = 'opened';
+                        console.log('📱 Offcanvas opened');
+                    });
+                    
+                    headerComponent.on('offcanvasClosed', () => {
+                        document.getElementById('offcanvasState').textContent = 'closed';
+                        console.log('📱 Offcanvas closed');
+                    });
+                    
+                    headerComponent.on('navigationClicked', (data) => {
+                        console.log('🎯 Navigation clicked:', data);
+                    });
+                    
+                } else {
+                    throw new Error('Header element not found');
+                }
+                
+            } catch (error) {
+                console.error('❌ Header initialization failed:', error);
+                document.getElementById('status').textContent = 'Error';
+                document.getElementById('status').className = 'error';
+            }
+        });
+        
+        // Update scroll position in debug panel
+        window.addEventListener('scroll', () => {
+            document.getElementById('scrollY').textContent = Math.round(window.scrollY);
+        });
+        
+        // Start FPS counter
+        updateFPS();
+        
+        // Test functions for console
+        window.testHeader = {
+            getState: () => headerComponent?.getState(),
+            closeOffcanvas: () => headerComponent?.closeOffcanvasMenu(),
+            scrollToTop: () => headerComponent?.scrollToTop(),
+            updateState: () => headerComponent?.updateHeaderState(),
+            destroy: () => {
+                if (headerComponent) {
+                    headerComponent.destroy();
+                    headerComponent = null;
+                    document.getElementById('status').textContent = 'Destroyed';
+                    document.getElementById('status').className = 'error';
+                }
+            }
+        };
+        
+        console.log('🎮 Test functions available in window.testHeader');
+        console.log('📊 Use window.testHeader.getState() to check component state');
+    </script>
+</body>
+</html>

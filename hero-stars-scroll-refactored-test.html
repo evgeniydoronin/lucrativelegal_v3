@@ -1,0 +1,1020 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hero Stars Scroll Refactored Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #000;
+            overflow-x: hidden;
+        }
+        
+        /* Hero Section */
+        #hero {
+            position: relative;
+            height: 150vh; /* Высокая секция для демонстрации скролла */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            color: white;
+            overflow: hidden;
+        }
+        
+        /* Hero Stars Animation */
+        .hero-stars-animation {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            
+            /* CSS переменные для динамического изменения цветов */
+            --gradient-1-color: rgba(80, 11, 169, 0.4);
+            --gradient-2-color: rgba(192, 113, 224, 0.25);
+            --gradient-3-color: rgba(8, 4, 10, 0.25);
+            --base-color: #000000;
+            
+            background: 
+                radial-gradient(circle at 20% 30%, var(--gradient-1-color) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, var(--gradient-2-color) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, var(--gradient-3-color) 0%, transparent 70%),
+                var(--base-color);
+            
+            transition: all 0.1s ease-out;
+        }
+        
+        /* Звезды */
+        .hero-stars-animation::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 160px 30px, #fff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: sparkle 3s linear infinite;
+        }
+        
+        @keyframes sparkle {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        /* =============================================================================
+           СЛОЙ 1: Статичные мерцающие звезды (160 звезд)
+           ============================================================================= */
+        .hero-stars-layer-1 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            pointer-events: none;
+        }
+        
+        .hero-stars-layer-1::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            box-shadow: 
+                /* Белые звезды */
+                25px 25px 0 0 rgba(255, 255, 255, 0.8),
+                300px 50px 0 0 rgba(255, 255, 255, 0.7),
+                600px 175px 0 0 rgba(255, 255, 255, 0.6),
+                900px 200px 0 0 rgba(255, 255, 255, 0.7),
+                1200px 150px 0 0 rgba(255, 255, 255, 0.6),
+                75px 300px 0 0 rgba(255, 255, 255, 0.7),
+                375px 500px 0 0 rgba(255, 255, 255, 0.6),
+                675px 700px 0 0 rgba(255, 255, 255, 0.7),
+                975px 350px 0 0 rgba(255, 255, 255, 0.6),
+                1275px 550px 0 0 rgba(255, 255, 255, 0.7),
+                275px 225px 0 0 rgba(255, 255, 255, 0.6),
+                575px 425px 0 0 rgba(255, 255, 255, 0.5),
+                875px 625px 0 0 rgba(255, 255, 255, 0.7),
+                1175px 275px 0 0 rgba(255, 255, 255, 0.6),
+                1475px 475px 0 0 rgba(255, 255, 255, 0.5),
+                50px 100px 0 0 rgba(255, 255, 255, 0.5),
+                180px 180px 0 0 rgba(255, 255, 255, 0.6),
+                320px 280px 0 0 rgba(255, 255, 255, 0.4),
+                480px 80px 0 0 rgba(255, 255, 255, 0.7),
+                650px 320px 0 0 rgba(255, 255, 255, 0.5);
+            
+            width: 1px;
+            height: 1px;
+            border-radius: 50%;
+            
+            /* Быстрое хаотичное мерцание */
+            animation: twinkle-fast 5s ease-in-out infinite;
+        }
+        
+        .hero-stars-layer-1::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            box-shadow: 
+                /* Белые звезды */
+                150px 75px 0 0 rgba(255, 255, 255, 0.9),
+                450px 125px 0 0 rgba(255, 255, 255, 0.8),
+                750px 100px 0 0 rgba(255, 255, 255, 0.9),
+                1050px 50px 0 0 rgba(255, 255, 255, 0.8),
+                1350px 75px 0 0 rgba(255, 255, 255, 0.9),
+                225px 400px 0 0 rgba(255, 255, 255, 0.8),
+                525px 600px 0 0 rgba(255, 255, 255, 0.9),
+                825px 800px 0 0 rgba(255, 255, 255, 0.8),
+                1125px 450px 0 0 rgba(255, 255, 255, 0.9),
+                1425px 650px 0 0 rgba(255, 255, 255, 0.8),
+                125px 125px 0 0 rgba(255, 255, 255, 0.5),
+                425px 325px 0 0 rgba(255, 255, 255, 0.7),
+                725px 525px 0 0 rgba(255, 255, 255, 0.6),
+                1025px 725px 0 0 rgba(255, 255, 255, 0.5),
+                1325px 375px 0 0 rgba(255, 255, 255, 0.7);
+            
+            width: 1px;
+            height: 1px;
+            border-radius: 50%;
+            
+            /* Медленное хаотичное мерцание с задержкой */
+            animation: twinkle-slow 12s ease-in-out infinite 3s;
+        }
+        
+        /* =============================================================================
+           СЛОЙ 2: Движущиеся звезды (непрерывный поток - 36 звезд)
+           ============================================================================= */
+        .hero-stars-layer-2 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+        
+        .hero-stars-layer-2::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            box-shadow: 
+                /* Белые звезды */
+                100px 80px 0 0 rgba(255, 255, 255, 0.6),
+                600px 120px 0 0 rgba(255, 255, 255, 0.5),
+                1100px 160px 0 0 rgba(255, 255, 255, 0.7),
+                200px 380px 0 0 rgba(255, 255, 255, 0.6),
+                700px 580px 0 0 rgba(255, 255, 255, 0.5),
+                1200px 780px 0 0 rgba(255, 255, 255, 0.7),
+                250px 150px 0 0 rgba(255, 255, 255, 0.6),
+                1250px 250px 0 0 rgba(255, 255, 255, 0.4),
+                1000px 450px 0 0 rgba(255, 255, 255, 0.5);
+            
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            
+            /* Непрерывный поток - группа 1 */
+            animation: continuous-flow-slow 40s linear infinite;
+        }
+        
+        .hero-stars-layer-2::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            box-shadow: 
+                /* Белые звезды */
+                350px 180px 0 0 rgba(255, 255, 255, 0.7),
+                850px 220px 0 0 rgba(255, 255, 255, 0.6),
+                1350px 280px 0 0 rgba(255, 255, 255, 0.5),
+                450px 480px 0 0 rgba(255, 255, 255, 0.7),
+                950px 680px 0 0 rgba(255, 255, 255, 0.6),
+                1450px 880px 0 0 rgba(255, 255, 255, 0.5),
+                750px 350px 0 0 rgba(255, 255, 255, 0.5),
+                500px 650px 0 0 rgba(255, 255, 255, 0.3),
+                1500px 550px 0 0 rgba(255, 255, 255, 0.4);
+            
+            width: 2px;
+            height: 2px;
+            border-radius: 50%;
+            
+            /* Непрерывный поток - группа 2 (сдвиг 20 секунд) */
+            animation: continuous-flow-slow 40s linear infinite 20s;
+        }
+        
+        /* =============================================================================
+           СЛОЙ 3: Быстрые звезды (непрерывный быстрый поток - 16 звезд)
+           ============================================================================= */
+        .hero-stars-layer-3 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+            pointer-events: none;
+        }
+        
+        .hero-stars-layer-3::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            box-shadow: 
+                /* Белые звезды */
+                300px 200px 0 0 rgba(255, 255, 255, 0.9),
+                1300px 300px 0 0 rgba(255, 255, 255, 0.9),
+                1000px 700px 0 0 rgba(255, 255, 255, 0.9),
+                700px 150px 0 0 rgba(255, 255, 255, 0.9),
+                400px 500px 0 0 rgba(255, 255, 255, 0.8),
+                1100px 400px 0 0 rgba(255, 255, 255, 0.8),
+                600px 350px 0 0 rgba(255, 180, 180, 0.9),
+                900px 550px 0 0 rgba(180, 200, 255, 0.9);
+            
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            
+            /* Непрерывный быстрый поток - группа 1 */
+            animation: continuous-flow-fast 24s linear infinite;
+        }
+        
+        .hero-stars-layer-3::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            
+            box-shadow: 
+                /* Белые звезды */
+                800px 400px 0 0 rgba(255, 255, 255, 0.8),
+                500px 600px 0 0 rgba(255, 255, 255, 0.8),
+                200px 500px 0 0 rgba(255, 255, 255, 0.8),
+                1200px 650px 0 0 rgba(255, 255, 255, 0.8),
+                350px 250px 0 0 rgba(255, 255, 255, 0.7),
+                1050px 550px 0 0 rgba(255, 255, 255, 0.7),
+                750px 750px 0 0 rgba(255, 180, 180, 0.8),
+                450px 350px 0 0 rgba(180, 200, 255, 0.8);
+            
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            
+            /* Непрерывный быстрый поток - группа 2 (сдвиг 12 секунд) */
+            animation: continuous-flow-fast 24s linear infinite 12s;
+        }
+        
+        /* =============================================================================
+           Keyframes для анимаций
+           ============================================================================= */
+        
+        /* Быстрое хаотичное мерцание для звезд (группа 1) */
+        @keyframes twinkle-fast {
+            0% { opacity: 0.3; }
+            25% { opacity: 0.9; }
+            45% { opacity: 0.4; }
+            70% { opacity: 1; }
+            85% { opacity: 0.2; }
+            100% { opacity: 0.7; }
+        }
+        
+        /* Медленное хаотичное мерцание для звезд (группа 2) */
+        @keyframes twinkle-slow {
+            0% { opacity: 0.8; }
+            15% { opacity: 0.3; }
+            35% { opacity: 0.9; }
+            60% { opacity: 0.5; }
+            80% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+        
+        /* ИСТИННО НЕПРЕРЫВНЫЙ ПОТОК - Медленные звезды */
+        @keyframes continuous-flow-slow {
+            0% {
+                transform: translateX(-200px) scale(1);
+                opacity: 0;
+            }
+            5% {
+                opacity: 0.8;
+            }
+            95% {
+                opacity: 0.8;
+                transform: translateX(calc(100vw + 200px)) scale(1.15);
+            }
+            100% {
+                transform: translateX(calc(100vw + 200px)) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        /* ИСТИННО НЕПРЕРЫВНЫЙ ПОТОК - Быстрые звезды */
+        @keyframes continuous-flow-fast {
+            0% {
+                transform: translateX(-250px) scale(1);
+                opacity: 0;
+            }
+            8% {
+                opacity: 1;
+            }
+            92% {
+                opacity: 1;
+                transform: translateX(calc(100vw + 250px)) scale(1.2);
+            }
+            100% {
+                transform: translateX(calc(100vw + 250px)) scale(1);
+                opacity: 0;
+            }
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 800px;
+            padding: 2rem;
+        }
+        
+        .hero-title {
+            font-size: 4rem;
+            margin-bottom: 2rem;
+            font-weight: bold;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+        
+        .hero-subtitle {
+            font-size: 1.5rem;
+            margin-bottom: 3rem;
+            opacity: 0.9;
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
+        }
+        
+        /* Content Section */
+        .content-section {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            color: white;
+            padding: 4rem 2rem;
+        }
+        
+        .content-title {
+            font-size: 3rem;
+            margin-bottom: 2rem;
+            font-weight: bold;
+        }
+        
+        .content-text {
+            font-size: 1.2rem;
+            max-width: 600px;
+            line-height: 1.8;
+        }
+        
+        /* Test Controls */
+        .test-controls {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .test-controls h3 {
+            margin-bottom: 15px;
+            color: #fff;
+        }
+        
+        .test-button {
+            display: block;
+            width: 100%;
+            margin: 5px 0;
+            padding: 8px 12px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.3s ease;
+        }
+        
+        .test-button:hover {
+            background: #0056b3;
+        }
+        
+        .test-button.secondary {
+            background: #6c757d;
+        }
+        
+        .test-button.secondary:hover {
+            background: #545b62;
+        }
+        
+        .test-button.success {
+            background: #28a745;
+        }
+        
+        .test-button.success:hover {
+            background: #1e7e34;
+        }
+        
+        .test-button.danger {
+            background: #dc3545;
+        }
+        
+        .test-button.danger:hover {
+            background: #c82333;
+        }
+        
+        .status-display {
+            margin-top: 15px;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 5px;
+            font-size: 12px;
+            border-left: 4px solid #007bff;
+        }
+        
+        /* Progress Indicator */
+        .progress-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            min-width: 200px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #007bff, #28a745);
+            border-radius: 4px;
+            transition: width 0.1s ease-out;
+            width: 0%;
+        }
+        
+        .progress-text {
+            font-size: 12px;
+            margin: 5px 0;
+        }
+        
+        /* Debug Console */
+        .debug-console {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.95);
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-y: auto;
+            z-index: 1002;
+            display: none;
+            backdrop-filter: blur(10px);
+        }
+        
+        .debug-console.visible {
+            display: block;
+        }
+        
+        .debug-console .log-entry {
+            margin: 2px 0;
+            padding: 2px 0;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.1);
+        }
+        
+        .debug-console .log-entry.error {
+            color: #ff4444;
+        }
+        
+        .debug-console .log-entry.warn {
+            color: #ffaa00;
+        }
+        
+        .debug-console .log-entry.info {
+            color: #44aaff;
+        }
+        
+        .debug-console .log-entry.success {
+            color: #44ff44;
+        }
+        
+        /* Instructions */
+        .instructions {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 14px;
+            z-index: 1000;
+            max-width: 300px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .instructions h4 {
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+        
+        .instructions ul {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .instructions li {
+            margin: 5px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .instructions li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #007bff;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+            }
+            
+            .content-title {
+                font-size: 2rem;
+            }
+            
+            .test-controls,
+            .progress-indicator,
+            .instructions {
+                position: relative;
+                margin: 10px;
+                max-width: none;
+            }
+            
+            .debug-console {
+                position: relative;
+                height: 150px;
+                margin: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Controls -->
+    <div class="test-controls">
+        <h3>🌟 Hero Stars Scroll Test</h3>
+        
+        <button class="test-button success" onclick="testHeroStarsScroll.enableDebug()">
+            🐛 Enable Debug
+        </button>
+        <button class="test-button danger" onclick="testHeroStarsScroll.disableDebug()">
+            🔇 Disable Debug
+        </button>
+        <button class="test-button" onclick="testHeroStarsScroll.forceUpdate()">
+            🔄 Force Update
+        </button>
+        <button class="test-button" onclick="testHeroStarsScroll.resetColors()">
+            🎨 Reset Colors
+        </button>
+        
+        <hr style="margin: 15px 0; border: none; border-top: 1px solid rgba(255,255,255,0.2);">
+        
+        <button class="test-button secondary" onclick="testHeroStarsScroll.getState()">
+            📊 Get State
+        </button>
+        <button class="test-button secondary" onclick="testHeroStarsScroll.getElements()">
+            📋 Get Elements
+        </button>
+        <button class="test-button secondary" onclick="testHeroStarsScroll.toggleDebug()">
+            🐛 Toggle Debug Console
+        </button>
+        
+        <div class="status-display" id="status-display">
+            <strong>Status:</strong> Initializing...
+        </div>
+    </div>
+    
+    <!-- Progress Indicator -->
+    <div class="progress-indicator">
+        <div class="progress-text">
+            <strong>🌟 Scroll Progress</strong>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill"></div>
+        </div>
+        <div class="progress-text" id="progress-text">
+            Linear: 0% | Mirrored: 0%
+        </div>
+    </div>
+    
+    <!-- Instructions -->
+    <div class="instructions">
+        <h4>🎯 How to Test:</h4>
+        <ul>
+            <li>Scroll down slowly</li>
+            <li>Watch colors change</li>
+            <li>Enable debug mode</li>
+            <li>Check progress indicator</li>
+            <li>Test force update</li>
+        </ul>
+    </div>
+    
+    <!-- Hero Section -->
+    <section id="hero">
+        <div class="hero-stars-animation">
+            <div class="hero-stars-layer-1"></div>
+            <div class="hero-stars-layer-2"></div>
+            <div class="hero-stars-layer-3"></div>
+        </div>
+        
+        <div class="hero-content">
+            <h1 class="hero-title">Hero Stars Scroll Demo</h1>
+            <p class="hero-subtitle">
+                Scroll down to see the magical color transformation of the starry background.
+                The colors will change from purple to vibrant rainbow and back to purple.
+            </p>
+        </div>
+        
+        <div class="scroll-indicator">
+            ↓ Scroll to see the magic ↓
+        </div>
+    </section>
+    
+    <!-- Content Section -->
+    <section class="content-section">
+        <h2 class="content-title">Color Transformation Complete!</h2>
+        <p class="content-text">
+            You've experienced the full color journey. The hero stars background 
+            transformed from the original purple theme through vibrant colors and back again.
+            This demonstrates the mirrored progress effect (0→1→0) based on scroll position.
+        </p>
+    </section>
+    
+    <!-- Debug Console -->
+    <div class="debug-console" id="debug-console">
+        <div style="color: #fff; margin-bottom: 10px; border-bottom: 2px solid #00ff00; padding-bottom: 5px;">
+            🐛 Debug Console - Hero Stars Scroll Component
+        </div>
+    </div>
+    
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    
+    <!-- Hero Stars Scroll Component -->
+    <script src="src/scripts/components/hero-stars-scroll-new.js"></script>
+    
+    <script>
+        console.log('🚀 Initializing Hero Stars Scroll Refactored Test');
+        
+        // Debug console management
+        let debugConsole = null;
+        let debugVisible = false;
+        
+        function addDebugLog(message, type = 'info') {
+            if (!debugConsole) {
+                debugConsole = document.getElementById('debug-console');
+            }
+            
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            
+            debugConsole.appendChild(logEntry);
+            debugConsole.scrollTop = debugConsole.scrollHeight;
+            
+            // Limit console entries
+            const entries = debugConsole.querySelectorAll('.log-entry');
+            if (entries.length > 100) {
+                entries[0].remove();
+            }
+        }
+        
+        // Progress indicator elements
+        const progressFill = document.getElementById('progress-fill');
+        const progressText = document.getElementById('progress-text');
+        
+        // Initialize Hero Stars Scroll Component
+        let heroStarsScroll = null;
+        
+        try {
+            heroStarsScroll = new HeroStarsScroll(document.querySelector('#hero'), {
+                debug: true,
+                enableDebug: false,
+                customLogger: (level, message, data) => {
+                    let dataStr = '';
+                    if (data) {
+                        try {
+                            dataStr = ' ' + JSON.stringify(data, (key, value) => {
+                                // Исключаем DOM элементы и функции
+                                if (value instanceof HTMLElement) {
+                                    return `[HTMLElement: ${value.tagName}#${value.id || 'no-id'}]`;
+                                }
+                                if (typeof value === 'function') {
+                                    return '[Function]';
+                                }
+                                return value;
+                            });
+                        } catch (e) {
+                            dataStr = ' [Object with circular references]';
+                        }
+                    }
+                    addDebugLog(`${message}${dataStr}`, level);
+                }
+            });
+            
+            console.log('✅ HeroStarsScroll component initialized:', heroStarsScroll.getState());
+            
+            // Update status display
+            const state = heroStarsScroll.getState();
+            document.getElementById('status-display').innerHTML = `
+                <strong>Status:</strong> ✅ Initialized<br>
+                <strong>ID:</strong> ${state.id}<br>
+                <strong>Has Stars:</strong> ${state.hasStarsElement ? 'Yes' : 'No'}<br>
+                <strong>Has Hero:</strong> ${state.hasHeroSection ? 'Yes' : 'No'}<br>
+                <strong>Debug:</strong> ${state.debugEnabled ? 'Yes' : 'No'}
+            `;
+            
+        } catch (error) {
+            console.error('❌ Failed to initialize HeroStarsScroll:', error);
+            addDebugLog(`Failed to initialize: ${error.message}`, 'error');
+            
+            document.getElementById('status-display').innerHTML = `
+                <strong>Status:</strong> ❌ Failed<br>
+                <strong>Error:</strong> ${error.message}
+            `;
+        }
+        
+        // Event Listeners
+        if (heroStarsScroll) {
+            // Colors updated
+            heroStarsScroll.on('colorsUpdated', (event) => {
+                const { progress, mirroredProgress } = event.detail;
+                
+                // Update progress indicator
+                progressFill.style.width = `${progress * 100}%`;
+                progressText.textContent = `Linear: ${(progress * 100).toFixed(1)}% | Mirrored: ${(mirroredProgress * 100).toFixed(1)}%`;
+                
+                addDebugLog(`Colors updated - Progress: ${progress.toFixed(3)}, Mirrored: ${mirroredProgress.toFixed(3)}`, 'success');
+            });
+            
+            // Scroll events
+            heroStarsScroll.on('scroll', (event) => {
+                // Throttled, so we don't log every scroll event
+            });
+            
+            heroStarsScroll.on('scrollEnd', (event) => {
+                addDebugLog(`Scroll ended at progress: ${event.detail.progress.toFixed(3)}`, 'info');
+            });
+            
+            // Resize events
+            heroStarsScroll.on('resize', (event) => {
+                addDebugLog(`Window resized, progress: ${event.detail.progress.toFixed(3)}`, 'info');
+            });
+            
+            // Debug events
+            heroStarsScroll.on('debugEnabled', () => {
+                addDebugLog('Debug mode enabled', 'success');
+            });
+            
+            heroStarsScroll.on('debugDisabled', () => {
+                addDebugLog('Debug mode disabled', 'info');
+            });
+            
+            // Force update events
+            heroStarsScroll.on('forceUpdate', (event) => {
+                addDebugLog(`Force update executed with progress: ${event.detail.progress.toFixed(3)}`, 'success');
+            });
+            
+            // Colors reset
+            heroStarsScroll.on('colorsReset', () => {
+                addDebugLog('Colors reset to original', 'success');
+                progressFill.style.width = '0%';
+                progressText.textContent = 'Linear: 0% | Mirrored: 0%';
+            });
+            
+            // Color schemes updated
+            heroStarsScroll.on('colorSchemesUpdated', (event) => {
+                addDebugLog('Color schemes updated', 'info');
+            });
+        }
+        
+        // Test Functions
+        window.testHeroStarsScroll = {
+            enableDebug: () => {
+                if (!heroStarsScroll) {
+                    console.warn('⚠️ HeroStarsScroll not initialized');
+                    return;
+                }
+                
+                heroStarsScroll.enableDebug();
+                console.log('🐛 Debug mode enabled');
+                
+                // Update status
+                const state = heroStarsScroll.getState();
+                document.getElementById('status-display').innerHTML = `
+                    <strong>Status:</strong> ✅ Active<br>
+                    <strong>Debug:</strong> ${state.debugEnabled ? 'Yes' : 'No'}<br>
+                    <strong>Progress:</strong> ${(state.currentProgress * 100).toFixed(1)}%<br>
+                    <strong>Scrolling:</strong> ${state.isScrolling ? 'Yes' : 'No'}
+                `;
+            },
+            
+            disableDebug: () => {
+                if (!heroStarsScroll) {
+                    console.warn('⚠️ HeroStarsScroll not initialized');
+                    return;
+                }
+                
+                heroStarsScroll.disableDebug();
+                console.log('🔇 Debug mode disabled');
+                
+                // Update status
+                const state = heroStarsScroll.getState();
+                document.getElementById('status-display').innerHTML = `
+                    <strong>Status:</strong> ✅ Active<br>
+                    <strong>Debug:</strong> ${state.debugEnabled ? 'Yes' : 'No'}<br>
+                    <strong>Progress:</strong> ${(state.currentProgress * 100).toFixed(1)}%<br>
+                    <strong>Scrolling:</strong> ${state.isScrolling ? 'Yes' : 'No'}
+                `;
+            },
+            
+            forceUpdate: () => {
+                if (!heroStarsScroll) {
+                    console.warn('⚠️ HeroStarsScroll not initialized');
+                    return;
+                }
+                
+                heroStarsScroll.forceUpdate();
+                console.log('🔄 Force update executed');
+            },
+            
+            resetColors: () => {
+                if (!heroStarsScroll) {
+                    console.warn('⚠️ HeroStarsScroll not initialized');
+                    return;
+                }
+                
+                heroStarsScroll.resetColors();
+                console.log('🎨 Colors reset to original');
+            },
+            
+            getState: () => {
+                if (!heroStarsScroll) {
+                    console.warn('⚠️ HeroStarsScroll not initialized');
+                    return;
+                }
+                
+                const state = heroStarsScroll.getState();
+                console.log('📊 HeroStarsScroll State:', state);
+                addDebugLog(`State: ${JSON.stringify(state, null, 2)}`, 'info');
+                return state;
+            },
+            
+            getElements: () => {
+                if (!heroStarsScroll) {
+                    console.warn('⚠️ HeroStarsScroll not initialized');
+                    return;
+                }
+                
+                const elements = heroStarsScroll.getElements();
+                console.log('📋 HeroStarsScroll Elements:', elements);
+                addDebugLog(`Elements: stars=${!!elements.starsElement}, hero=${!!elements.heroSection}`, 'info');
+                return elements;
+            },
+            
+            toggleDebug: () => {
+                debugVisible = !debugVisible;
+                const debugConsoleElement = document.getElementById('debug-console');
+                debugConsoleElement.classList.toggle('visible', debugVisible);
+                
+                if (debugVisible) {
+                    addDebugLog('Debug console opened', 'info');
+                } else {
+                    console.log('🐛 Debug console closed');
+                }
+            }
+        };
+        
+        console.log('🎮 Test functions available in window.testHeroStarsScroll');
+        console.log('📊 Use window.testHeroStarsScroll.getState() to check component state');
+        console.log('🐛 Use window.testHeroStarsScroll.enableDebug() to enable debug mode');
+        console.log('🐛 Use window.testHeroStarsScroll.toggleDebug() to show debug console');
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch (e.key) {
+                    case 'd':
+                        e.preventDefault();
+                        window.testHeroStarsScroll.toggleDebug();
+                        break;
+                    case 's':
+                        e.preventDefault();
+                        window.testHeroStarsScroll.getState();
+                        break;
+                    case 'r':
+                        e.preventDefault();
+                        window.testHeroStarsScroll.resetColors();
+                        break;
+                    case 'u':
+                        e.preventDefault();
+                        window.testHeroStarsScroll.forceUpdate();
+                        break;
+                }
+            }
+        });
+        
+        console.log('⌨️ Keyboard shortcuts: Ctrl+D (debug), Ctrl+S (state), Ctrl+R (reset), Ctrl+U (update)');
+        
+        // Smooth scroll to demonstrate effect
+        setTimeout(() => {
+            console.log('🌟 Component ready! Scroll down to see the color transformation effect.');
+            addDebugLog('Component ready! Scroll down to see the color transformation effect.', 'success');
+        }, 1000);
+    </script>
+</body>
+</html>

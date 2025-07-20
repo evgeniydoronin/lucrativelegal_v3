@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Future Marketing Refactored - Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #0a0a0a;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .test-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            z-index: 1000;
+            border-bottom: 2px solid #333;
+        }
+        
+        .test-header h1 {
+            color: #00ff88;
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .test-controls button {
+            background: #333;
+            color: white;
+            border: 1px solid #555;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        
+        .test-controls button:hover {
+            background: #555;
+        }
+        
+        .test-controls button.active {
+            background: #00ff88;
+            color: black;
+        }
+        
+        .status {
+            color: #888;
+            font-size: 0.9rem;
+        }
+        
+        /* Spacer for fixed header */
+        .header-spacer {
+            height: 120px;
+        }
+        
+        /* Debug Panel */
+        .debug-panel {
+            position: fixed;
+            top: 120px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.9);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid #333;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-width: 300px;
+            z-index: 999;
+        }
+        
+        .debug-panel h3 {
+            color: #00ff88;
+            margin-bottom: 0.5rem;
+        }
+        
+        .debug-panel .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+            color: #ccc;
+        }
+        
+        .debug-panel .metric .value {
+            color: #00ff88;
+        }
+        
+        /* Future Marketing Styles */
+        .future-marketing-section {
+            position: relative;
+            background: #0a0a0a;
+        }
+        
+        .future-cards-spacer {
+            /* Height will be set by JavaScript */
+        }
+        
+        .future-cards-viewer {
+            position: sticky;
+            top: 0;
+            width: 100%;
+            height: 100vh;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+        
+        .future-cards-track {
+            display: flex;
+            gap: 4rem;
+            padding: 0 50vw;
+            will-change: transform;
+        }
+        
+        .future-card {
+            flex-shrink: 0;
+            width: 500px;
+            height: 600px;
+            background: linear-gradient(145deg, #1e1e1e, #2a2a2a);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .future-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+        }
+        
+        .future-card-number {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        
+        .future-card-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(45deg, #00ff88, #00ccff);
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .future-card-title {
+            color: #00ff88;
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+        
+        .future-card-description {
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+        
+        .future-card-cta {
+            background: #00ff88;
+            color: black;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+        
+        .future-card-cta:hover {
+            background: #00cc6a;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 255, 136, 0.3);
+        }
+        
+        /* Progress Indicator */
+        .future-cards-progress {
+            position: absolute;
+            bottom: 2rem;
+            left: 2rem;
+            right: 2rem;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .future-cards-progress::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #00ff88, #00ccff);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+        }
+        
+        /* Card Counter */
+        .card-counter {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 1rem;
+            border-radius: 10px;
+            border: 1px solid #333;
+            font-family: monospace;
+            z-index: 10;
+        }
+        
+        .card-counter .current-card {
+            color: #00ff88;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .card-counter .total-cards {
+            color: #888;
+            font-size: 1rem;
+        }
+        
+        /* Spacer sections */
+        .spacer-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            background: #1a1a1a;
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .future-cards-track {
+                padding: 0 25vw;
+                gap: 3rem;
+            }
+            
+            .future-card {
+                width: 400px;
+                height: 500px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .future-cards-track {
+                padding: 0 25vw;
+                gap: 3rem;
+            }
+            
+            .future-card {
+                width: 320px;
+                height: 450px;
+                padding: 1.5rem;
+            }
+            
+            .future-card-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Test Header -->
+    <div class="test-header">
+        <h1>🚀 Future Marketing Component - Refactored Test</h1>
+        <div class="test-controls">
+            <button onclick="testGetCardInfo(0)">Card Info 1</button>
+            <button onclick="testGetCardInfo(3)">Card Info 4</button>
+            <button onclick="testSetProgress(0.5)">Set 50%</button>
+            <button onclick="testGetProgress()">Get Progress</button>
+            <button onclick="testRefresh()">Refresh</button>
+            <button onclick="testDestroy()">Destroy</button>
+            <button onclick="testReinit()">Re-init</button>
+            <span class="status" id="status">Initializing...</span>
+        </div>
+    </div>
+    
+    <div class="header-spacer"></div>
+    
+    <!-- Debug Panel -->
+    <div class="debug-panel" id="debugPanel">
+        <h3>📊 Debug Info</h3>
+        <div class="metric">
+            <span>Component:</span>
+            <span class="value" id="componentStatus">Loading...</span>
+        </div>
+        <div class="metric">
+            <span>Current Card:</span>
+            <span class="value" id="currentCard">-</span>
+        </div>
+        <div class="metric">
+            <span>Total Cards:</span>
+            <span class="value" id="totalCards">-</span>
+        </div>
+        <div class="metric">
+            <span>Progress:</span>
+            <span class="value" id="scrollProgress">-</span>
+        </div>
+        <div class="metric">
+            <span>Is Scrolling:</span>
+            <span class="value" id="isScrolling">-</span>
+        </div>
+        <div class="metric">
+            <span>Track Width:</span>
+            <span class="value" id="trackWidth">-</span>
+        </div>
+        <div class="metric">
+            <span>Viewport Width:</span>
+            <span class="value" id="viewportWidth">-</span>
+        </div>
+        <div class="metric">
+            <span>ScrollTriggers:</span>
+            <span class="value" id="scrollTriggers">-</span>
+        </div>
+    </div>
+    
+    <!-- Spacer Section -->
+    <div class="spacer-section">
+        <div>Scroll down to see Future Marketing ⬇️</div>
+    </div>
+    
+    <!-- Future Marketing Section -->
+    <section class="future-marketing-section" id="future-marketing">
+        <div class="future-cards-spacer">
+            <div class="future-cards-viewer">
+                <!-- Card Counter -->
+                <div class="card-counter">
+                    <div class="current-card" id="cardCounter">01</div>
+                    <div class="total-cards">/ 07</div>
+                </div>
+                
+                <div class="future-cards-track">
+                    <!-- Card 1 -->
+                    <div class="future-card">
+                        <div class="future-card-number">01</div>
+                        <div class="future-card-image">🚀</div>
+                        <h3 class="future-card-title">AI-Powered Legal Research</h3>
+                        <p class="future-card-description">Revolutionary AI technology that analyzes millions of legal documents in seconds, providing unprecedented insights for your cases.</p>
+                        <button class="future-card-cta">Learn More</button>
+                    </div>
+                    
+                    <!-- Card 2 -->
+                    <div class="future-card">
+                        <div class="future-card-number">02</div>
+                        <div class="future-card-image">⚖️</div>
+                        <h3 class="future-card-title">Smart Contract Analysis</h3>
+                        <p class="future-card-description">Automated contract review and risk assessment using advanced machine learning algorithms to protect your interests.</p>
+                        <button class="future-card-cta">Discover</button>
+                    </div>
+                    
+                    <!-- Card 3 -->
+                    <div class="future-card">
+                        <div class="future-card-number">03</div>
+                        <div class="future-card-image">📊</div>
+                        <h3 class="future-card-title">Predictive Case Analytics</h3>
+                        <p class="future-card-description">Data-driven insights that predict case outcomes with 95% accuracy, helping you make informed strategic decisions.</p>
+                        <button class="future-card-cta">Explore</button>
+                    </div>
+                    
+                    <!-- Card 4 -->
+                    <div class="future-card">
+                        <div class="future-card-number">04</div>
+                        <div class="future-card-image">🤖</div>
+                        <h3 class="future-card-title">Virtual Legal Assistant</h3>
+                        <p class="future-card-description">24/7 AI assistant that handles routine tasks, schedules, and client communications with human-like intelligence.</p>
+                        <button class="future-card-cta">Try Now</button>
+                    </div>
+                    
+                    <!-- Card 5 -->
+                    <div class="future-card">
+                        <div class="future-card-number">05</div>
+                        <div class="future-card-image">🔒</div>
+                        <h3 class="future-card-title">Blockchain Security</h3>
+                        <p class="future-card-description">Immutable document storage and verification system ensuring the highest level of security for sensitive legal data.</p>
+                        <button class="future-card-cta">Secure Now</button>
+                    </div>
+                    
+                    <!-- Card 6 -->
+                    <div class="future-card">
+                        <div class="future-card-number">06</div>
+                        <div class="future-card-image">🌐</div>
+                        <h3 class="future-card-title">Global Legal Network</h3>
+                        <p class="future-card-description">Connect with legal professionals worldwide through our advanced networking platform and collaboration tools.</p>
+                        <button class="future-card-cta">Connect</button>
+                    </div>
+                    
+                    <!-- Card 7 -->
+                    <div class="future-card">
+                        <div class="future-card-number">07</div>
+                        <div class="future-card-image">⚡</div>
+                        <h3 class="future-card-title">Instant Legal Solutions</h3>
+                        <p class="future-card-description">Lightning-fast legal document generation and processing powered by next-generation quantum computing technology.</p>
+                        <button class="future-card-cta">Get Started</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Another Spacer Section -->
+    <div class="spacer-section">
+        <div>End of Future Marketing ⬆️</div>
+    </div>
+    
+    <!-- GSAP -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <!-- Core Components -->
+    <script src="src/scripts/core/performance-config.js"></script>
+    <script src="src/scripts/core/BaseComponent.js"></script>
+    <script src="src/scripts/core/AnimatedComponent.js"></script>
+    <script src="src/scripts/core/InteractiveComponent.js"></script>
+    <script src="src/scripts/core/AnimatedInteractiveComponent.js"></script>
+    <script src="src/scripts/services/ScrollTriggerManager.js"></script>
+    <script src="src/scripts/core/AnimationService.js"></script>
+    
+    <!-- Future Marketing Component -->
+    <script src="src/scripts/components/future-marketing-new.js?v=20250120-0737"></script>
+    
+    <script>
+        // Global variables
+        let futureMarketingComponent = null;
+        let animationService = null;
+        
+        // Initialize everything
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing Future Marketing Test');
+            
+            // Initialize AnimationService
+            if (window.AnimationService) {
+                animationService = window.AnimationService.getInstance();
+                console.log('✅ AnimationService initialized');
+            }
+            
+            // Initialize Future Marketing component
+            initFutureMarketing();
+            
+            // Start debug updates
+            setInterval(updateDebugPanel, 1000);
+            
+            updateStatus('Ready');
+        });
+        
+        function initFutureMarketing() {
+            try {
+                const element = document.querySelector('#future-marketing');
+                if (element && window.FutureMarketing) {
+                    futureMarketingComponent = new FutureMarketing(element, {
+                        debug: true,
+                        onCardChange: (currentCard, previousCard, progress) => {
+                            console.log('🎯 Card changed:', { currentCard, previousCard, progress });
+                            updateCardCounter(currentCard);
+                            updateStatus(`Card ${currentCard} active`);
+                        },
+                        onProgressUpdate: (progress) => {
+                            // console.log('📊 Progress:', progress);
+                        }
+                    });
+                    
+                    // Add event listeners
+                    futureMarketingComponent.on('cardChanged', (event) => {
+                        console.log('🎯 Card changed event:', event.detail);
+                    });
+                    
+                    futureMarketingComponent.on('progressUpdated', (event) => {
+                        // console.log('📊 Progress updated:', event.detail.progress);
+                    });
+                    
+                    futureMarketingComponent.on('scrollEntered', (event) => {
+                        console.log('📜 Scroll entered');
+                        updateStatus('Scrolling started');
+                    });
+                    
+                    futureMarketingComponent.on('scrollLeft', (event) => {
+                        console.log('📜 Scroll left');
+                        updateStatus('Scrolling ended');
+                    });
+                    
+                    futureMarketingComponent.on('resized', (event) => {
+                        console.log('📐 Resized:', event.detail);
+                        updateStatus('Resized');
+                    });
+                    
+                    console.log('✅ Future Marketing component initialized');
+                    updateStatus('Initialized');
+                } else {
+                    console.error('❌ Failed to initialize Future Marketing component');
+                    updateStatus('Failed to initialize');
+                }
+            } catch (error) {
+                console.error('❌ Error initializing Future Marketing:', error);
+                updateStatus('Error: ' + error.message);
+            }
+        }
+        
+        function testGetCardInfo(index) {
+            if (futureMarketingComponent && typeof futureMarketingComponent.getCardInfo === 'function') {
+                const info = futureMarketingComponent.getCardInfo(index);
+                console.log('📋 Card info:', info);
+                updateStatus(info ? `Card ${index} info retrieved` : `Card ${index} not found`);
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testSetProgress(progress) {
+            if (futureMarketingComponent && typeof futureMarketingComponent.setProgress === 'function') {
+                futureMarketingComponent.setProgress(progress);
+                updateStatus(`Progress set to ${Math.round(progress * 100)}%`);
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testGetProgress() {
+            if (futureMarketingComponent && typeof futureMarketingComponent.getScrollProgress === 'function') {
+                const progress = futureMarketingComponent.getScrollProgress();
+                console.log('📊 Scroll progress:', progress);
+                updateStatus(`Progress: ${Math.round(progress * 100)}%`);
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testRefresh() {
+            if (futureMarketingComponent && typeof futureMarketingComponent.refreshScrollTrigger === 'function') {
+                futureMarketingComponent.refreshScrollTrigger();
+                updateStatus('ScrollTrigger refreshed');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testDestroy() {
+            if (futureMarketingComponent && typeof futureMarketingComponent.destroy === 'function') {
+                futureMarketingComponent.destroy();
+                futureMarketingComponent = null;
+                updateStatus('Component destroyed');
+            } else {
+                updateStatus('Component not available');
+            }
+        }
+        
+        function testReinit() {
+            testDestroy();
+            setTimeout(() => {
+                initFutureMarketing();
+            }, 100);
+        }
+        
+        function updateStatus(message) {
+            const statusEl = document.getElementById('status');
+            if (statusEl) {
+                statusEl.textContent = message;
+            }
+        }
+        
+        function updateCardCounter(cardNumber) {
+            const counterEl = document.getElementById('cardCounter');
+            if (counterEl) {
+                counterEl.textContent = cardNumber.toString().padStart(2, '0');
+            }
+        }
+        
+        function updateDebugPanel() {
+            if (!futureMarketingComponent) {
+                document.getElementById('componentStatus').textContent = 'Inactive';
+                document.getElementById('currentCard').textContent = '-';
+                document.getElementById('totalCards').textContent = '-';
+                document.getElementById('scrollProgress').textContent = '-';
+                document.getElementById('isScrolling').textContent = '-';
+                document.getElementById('trackWidth').textContent = '-';
+                document.getElementById('viewportWidth').textContent = '-';
+                document.getElementById('scrollTriggers').textContent = '-';
+                return;
+            }
+            
+            // Get component state
+            const state = futureMarketingComponent.getState ? futureMarketingComponent.getState() : {};
+            
+            document.getElementById('componentStatus').textContent = 'Active';
+            document.getElementById('currentCard').textContent = state.currentCard || '-';
+            document.getElementById('totalCards').textContent = state.totalCards || '-';
+            document.getElementById('scrollProgress').textContent = 
+                state.progress ? Math.round(state.progress * 100) + '%' : '0%';
+            document.getElementById('isScrolling').textContent = state.isScrolling ? 'Yes' : 'No';
+            document.getElementById('trackWidth').textContent = 
+                state.trackWidth ? Math.round(state.trackWidth) + 'px' : '-';
+            document.getElementById('viewportWidth').textContent = 
+                state.viewportWidth ? state.viewportWidth + 'px' : '-';
+            
+            // Count ScrollTriggers
+            const scrollTriggers = ScrollTrigger.getAll();
+            document.getElementById('scrollTriggers').textContent = scrollTriggers.length;
+        }
+        
+        // Performance monitoring
+        let lastTime = performance.now();
+        let frameCount = 0;
+        
+        function measureFPS() {
+            frameCount++;
+            const currentTime = performance.now();
+            
+            if (currentTime - lastTime >= 1000) {
+                const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                console.log(`📊 FPS: ${fps}`);
+                
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            requestAnimationFrame(measureFPS);
+        }
+        
+        // Start FPS monitoring
+        requestAnimationFrame(measureFPS);
+    </script>
+</body>
+</html>
